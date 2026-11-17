@@ -4,9 +4,9 @@
   --c-panel: var(--rg-panel, #13233f);
   --c-line: var(--rg-line, #2a4a7a);
   --c-text: var(--rg-text, #e8f1ff);
-  --c-dim: var(--rg-text-dim, #9fb6d9);
+  --c-dim: var(--rg-muted, #9fb6d9);
   --c-accent: var(--rg-accent, #38d3ff);
-  --c-ok: var(--rg-ok, #5be38a);
+  --c-ok: var(--rg-good, #5be38a);
   position: relative; display: flex; flex-direction: column; min-height: 100%; height: 100%;
   background: radial-gradient(ellipse at 50% 30%, #17325c 0%, var(--c-bg) 70%);
   color: var(--c-text); font-family: var(--rg-font, system-ui, "Segoe UI", sans-serif);

@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "music": {
+    "theme_main": {
+      "file": "music/theme_main.mp3",
+      "kind": "music",
+      "title": "Motyw główny AEGIS-7",
+      "loop": true,
+      "volume": 0.8,
+      "duration": 78.8,
+      "loopStart": 0.5,
+      "loopEnd": 77.3,
+      "bpm": 100
+    },
+    "story_creation": {
+      "file": "music/story_creation.mp3",
+      "kind": "music",
+      "title": "Stworzenie robota",
+      "loop": true,
+      "volume": 0.8,
+      "duration": 52.526,
+      "loopStart": 0.5,
+      "loopEnd": 51.026327,
+      "bpm": 76
+    },
+    "story_family": {
+      "file": "music/story_family.mp3",
+      "kind": "music",
+      "title": "Życie z rodziną",
+      "loop": true,
+      "volume": 0.8,
+      "duration": 47.714,
+      "loopStart": 0.5,
+      "loopEnd": 46.214286,
+      "bpm": 84
+    },
+    "story_attack": {
+      "file": "music/story_attack.mp3",
+      "kind": "music",
+      "title": "Atak",
+      "loop": true,
+      "volume": 0.8,
+      "duration": 43.143,
+      "loopStart": 0.5,
+      "loopEnd": 41.642857,
+      "bpm": 140
+    },
+    "story_crash": {
+      "file": "music/story_crash.mp3",
+      "kind": "music",
+      "title": "Rozbicie",
+      "loop": true,
+      "volume": 0.8,
+      "duration": 47.0,
+      "loopStart": 0.5,
+      "loopEnd": 45.5,
+      "bpm": 64
+    },
+    "story_hangar": {
+      "file": "music/story_hangar.mp3",
+      "kind": "music",
+      "title": "Hangar – odbudowa",
+      "loop": true,
+      "volume": 0.8,
+      "duration": 42.0,
+      "loopStart": 0.5,
+      "loopEnd": 40.5,
+      "bpm": 96
+    },
+    "mission_calm": {
+      "file": "music/mission_calm.mp3",
+      "kind": "music",
+      "title": "Misja – spokojnie",
+      "loop": true,
+      "volume": 0.6,
+      "duration": 37.556,
+      "loopStart": 0.5,
+      "loopEnd": 36.055556,
+      "bpm": 108
+    },
+    "mission_action": {
+      "file": "music/mission_action.mp3",
+      "kind": "music",
+      "title": "Misja – akcja",
+      "loop": true,
+      "volume": 0.6,
+      "duration": 32.968,
+      "loopStart": 0.5,
+      "loopEnd": 31.467732,
+      "bpm": 124
+    },
+    "reward_fanfare": {
+      "file": "music/reward_fanfare.mp3",
+      "kind": "music",
+      "title": "Nagroda",
+      "loop": false,
+      "volume": 0.9,
+      "duration": 5.605
+    },
+    "level_complete": {
+      "file": "music/level_complete.mp3",
+      "kind": "music",
+      "title": "Misja ukończona",
+      "loop": false,
+      "volume": 0.9,
+      "duration": 8.556
+    },
+    "try_again": {
+      "file": "music/try_again.mp3",
+      "kind": "music",
+      "title": "Spróbuj jeszcze raz",
+      "loop": false,
+      "volume": 0.8,
+      "duration": 4.921
+    }
+  },
+  "sfx": {
+    "click": {
+      "file": "sfx/click.mp3",
+      "kind": "sfx",
+      "title": "Kliknięcie",
+      "volume": 0.6,
+      "duration": 0.051
+    },
+    "correct": {
+      "file": "sfx/correct.mp3",
+      "kind": "sfx",
+      "title": "Dobra odpowiedź",
+      "volume": 0.8,
+      "duration": 2.789
+    },
+    "wrong": {
+      "file": "sfx/wrong.mp3",
+      "kind": "sfx",
+      "title": "Zła odpowiedź (łagodnie)",
+      "volume": 0.7,
+      "duration": 0.44
+    },
+    "star": {
+      "file": "sfx/star.mp3",
+      "kind": "sfx",
+      "title": "Gwiazdka",
+      "volume": 0.8,
+      "duration": 2.919
+    },
+    "part_attach": {
+      "file": "sfx/part_attach.mp3",
+      "kind": "sfx",
+      "title": "Montaż części",
+      "volume": 0.9,
+      "duration": 1.648
+    },
+    "power_up": {
+      "file": "sfx/power_up.mp3",
+      "kind": "sfx",
+      "title": "Zasilanie",
+      "volume": 0.8,
+      "duration": 2.98
+    },
+    "robot_beep": {
+      "file": "sfx/robot_beep.mp3",
+      "kind": "sfx",
+      "title": "AEGIS-7 piszczy",
+      "volume": 0.7,
+      "duration": 0.54
+    },
+    "whoosh": {
+      "file": "sfx/whoosh.mp3",
+      "kind": "sfx",
+      "title": "Przejście",
+      "volume": 0.6,
+      "duration": 0.581
+    },
+    "unlock": {
+      "file": "sfx/unlock.mp3",
+      "kind": "sfx",
+      "title": "Odblokowanie",
+      "volume": 0.8,
+      "duration": 2.909
+    },
+    "level_up": {
+      "file": "sfx/level_up.mp3",
+      "kind": "sfx",
+      "title": "Nowy poziom",
+      "volume": 0.9,
+      "duration": 3.499
+    },
+    "typing": {
+      "file": "sfx/typing.mp3",
+      "kind": "sfx",
+      "title": "Pisanie tekstu",
+      "volume": 0.4,
+      "duration": 0.033
+    },
+    "crash_impact": {
+      "file": "sfx/crash_impact.mp3",
+      "kind": "sfx",
+      "title": "Uderzenie statku",
+      "volume": 0.9,
+      "duration": 2.8
+    },
+    "alarm": {
+      "file": "sfx/alarm.mp3",
+      "kind": "sfx",
+      "title": "Alarm (pętla)",
+      "volume": 0.6,
+      "duration": 2.0,
+      "loop": true
+    },
+    "signal_space": {
+      "file": "sfx/signal_space.mp3",
+      "kind": "sfx",
+      "title": "Sygnał z kosmosu",
+      "volume": 0.8,
+      "duration": 2.5
+    }
+  },
+  "license": "Muzyka i efekty skomponowane i wygenerowane dla Roboguardian English Quest (tools/audio-gen). CC BY 4.0."
+}

@@ -4,7 +4,7 @@ import { say, slug } from './say.js';
 import { PARTS, partName } from './parts.js';
 
 const app = document.getElementById('app');
-const VERSION = '0.1.0';
+const VERSION = '0.2.0';
 
 /* ---------- moduły opcjonalne (wpinane, gdy inne wątki je dostarczą) ---------- */
 const NOOP_AUDIO = { init() {}, music() {}, sfx() {}, setVolume() {}, mute() {}, stop() {} };

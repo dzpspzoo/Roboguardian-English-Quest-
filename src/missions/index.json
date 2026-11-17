@@ -1,0 +1,10 @@
+[
+  { "id": "ch1-m1", "path": "src/missions/ch1-m1/mission.js" },
+  { "id": "ch1-m2", "path": "src/missions/ch1-m2/mission.js" },
+  { "id": "ch1-m3", "path": "src/missions/ch1-m3/mission.js" },
+  { "id": "ch1-m4", "path": "src/missions/ch1-m4/mission.js" },
+  { "id": "ch1-m5", "path": "src/missions/ch1-m5/mission.js" },
+  { "id": "ch1-m6", "path": "src/missions/ch1-m6/mission.js" },
+  { "id": "ch1-m7", "path": "src/missions/ch1-m7/mission.js" },
+  { "id": "ch1-m8", "path": "src/missions/ch1-m8/mission.js" }
+]

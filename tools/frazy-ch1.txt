@@ -1,0 +1,77 @@
+en|cat
+en|hat
+en|bag
+en|map
+en|man
+en|bat
+en|pan
+en|van
+en|apple
+en|can
+en|cut
+en|hot
+en|pen
+en|men
+en|bed
+en|ten
+en|red
+en|beg
+en|set
+en|bet
+en|sit
+en|ship
+en|fish
+en|six
+en|big
+en|milk
+en|pin
+en|pit
+en|bin
+en|it
+en|tin
+en|sheep
+en|seat
+en|bean
+en|eat
+en|at
+en|add
+en|sat
+en|sad
+en|bad
+en|had
+en|mat
+en|mad
+en|am
+en|Sam
+en|dish
+en|I have a cat.
+en|The man has a hat.
+en|I see a big ship.
+en|Sit on the seat.
+en|The pen is red.
+en|I have ten pins.
+en|The cat is sad.
+en|I am in bed.
+en|I am Sam.
+en|Sit down, please.
+en|This is my bag.
+en|The fish is big.
+en|Pick up the bag.
+en|Give me the pen.
+en|Open the map.
+en|Sit down.
+en|Stand up.
+en|Find the cat.
+en|Put on the hat.
+en|Stop!
+en|I am fine, thank you.
+en|Yes, I can.
+en|My name is Guardian.
+en|I am six.
+en|It is a cat.
+en|It is red.
+en|I have a hat.
+en|Yes, it is big.
+en|My name is Sam.
+en|Yes, I am ready!
+en|I see a pen.

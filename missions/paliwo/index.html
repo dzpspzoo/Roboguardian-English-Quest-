@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AEGIS-7 · Misja specjalna: Paliwo</title>
+<style>
+  :root{--bg:#070b18;--panel:rgba(10,18,40,.82);--line:#2b3d6b;--txt:#eaf2ff;--muted:#9fb3d9;--cyan:#38e1ff;--orange:#ff9a3c;--ok:#4be38a;--bad:#ff6b6b}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  button{font:inherit;cursor:pointer;border:0;border-radius:12px}
+  .screen{position:fixed;inset:0;display:none}
+  .screen.on{display:block}
+  .bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(.55)}
+  .center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:16px;text-align:center}
+  h1{margin:0;font-size:clamp(28px,5vw,56px);letter-spacing:2px;text-shadow:0 0 18px var(--cyan)}
+  .sub{color:var(--muted);font-size:clamp(16px,2.2vw,22px)}
+  .big{background:linear-gradient(180deg,#ffb35c,#ff7d1a);color:#1b0d00;font-weight:700;font-size:22px;padding:14px 34px;box-shadow:0 0 22px rgba(255,154,60,.6)}
+  .ghost{background:rgba(255,255,255,.08);color:var(--txt);padding:10px 18px;border:1px solid var(--line)}
+  .subs{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:min(900px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 20px;font-size:clamp(17px,2.2vw,24px);line-height:1.4}
+  .subs .en{color:#fff;font-weight:600}
+  .subs .pl{color:var(--muted);margin-top:6px}
+  /* game */
+  #hud{position:absolute;left:0;right:0;top:0;padding:10px 14px;display:flex;gap:12px;align-items:center;z-index:3}
+  #fuelwrap{flex:1;height:22px;background:rgba(255,255,255,.1);border:1px solid var(--line);border-radius:12px;overflow:hidden;position:relative}
+  #fuel{height:100%;width:0;background:linear-gradient(90deg,#1fb6ff,#38e1ff,#a6fbff);transition:width .6s}
+  #fueltxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+  #qbox{position:absolute;top:52px;left:50%;transform:translateX(-50%);width:min(900px,94vw);background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:12px 16px;z-index:3;display:flex;gap:14px;align-items:center}
+  #qvisual{font-size:54px;min-width:70px;text-align:center}
+  #qtext{flex:1;font-size:clamp(18px,2.4vw,26px);line-height:1.3}
+  #qtext small{display:block;color:var(--muted);font-size:.7em}
+  .snd{display:flex;flex-direction:column;gap:6px}
+  .snd button{background:rgba(56,225,255,.15);color:var(--txt);border:1px solid var(--cyan);padding:8px 12px;font-size:15px}
+  canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;touch-action:none}
+  #say{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px 16px;font-size:18px;max-width:92vw;text-align:center;opacity:0;transition:opacity .3s}
+  #say.on{opacity:1}
+  #say .pl{color:var(--muted);font-size:15px}
+  /* spelling */
+  #spell{position:absolute;inset:0;z-index:5;display:none;align-items:center;justify-content:center;background:rgba(5,8,20,.6)}
+  #spell.on{display:flex}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;width:min(760px,94vw);text-align:center}
+  #slots{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0}
+  .slot{width:46px;height:56px;border-bottom:3px solid var(--cyan);font-size:32px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .slot.gap{border:0;width:16px}
+  #tiles{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .tile{width:54px;height:58px;font-size:30px;font-weight:700;background:linear-gradient(180deg,#2a3f78,#1a2a55);color:#fff;border:1px solid #4b66ad}
+  .tile:disabled{opacity:.25}
+  .tile.shake{animation:sh .35s}
+  @keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  /* summary + parent */
+  .list{max-height:52vh;overflow:auto;text-align:left;margin:10px 0;border-top:1px solid var(--line)}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:6px 4px;border-bottom:1px solid rgba(255,255,255,.06);font-size:16px}
+  .row .k{color:var(--muted)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:13px}
+  .p0{background:#5a2330}.p1{background:#5a4a23}.p2{background:#234a5a}.p3{background:#235a37}
+  #hint{position:absolute;right:14px;bottom:14px;z-index:3;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+
+<!-- START -->
+<section id="sStart" class="screen on">
+  <div class="bg" style="background-image:url(img/start.png)"></div>
+  <div class="center">
+    <h1>AEGIS-7</h1>
+    <div class="sub">Misja specjalna: <b>Paliwo do silników rakietowych</b></div>
+    <button class="big" id="bStart">Start</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+      <button class="ghost" id="bVoice">Głos: test</button>
+      <button class="ghost" id="bParent">Panel rodzica</button>
+    </div>
+    <div class="sub" id="startInfo" style="font-size:15px"></div>
+  </div>
+</section>
+
+<!-- INTRO -->
+<section id="sIntro" class="screen">
+  <div class="bg" style="background-image:url(img/hangar.png)"></div>
+  <div class="subs"><div class="en" id="iEn" style="display:none"></div><div class="pl" id="iPl"></div>
+    <div style="margin-top:12px;display:flex;gap:10px;justify-content:flex-end">
+      <button class="ghost" id="iSkip">Pomiń</button><button class="big" id="iNext" style="font-size:18px;padding:10px 22px">Dalej ›</button>
+    </div>
+  </div>
+</section>
+
+<!-- GAME -->
+<section id="sGame" class="screen">
+  <div class="bg" style="background-image:url(img/hangar.png);filter:brightness(.35)"></div>
+  <div id="hud">
+    <button class="ghost" id="bPause" title="Pauza">❚❚</button>
+    <div id="fuelwrap"><div id="fuel"></div><div id="fueltxt">Paliwo 0%</div></div>
+    <div id="count" style="font-size:15px;color:var(--muted)"></div>
+  </div>
+  <div id="qbox">
+    <div id="qvisual"></div>
+    <div id="qtext"></div>
+    <div class="snd"><button id="bHear">🔊 Posłuchaj</button><button id="bSlow">🐢 Wolniej</button></div>
+  </div>
+  <canvas id="cv"></canvas>
+  <div id="say"><div class="en"></div><div class="pl"></div></div>
+  <div id="hint">← → strzałki lub kliknij kanister</div>
+  <div id="spell"><div class="card">
+    <div style="font-size:15px;color:var(--muted)">Napraw kod kanistra: ułóż słowo z liter</div>
+    <div id="spVis" style="font-size:60px;margin-top:6px"></div>
+    <div id="spPl" style="color:var(--muted)"></div>
+    <div id="slots"></div>
+    <div id="tiles"></div>
+    <div style="margin-top:14px;display:flex;gap:10px;justify-content:center">
+      <button class="ghost" id="spHear">🔊 Posłuchaj</button><button class="ghost" id="spSlow">🐢 Wolniej</button><button class="ghost" id="spBack">⌫ Cofnij</button>
+    </div>
+  </div></div>
+</section>
+
+<!-- SUMMARY -->
+<section id="sSum" class="screen">
+  <div class="bg" style="background-image:url(img/start.png)"></div>
+  <div class="center"><div class="card">
+    <h2 style="margin:0 0 6px">Raport AEGIS-7</h2>
+    <div id="sumEn" style="font-size:20px;font-weight:600"></div>
+    <div id="sumPl" style="color:var(--muted);margin-top:4px"></div>
+    <div class="list" id="sumList"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="big" id="bAgain">Kolejna misja</button><button class="ghost" id="bHome">Koniec na dziś</button>
+    </div>
+  </div></div>
+</section>
+
+<!-- PARENT -->
+<section id="sParent" class="screen">
+  <div class="center"><div class="card" style="width:min(900px,96vw)">
+    <h2 style="margin:0">Panel rodzica</h2>
+    <div class="sub" style="font-size:15px">Pudełka: 0 = nowe/trudne, 3 = opanowane. Słowa z niskim pudełkiem wracają częściej.</div>
+    <div id="pStats" style="margin-top:8px"></div>
+    <div class="list" id="pList"></div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <button class="ghost" id="pExport">Eksport wyników (JSON)</button>
+      <button class="ghost" id="pReset">Wyzeruj postęp</button>
+      <button class="big" id="pClose" style="font-size:18px;padding:10px 22px">Zamknij</button>
+    </div>
+  </div></div>
+</section>
+
+<script>
+"use strict";
+/* ================= CONTENT: Unit 2 (kartkówka) ================= */
+const C=(id,topic,o)=>Object.assign({id,topic},o);
+const CLOTHES=[ // emoji tylko tam, gdzie jednoznacznie pasuje; reszta jako polskie słowo
+ ['hat','','czapka'],['jacket','🧥','kurtka'],['T-shirt','👕','koszulka (T-shirt)'],['shirt','','koszula'],
+ ['shoes','👟','buty'],['trousers','👖','spodnie'],['shorts','🩳','szorty, krótkie spodenki'],['flip-flops','🩴','japonki'],
+ ['scarf','🧣','szalik'],['dress','👗','sukienka'],['boots','🥾','kozaki, wysokie buty'],['jumper','','sweter'],['skirt','','spódnica'],['tie','','krawat'],['uniform','','mundurek szkolny']];
+const WEATHER=[['sunny','☀️','słonecznie'],['rainy','🌧️','deszczowo'],['snowy','🌨️','śnieżnie, pada śnieg'],['cloudy','☁️','pochmurno'],['hot','','gorąco'],['cold','','zimno'],['windy','🌬️','wietrznie']];
+const MONTHS=[['January','styczeń'],['February','luty'],['March','marzec'],['April','kwiecień'],['May','maj'],['June','czerwiec'],['July','lipiec'],['August','sierpień'],['September','wrzesień'],['October','październik'],['November','listopad'],['December','grudzień']];
+const SUBJECTS=[['maths','matematyka'],['art','plastyka'],['science','przyroda'],['PE','WF'],['music','muzyka'],['history','historia'],['geography','geografia']];
+const ORD=[[1,'1st','first','pierwszego'],[2,'2nd','second','drugiego'],[3,'3rd','third','trzeciego'],[4,'4th','fourth','czwartego'],[5,'5th','fifth','piątego'],[9,'9th','ninth','dziewiątego'],[20,'20th','twentieth','dwudziestego'],[21,'21st','twenty-first','dwudziestego pierwszego'],[23,'23rd','twenty-third','dwudziestego trzeciego'],[31,'31st','thirty-first','trzydziestego pierwszego']];
+const TIMES=[[3,0,"three o'clock",'15:00 (trzecia)'],[8,30,'half past eight','8:30 (wpół do dziewiątej)'],[3,45,'a quarter to four','3:45 (za kwadrans czwarta)'],[3,15,'a quarter past three','3:15 (kwadrans po trzeciej)'],[3,5,'five past three','3:05 (pięć po trzeciej)'],[3,35,'twenty-five to four','3:35 (za dwadzieścia pięć czwarta)'],[10,30,'half past ten','10:30 (wpół do jedenastej)'],[10,45,'a quarter to eleven','10:45 (za kwadrans jedenasta)'],[10,15,'a quarter past ten','10:15 (kwadrans po dziesiątej)'],[2,55,'five to three','2:55 (za pięć trzecia)']];
+const POSS={my:'mój/moja',your:'twój/twoja',his:'jego (chłopca)',her:'jej (dziewczynki)',its:'jego (rzeczy, zwierzęcia)',our:'nasz/nasza',their:'ich'};
+const pick=(a,n,ex)=>{const r=a.filter(x=>!ex||!ex.includes(x));for(let i=r.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[r[i],r[j]]=[r[j],r[i]]}return r.slice(0,n)};
+
+const ITEMS=[];
+CLOTHES.forEach(([en,emo,pl])=>{
+  ITEMS.push(C('cl-'+en,'Ubrania',{vis:emo||'👕',q:emo?'What is it?':`<b>${pl}</b> po angielsku to…`,qpl:emo?`Co to jest? Złap angielską nazwę.`:'Złap kanister z angielskim słowem.',say:emo?'What is it?':'',plSay:emo?'':pl,ans:en,plMean:pl,pool:CLOTHES.map(c=>c[0]),spell:en.length<=8&&!en.includes('-'),spellPl:pl}));
+});
+WEATHER.forEach(([en,emo,pl])=>ITEMS.push(C('we-'+en,'Pogoda',{vis:emo||'🌡️',q:`What's the weather like? It's…`,qpl:`Jaka jest pogoda? Jest <b>${pl}</b>.`,say:"What's the weather like?",ans:en,plMean:pl,pool:WEATHER.map(w=>w[0]),spell:true,spellPl:pl})));
+MONTHS.forEach(([en,pl],i)=>{
+  ITEMS.push(C('mo-'+en,'Miesiące',{vis:'📅',q:`<b>${pl}</b> po angielsku to…`,qpl:'Złap angielską nazwę miesiąca.',plSay:pl,ans:en,plMean:pl,pool:MONTHS.map(m=>m[0]),spell:en.length<=8,spellPl:pl}));
+  if(i<11) ITEMS.push(C('mn-'+en,'Miesiące',{vis:'➡️',q:`What month comes after <b>${en}</b>?`,qpl:`Jaki miesiąc jest po miesiącu <b>${pl}</b>?`,say:`What month comes after ${en}?`,ans:MONTHS[i+1][0],plMean:MONTHS[i+1][1],pool:MONTHS.map(m=>m[0])}));
+});
+ORD.forEach(([n,short,word,plw])=>{
+  const mi=(n*5)%12,m=MONTHS[mi][0];
+  ITEMS.push(C('or-'+n,'Daty',{vis:'🎂',q:'Posłuchaj daty i złap właściwy zapis.',qpl:`Po polsku: ${plw} (${n}.) – miesiąc: ${MONTHS[mi][1]}`,listen:true,say:`The ${word} of ${m}`,ans:`${short} ${m}`,plMean:`${n} ${MONTHS[mi][1]}`,opts:pick(ORD,2,[ORD.find(o=>o[0]===n)]).map(o=>`${o[1]} ${m}`)}));
+});
+[
+ ['This','To jest… (blisko, jedna rzecz)','___ is a pen.','To jest długopis.'],['That','Tamto jest… (daleko, jedna rzecz)','___ is a dress.','Tamto jest sukienka.'],
+ ['These','To są… (blisko, wiele rzeczy)','___ are shoes.','To są buty.'],['Those','Tamte są… (daleko, wiele rzeczy)','___ are flip-flops.','Tamte to japonki.']
+].forEach(([a,hint,s,pl],i)=>ITEMS.push(C('tt-'+a,'this/that',{vis:i%2?'🔭':'📍',q:s.replace('___','<b>___</b>'),qpl:hint,say:s.replace('___',a),sayAfter:true,ans:a,plMean:pl,opts:['This','That','These','Those'].filter(x=>x!==a).slice(0,2)})));
+[['These ___ my green flip-flops.','are','is','To są moje zielone japonki. (wiele rzeczy → are)'],['That ___ my favourite hat.','is','are','Tamto jest moja ulubiona czapka. (jedna rzecz → is)'],['Those ___ my boots.','are','is','Tamte to moje kozaki. (wiele rzeczy → are)'],['This ___ my yellow T-shirt.','is','are','To jest moja żółta koszulka. (jedna rzecz → is)']]
+ .forEach(([s,a,b,pl],i)=>ITEMS.push(C('ia-'+i,'this/that',{vis:'🔧',q:s.replace('___','<b>___</b>'),qpl:'Jedna rzecz → is, wiele rzeczy → are',say:s.replace('___',a),sayAfter:true,ans:a,plMean:pl,opts:[b]})));
+[['This is Finn\'s present. → This is ___ present.','his','To prezent Finna (chłopiec) → jego prezent'],['This is Lily\'s present. → This is ___ present.','her','To prezent Lily (dziewczynka) → jej prezent'],['This is Chris and Sid\'s present. → This is ___ present.','their','To prezent Chrisa i Sida (dwie osoby) → ich prezent'],
+ ['I am Sid. ___ tummy is yellow and green.','My','Jestem Sid. Mój brzuszek jest żółto-zielony.'],['We are in the garden. ___ mum is here, too.','Our','Jesteśmy w ogrodzie. Nasza mama też tu jest.'],['The kids are happy. ___ friends are there.','Their','Dzieci są szczęśliwe. Ich przyjaciele tam są.'],['Look at Chris! ___ tummy is spotty.','Her','Popatrz na Chris! Jej brzuszek jest w kropki.'],['Tom\'s jacket is green. ___ favourite colour is green.','His','Kurtka Toma jest zielona. Jego ulubiony kolor to zielony.']]
+ .forEach(([s,a,pl],i)=>{const all=/^[A-Z]/.test(a)?['My','Your','His','Her','Its','Our','Their']:['my','your','his','her','its','our','their'];
+  ITEMS.push(C('po-'+i,'his/her/their',{vis:'🎁',q:s.replace('___','<b>___</b>'),qpl:pl.replace(/(mój|nasza|ich|jej|jego|Mój|Nasza|Ich|Jej|Jego)(?= )/,'<b>$1</b>'),say:s.replace('___',a).replace(' → ',' '),sayAfter:true,ans:a,plMean:POSS[a.toLowerCase()],opts:pick(all,2,[a])}))});
+[['I','my','ja → mój'],['you','your','ty → twój'],['he','his','on → jego'],['she','her','ona → jej'],['it','its','ono (rzecz) → jego'],['we','our','my → nasz'],['they','their','oni → ich']]
+ .forEach(([p,a,pl])=>ITEMS.push(C('pp-'+p,'his/her/their',{vis:'🧩',q:`<b>${p}</b> → ___`,qpl:pl,say:`${p}, ${a}`,sayAfter:true,ans:a,plMean:POSS[a],pool:['my','your','his','her','its','our','their']})));
+TIMES.forEach(([h,m,txt,pl])=>ITEMS.push(C('ti-'+h+'-'+m,'Godziny',{clock:[h,m],q:'What time is it? It\'s…',qpl:`Która godzina? ${pl}`,say:'What time is it?',ans:txt,plMean:pl,pool:TIMES.map(t=>t[2])})));
+SUBJECTS.forEach(([en,pl])=>ITEMS.push(C('su-'+en,'Przedmioty',{vis:'🎒',q:`<b>${pl}</b> po angielsku to…`,qpl:'Przedmiot szkolny',plSay:pl,ans:en,plMean:pl,pool:SUBJECTS.map(s=>s[0])})));
+[['Is your birthday in July?','Czy masz urodziny w lipcu? (masz w sierpniu)','No, it isn\'t.','Yes, it is.','Nie.'],['Is your birthday in August?','Czy masz urodziny w sierpniu? (masz w sierpniu)','Yes, it is.','No, it isn\'t.','Tak.'],
+ ['Are you ready?','Jesteś gotowy? (prawie)','Nearly.','Run!','Prawie.'],['Where is Rosie?','Gdzie jest Rosie? (na gimnastyce)','She\'s at gymnastics.','It\'s half past eight.','Jest na gimnastyce.']]
+ .forEach(([q,pl,a,b,plA],i)=>ITEMS.push(C('di-'+i,'Rozmowa',{vis:'💬',q,qpl:pl,say:q,ans:a,plMean:plA,opts:[b]})));
+
+/* ================= STATE ================= */
+const KEY='aegis-fuel-v1';
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
+S.items=S.items||{};S.log=S.log||[];S.sessions=S.sessions||0;S.fuelTotal=S.fuelTotal||0;
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const st=id=>S.items[id]||(S.items[id]={box:0,ok:0,bad:0,last:0});
+
+function chooseMission(n=10){
+  const now=Date.now(),day=864e5,wait=[0,0.5*day,2*day,6*day];
+  const due=ITEMS.filter(it=>{const s=S.items[it.id];return s&&s.last&&now-s.last>=wait[s.box]&&s.box<3});
+  const weak=ITEMS.filter(it=>{const s=S.items[it.id];return s&&s.box===0&&s.bad>0});
+  const fresh=ITEMS.filter(it=>!S.items[it.id]);
+  // mieszanka tematów, max 2 nowe z jednego tematu
+  const out=[],add=it=>{if(it&&!out.includes(it)&&out.length<n)out.push(it)};
+  pick(weak,4).forEach(add);pick(due,4).forEach(add);
+  const byTopic={};pick(fresh,fresh.length).forEach(it=>{(byTopic[it.topic]=byTopic[it.topic]||[]).push(it)});
+  let t=Object.values(byTopic),k=0;while(out.length<n&&t.some(a=>a.length)){const a=t[k++%t.length];if(a.length)add(a.shift())}
+  pick(ITEMS,ITEMS.length).forEach(add);
+  return pick(out,out.length);
+}
+
+/* ================= VOICE ================= */
+let voices=[];const loadV=()=>{voices=speechSynthesis.getVoices()};loadV();speechSynthesis.onvoiceschanged=loadV;
+function voice(lang){
+  const L=voices.filter(v=>v.lang.replace('_','-').toLowerCase().startsWith(lang));
+  const pref=lang==='en'?[/Andrew.*Natural/i,/Guy.*Natural/i,/Christopher.*Natural/i,/Davis.*Natural/i,/Brian.*Natural/i,/Natural/i,/Online/i,/Google US English/i,/en-US/i]
+                       :[/Marek.*Natural/i,/Natural/i,/Online/i,/Google/i,/pl/i];
+  for(const p of pref){const v=L.find(v=>p.test(v.name)||p.test(v.lang));if(v)return v}
+  return L[0]||null;
+}
+/* Nagrania MP3 (audio/en, audio/en-slow, audio/pl) mają pierwszeństwo; syntezator tylko awaryjnie */
+const slug=t=>{t=t.trim();let h=5381;for(let i=0;i<t.length;i++)h=((h*33)+t.charCodeAt(i))>>>0;return t.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,50)+'_'+h.toString(16)};
+let curAudio=null,curRes=null;
+function stopAll(){if(curAudio){curAudio.pause();curAudio=null}if(curRes){const r=curRes;curRes=null;r()}try{speechSynthesis.cancel()}catch(e){}}
+function playFile(text,lang,rate){return new Promise(res=>{
+  const dir=lang==='pl'?'pl':lang==='aegis'?'aegis':(rate<0.8?'en-slow':'en');const a=new Audio(`${dir==="aegis"?"../../assets/audio/":"../../assets/audio/words/"}${dir}/${slug(text)}.${dir==='aegis'?'wav':'mp3'}`);
+  stopAll();curAudio=a;curRes=()=>res(true);
+  a.onended=()=>{if(curAudio===a){curAudio=null;curRes=null}res(true)};
+  a.onerror=()=>{if(curAudio===a){curAudio=null;curRes=null}res(false)};
+  a.play().catch(()=>{if(curAudio===a){curAudio=null;curRes=null}res(false)});
+})}
+const voicesReady=new Promise(r=>{if(speechSynthesis.getVoices().length)return r();speechSynthesis.addEventListener('voiceschanged',()=>r(),{once:true});setTimeout(r,1500)});
+async function speak(text,lang='en',rate=1){if(!text)return;if(await playFile(text,lang,rate))return;if(lang==='aegis')lang='en';await voicesReady;loadV();return new Promise(res=>{
+  if(!window.speechSynthesis)return res();
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const v=voice(lang);
+  const natural=v&&/Natural|Online/i.test(v.name);
+  if(v)u.voice=v;u.lang=v?v.lang:(lang==='en'?'en-US':'pl-PL');u.rate=rate*(natural?0.95:0.85);u.pitch=1;
+  u.onend=u.onerror=()=>res();speechSynthesis.speak(u);setTimeout(res,2500+text.length*110/rate);
+})}
+
+/* ================= SCREENS ================= */
+const $=id=>document.getElementById(id);
+const show=id=>{document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id))};
+$('startInfo').textContent=S.sessions?`Rozegrane misje: ${S.sessions} · zebrane paliwo łącznie: ${S.fuelTotal}%`:'Najlepiej w przeglądarce Edge: ma najbardziej naturalne głosy.';
+$('bVoice').onclick=()=>{const v=voice('en');speak('Hello, Guardian. I am Aegis Seven.','aegis');$('startInfo').textContent='Głos EN: '+(v?v.name:'brak')+' · PL: '+((voice('pl')||{}).name||'brak')};
+
+const INTRO=[
+ ['Guardian! You are here! I am happy to see you.','Strażniku! Jesteś! Cieszę się, że cię widzę.'],
+ ['My new rocket engines are ready, but the fuel tanks are empty.','Moje nowe silniki rakietowe są gotowe, ale zbiorniki paliwa są puste.'],
+ ['Fuel cells are falling from the supply ship. Each one has an English word.','Ze statku zaopatrzenia spadają kanistry z paliwem. Na każdym jest angielskie słowo.'],
+ ['Listen to the question and catch the right fuel cell. If you are not sure, listen again. There is no hurry.','Posłuchaj pytania i złap właściwy kanister. Jeśli nie wiesz, posłuchaj jeszcze raz. Nie ma pośpiechu.'],
+];
+let introI=0;
+async function introStep(){if(introI>=INTRO.length)return startGame();const[en,pl]=INTRO[introI];$('iEn').textContent=en;$('iPl').textContent=pl;await speak(en,'aegis')}
+$('bStart').onclick=()=>{show('sIntro');introI=S.sessions?INTRO.length-1:0;introStep()};
+$('iNext').onclick=()=>{introI++;introStep()};
+$('iSkip').onclick=()=>{stopAll();startGame()};
+
+/* ================= GAME ================= */
+const ROBOT=new Image();ROBOT.src='img/aegis.png';
+const cv=$('cv'),cx=cv.getContext('2d');let W=0,H=0,DPR=1;
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cx.setTransform(DPR,0,0,DPR,0,0)}
+addEventListener('resize',resize);resize();
+let G=null;
+const PRAISE=[['Great job, Guardian!','Świetnie, Strażniku!'],['Fuel cell secured!','Kanister zabezpieczony!'],['My engines feel stronger!','Moje silniki są coraz mocniejsze!'],['Yes! That is right!','Tak! Dobrze!'],['You are a real Guardian!','Jesteś prawdziwym Strażnikiem!']];
+function sayBox(en,pl,ms=2600){const b=$('say');b.querySelector('.en').textContent=en;b.querySelector('.pl').textContent=pl||'';b.classList.add('on');clearTimeout(sayBox.t);sayBox.t=setTimeout(()=>b.classList.remove('on'),ms)}
+
+function startGame(){
+  stopAll();show('sGame');resize();
+  G={queue:chooseMission(10),i:0,fuel:0,results:[],robotX:W/2,targetX:W/2,cans:[],paused:false,parts:[],wrong:0,lock:false,keys:{}};
+  nextQ();last=performance.now();requestAnimationFrame(loop);
+}
+function optionsFor(it){
+  const s=S.items[it.id],n=(!s||s.box===0)?1:2; // nowe i trudne słowa: tylko 2 kanistry
+  const o=it.opts?it.opts.slice(0,n):pick(it.pool,n,[it.ans]);
+  return pick([it.ans,...o],3);
+}
+function clockSVG(h,m){const a=(m/60)*360,b=((h%12)+m/60)*30;
+  const hand=(ang,len,w,c)=>{const r=(ang-90)*Math.PI/180;return `<line x1="50" y1="50" x2="${50+len*Math.cos(r)}" y2="${50+len*Math.sin(r)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`};
+  let t='';for(let i=1;i<=12;i++){const r=(i*30-90)*Math.PI/180;t+=`<text x="${50+38*Math.cos(r)}" y="${54+38*Math.sin(r)}" font-size="11" text-anchor="middle" fill="#cfe">${i}</text>`}
+  return `<svg width="86" height="86" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#0d1a33" stroke="#38e1ff" stroke-width="3"/>${t}${hand(b,24,5,'#ff9a3c')}${hand(a,36,3,'#fff')}<circle cx="50" cy="50" r="3" fill="#fff"/></svg>`}
+function setQ(it){
+  $('qvisual').innerHTML=it.clock?clockSVG(...it.clock):(it.vis||'');
+  $('qtext').innerHTML=it.q+(it.qpl?`<small>${it.qpl}</small>`:'');
+}
+function playQ(rate=1){const it=G.item;
+  if(it.listen||(!it.sayAfter&&it.say))return speak(it.say,'en',rate);
+  if(it.plSay)return speak(it.plSay,'pl',rate);
+  return Promise.resolve();
+}
+function nextQ(){
+  if(G.i>=G.queue.length)return endMission();
+  const it=G.item=G.queue[G.i];G.wrong=0;G.lock=false;updFuel();
+  const s=st(it.id);
+  // pisanie z liter dla słów, które już raz zaliczył
+  if(it.spell&&s.ok>0&&Math.random()<0.6){G.mode='spell';return startSpell(it)}
+  G.mode='catch';setQ(it);spawn();playQ();
+}
+function spawn(){
+  const ops=optionsFor(G.item);const lanes=[0.2,0.5,0.8];
+  G.cans=ops.map((t,k)=>({t,x:W*(ops.length===2?[0.3,0.7]:lanes)[k],y:170-k*90,vy:20+Math.random()*4,ok:t===G.item.ans,dead:false,glow:false}));
+}
+function catchCan(c){
+  if(G.lock||c.dead)return;const it=G.item,s=st(it.id);
+  if(c.ok){
+    G.lock=true;burst(c.x,c.y,'#38e1ff');c.dead=true;
+    const first=G.wrong===0;s.last=Date.now();
+    if(first){s.ok++;s.box=Math.min(3,s.box+1)}else{s.bad++;s.box=0}
+    G.results.push({id:it.id,ans:it.ans,first,mode:'catch'});
+    S.log.push({t:new Date().toISOString(),id:it.id,mode:'catch',ok:first,tries:G.wrong+1});save();
+    G.fuel=Math.min(100,G.fuel+10);updFuel();
+    const p=PRAISE[Math.random()*PRAISE.length|0];sayBox(it.ans+(it.plMean?'  =  '+it.plMean:''),p[1],4500);
+    // AEGIS powtarza poprawną odpowiedź – kolejne osłuchanie
+    const full=it.sayAfter?it.say:it.ans;
+    speak(full,'en').then(()=>speak(p[0],'aegis')).then(()=>{G.i++;nextQ()});
+  }else{
+    G.wrong++;c.dead=true;burst(c.x,c.y,'#ff6b6b');
+    if(G.wrong===1){sayBox('Hmm, not this one. Listen again.','Hmm, nie ten. Posłuchaj jeszcze raz.');speak('Hmm, not this one. Listen again.','aegis').then(()=>playQ(0.8))}
+    else{G.cans.forEach(k=>k.glow=k.ok);sayBox('Look! This one glows.','Zobacz, ten świeci.');speak('Look! This one glows.','aegis')}
+    if(!G.queue.slice(G.i+1).includes(G.item))G.queue.splice(Math.min(G.queue.length,G.i+3),0,G.item); // wróci za chwilę
+  }
+}
+function updFuel(){$('fuel').style.width=G.fuel+'%';$('fueltxt').textContent='Paliwo '+G.fuel+'%';$('count').textContent=`${Math.min(G.i+1,G.queue.length)} / ${G.queue.length}`}
+function burst(x,y,col){for(let i=0;i<22;i++){const a=Math.random()*6.28,v=60+Math.random()*160;G.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.8,col})}}
+
+let last=0;
+function loop(t){
+  if(!$('sGame').classList.contains('on'))return;
+  const dt=Math.min(.05,(t-last)/1000);last=t;
+  if(!G.paused&&G.mode==='catch')update(dt);
+  draw();requestAnimationFrame(loop);
+}
+function update(dt){
+  const sp=520;if(G.keys.ArrowLeft||G.keys.a)G.targetX-=sp*dt;if(G.keys.ArrowRight||G.keys.d)G.targetX+=sp*dt;
+  G.targetX=Math.max(60,Math.min(W-60,G.targetX));G.robotX+=(G.targetX-G.robotX)*Math.min(1,dt*10);
+  const ry=H-Math.min(260,H*0.36)+20;
+  for(const c of G.cans){if(c.dead)continue;c.y+=c.vy*dt;
+    if(c.y>ry-30&&c.y<ry+40&&Math.abs(c.x-G.robotX)<Math.max(80,(c.w||150)/2))catchCan(c);
+    if(c.y>H+40){c.y=150;} // bez kar: kanister wraca na górę
+  }
+  for(const p of G.parts){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=200*dt;p.life-=dt}
+  G.parts=G.parts.filter(p=>p.life>0);
+}
+function rr(x,y,w,h,r){cx.beginPath();cx.roundRect?cx.roundRect(x,y,w,h,r):cx.rect(x,y,w,h)}
+function draw(){
+  cx.clearRect(0,0,W,H);if(!G)return;
+  // kanistry z paliwem (metalowe butle z oknem paliwa i tabliczką ze słowem)
+  cx.font='bold 24px Segoe UI, sans-serif';
+  for(const c of G.cans){if(c.dead)continue;
+    const tw=cx.measureText(c.t).width,bw=Math.max(150,tw+90),bh=70;c.w=bw;
+    cx.save();cx.translate(c.x,c.y);
+    if(c.glow){cx.shadowColor='#4be38a';cx.shadowBlur=40}
+    // korpus: metal z odblaskiem
+    let g=cx.createLinearGradient(0,-bh/2,0,bh/2);
+    g.addColorStop(0,'#5d6b7e');g.addColorStop(.18,'#e8eef5');g.addColorStop(.45,'#9aa8b8');g.addColorStop(.8,'#4a5566');g.addColorStop(1,'#2b333f');
+    rr(-bw/2,-bh/2,bw,bh,bh/2.3);cx.fillStyle=g;cx.fill();cx.shadowBlur=0;
+    cx.lineWidth=2;cx.strokeStyle='#1d232c';cx.stroke();
+    // pomarańczowe końcówki
+    let go=cx.createLinearGradient(0,-bh/2,0,bh/2);go.addColorStop(0,'#a8501a');go.addColorStop(.25,'#ffb067');go.addColorStop(.7,'#d0661f');go.addColorStop(1,'#6b300c');
+    cx.fillStyle=go;rr(-bw/2,-bh/2,26,bh,12);cx.fill();rr(bw/2-26,-bh/2,26,bh,12);cx.fill();
+    // zawór
+    cx.fillStyle='#39424f';rr(bw/2-4,-10,14,20,3);cx.fill();cx.fillStyle='#c9d3de';rr(bw/2+8,-6,6,12,2);cx.fill();
+    // okno z paliwem (świeci)
+    let gf=cx.createLinearGradient(0,bh/2-16,0,bh/2-6);gf.addColorStop(0,'#a6fbff');gf.addColorStop(1,'#1fb6ff');
+    cx.fillStyle=c.glow?'#4be38a':gf;cx.shadowColor=c.glow?'#4be38a':'#38e1ff';cx.shadowBlur=12;rr(-bw/2+30,bh/2-17,bw-60,9,4);cx.fill();cx.shadowBlur=0;
+    // tabliczka ze słowem
+    cx.fillStyle='rgba(8,14,30,.92)';rr(-tw/2-14,-bh/2+9,tw+28,36,8);cx.fill();cx.strokeStyle=c.glow?'#4be38a':'#38e1ff';cx.lineWidth=1.5;cx.stroke();
+    cx.fillStyle='#fff';cx.textAlign='center';cx.textBaseline='middle';cx.fillText(c.t,0,-bh/2+28);
+    cx.restore();
+  }
+  // AEGIS-7 (wycięty z renderu)
+  const x=G.robotX,y=H;const rh=Math.min(260,H*0.36),rw=rh*(ROBOT.naturalWidth/ROBOT.naturalHeight||0.84);
+  cx.save();
+  cx.fillStyle='rgba(56,225,255,.22)';cx.beginPath();cx.ellipse(x,y-14,rw*0.55,14,0,0,6.28);cx.fill();
+  if(G.fuel>0){const fl=10+G.fuel*0.5;let gj=cx.createLinearGradient(0,y-rh*0.55,0,y-rh*0.55+fl);gj.addColorStop(0,'rgba(166,251,255,.9)');gj.addColorStop(1,'rgba(31,182,255,0)');
+    cx.fillStyle=gj;cx.beginPath();cx.ellipse(x+rw*0.12,y-rh*0.5+fl/2,8,fl/2,0,0,6.28);cx.fill()}
+  if(ROBOT.complete&&ROBOT.naturalWidth)cx.drawImage(ROBOT,x-rw/2,y-rh-8,rw,rh);
+  cx.restore();  for(const p of G.parts){cx.globalAlpha=Math.max(0,p.life/.8);cx.fillStyle=p.col;cx.fillRect(p.x-3,p.y-3,6,6)}cx.globalAlpha=1;
+  if(G.paused){cx.fillStyle='rgba(0,0,0,.5)';cx.fillRect(0,0,W,H);cx.fillStyle='#fff';cx.font='bold 40px Segoe UI';cx.textAlign='center';cx.fillText('Pauza',W/2,H/2)}
+}
+addEventListener('keydown',e=>{if(!G)return;G.keys[e.key]=true;if(e.key===' '){G.paused=!G.paused}});
+addEventListener('keyup',e=>{if(G)G.keys[e.key]=false});
+cv.addEventListener('pointerdown',e=>{if(!G||G.mode!=='catch'||G.paused)return;
+  const hit=G.cans.find(c=>!c.dead&&Math.abs(e.clientX-c.x)<(c.w||130)/2+10&&Math.abs(e.clientY-c.y)<50);
+  if(hit){G.targetX=hit.x;catchCan(hit)}else G.targetX=e.clientX});
+cv.addEventListener('pointermove',e=>{if(G&&e.buttons)G.targetX=e.clientX});
+$('bPause').onclick=()=>{G.paused=!G.paused};
+$('bHear').onclick=()=>{const it=G.item;(it.listen||it.say||it.plSay)?playQ(1):speak(it.ans,'en')};
+$('bSlow').onclick=()=>{const it=G.item;(it.listen||it.say||it.plSay)?playQ(0.55):speak(it.ans,'en',0.55)};
+
+/* ================= SPELLING ================= */
+let SP=null;
+function startSpell(it){
+  setQ({q:'Kod kanistra',vis:'🔐'});
+  const word=it.ans;SP={it,word,pos:0,errors:0,stack:[]};
+  $('spVis').textContent=it.vis||'🔤';$('spPl').textContent=it.spellPl||'';
+  const slots=$('slots');slots.innerHTML='';
+  [...word].forEach(ch=>{const d=document.createElement('div');d.className='slot'+(ch===' '?' gap':'');slots.appendChild(d)});
+  const letters=[...word.replace(/ /g,'')];const tiles=$('tiles');tiles.innerHTML='';
+  pick(letters,letters.length).forEach(ch=>{const b=document.createElement('button');b.className='tile';b.textContent=ch;b.onclick=()=>tile(b);tiles.appendChild(b)});
+  $('spell').classList.add('on');speak(word,'en',0.8);
+}
+function tile(b){
+  const w=SP.word;while(w[SP.pos]===' ')SP.pos++;
+  if(b.textContent===w[SP.pos]){b.disabled=true;SP.stack.push(b);$('slots').children[SP.pos].textContent=b.textContent;SP.pos++;
+    while(w[SP.pos]===' ')SP.pos++;
+    if(SP.pos>=w.length)spellDone();
+  }else{SP.errors++;b.classList.remove('shake');void b.offsetWidth;b.classList.add('shake');
+    if(SP.errors===2)speak(w,'en',0.55);
+    if(SP.errors>=3){const nxt=[...$('tiles').children].find(t=>!t.disabled&&t.textContent===w[SP.pos]);if(nxt){nxt.style.outline='3px solid #4be38a'}}
+  }
+}
+$('spBack').onclick=()=>{if(!SP||!SP.stack.length)return;const b=SP.stack.pop();b.disabled=false;SP.pos--;while(SP.word[SP.pos]===' '&&SP.pos>0)SP.pos--;$('slots').children[SP.pos].textContent=''};
+$('spHear').onclick=()=>speak(SP.word,'en');$('spSlow').onclick=()=>speak(SP.word,'en',0.5);
+function spellDone(){
+  const it=SP.it,s=st(it.id),ok=SP.errors===0;s.last=Date.now();if(ok){s.ok++;s.box=Math.min(3,s.box+1)}else{s.bad++;s.box=Math.max(0,s.box-1)}
+  G.results.push({id:it.id,ans:it.ans,first:ok,mode:'spell'});S.log.push({t:new Date().toISOString(),id:it.id,mode:'spell',ok,errors:SP.errors});save();
+  G.fuel=Math.min(100,G.fuel+10);updFuel();
+  sayBox(ok?'Code accepted! Perfect!':'Code accepted!',ok?'Kod przyjęty! Bezbłędnie!':'Kod przyjęty!');
+  speak(it.ans,'en').then(()=>speak(ok?'Code accepted! Perfect!':'Code accepted!','aegis')).then(()=>{$('spell').classList.remove('on');G.i++;nextQ()});
+}
+
+/* ================= SUMMARY ================= */
+function endMission(){
+  S.sessions++;S.fuelTotal+=G.fuel;save();
+  const good=G.results.filter(r=>r.first),hard=[...new Set(G.results.filter(r=>!r.first).map(r=>r.ans))];
+  const en=hard.length?`Mission complete! Fuel ${G.fuel}%. Next time we will practise: ${hard.slice(0,3).join(', ')}.`:`Mission complete! Fuel ${G.fuel}%. Perfect flight, Guardian!`;
+  const pl=hard.length?`Misja ukończona! Paliwo ${G.fuel}%. Następnym razem poćwiczymy: ${hard.slice(0,3).join(', ')}.`:`Misja ukończona! Paliwo ${G.fuel}%. Idealny lot, Strażniku!`;
+  $('sumEn').textContent=en;$('sumPl').textContent=pl;
+  $('sumList').innerHTML=G.results.map(r=>`<div class="row"><span>${r.ans}</span><span class="k">${r.mode==='spell'?'litery':'kanister'} · ${r.first?'✔ za pierwszym razem':'↻ wróci w kolejnej misji'}</span></div>`).join('');
+  show('sSum');(async()=>{await speak('Mission complete! Great work, Guardian.','aegis');if(hard.length){await speak('Next time we will practise these words.','aegis');for(const w of hard.slice(0,3))await speak(w,'en')}})();
+}
+$('bAgain').onclick=()=>startGame();
+$('bHome').onclick=()=>{stopAll();show('sStart');$('startInfo').textContent=`Rozegrane misje: ${S.sessions} · zebrane paliwo łącznie: ${S.fuelTotal}%. Do jutra, Strażniku!`};
+
+/* lista wszystkich nagrań do wygenerowania (używana przez skrypt nagrań) */
+function allPhrases(){const en=new Set(),pl=new Set();
+  ITEMS.forEach(i=>{if(i.say)en.add(i.say);en.add(i.ans);if(i.plSay)pl.add(i.plSay)});
+  PRAISE.forEach(p=>en.add(p[0]));INTRO.forEach(p=>en.add(p[0]));
+  ['Mission complete! Great work, Guardian.','Next time we will practise these words.','Hello, Guardian. I am Aegis Seven.'].forEach(t=>en.add(t));
+  const L=(s,lang,slow)=>[...s].map(t=>({t,lang,slow,f:`${lang==='pl'?'pl':slow?'en-slow':'en'}/${slug(t)}.mp3`}));
+  return [...L(en,'en',false),...L(en,'en',true),...L(pl,'pl',false)];
+}
+/* ================= PARENT ================= */
+function renderParent(){
+  const seen=ITEMS.filter(i=>S.items[i.id]);const m=ITEMS.filter(i=>(S.items[i.id]||{}).box===3);
+  $('pStats').innerHTML=`Misje: <b>${S.sessions}</b> · Pozycje poznane: <b>${seen.length}/${ITEMS.length}</b> · Opanowane: <b>${m.length}</b> · Prób: <b>${S.log.length}</b>`;
+  const topics=[...new Set(ITEMS.map(i=>i.topic))];
+  $('pList').innerHTML=topics.map(t=>`<div class="row" style="background:rgba(56,225,255,.08)"><b>${t}</b><span></span></div>`+ITEMS.filter(i=>i.topic===t).map(i=>{const s=S.items[i.id];
+    return `<div class="row"><span>${i.ans}</span><span class="k">${s?`<span class="pill p${s.box}">pudełko ${s.box}</span> ✔${s.ok} ✘${s.bad}`:'jeszcze nie było'}</span></div>`}).join('')).join('');
+}
+$('bParent').onclick=()=>{renderParent();show('sParent')};
+$('pClose').onclick=()=>show('sStart');
+$('pExport').onclick=()=>{const b=new Blob([JSON.stringify({exported:new Date().toISOString(),...S},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='aegis-paliwo-wyniki.json';a.click()};
+$('pReset').onclick=()=>{if(confirm('Na pewno wyzerować cały postęp?')){S={items:{},log:[],sessions:0,fuelTotal:0};save();renderParent()}};
+</script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+en|What is it?
+en|hat
+en|jacket
+en|T-shirt
+en|shirt
+en|shoes
+en|trousers
+en|shorts
+en|flip-flops
+en|scarf
+en|dress
+en|boots
+en|jumper
+en|skirt
+en|tie
+en|uniform
+en|What's the weather like?
+en|sunny
+en|rainy
+en|snowy
+en|cloudy
+en|hot
+en|cold
+en|windy
+en|January
+en|What month comes after January?
+en|February
+en|What month comes after February?
+en|March
+en|What month comes after March?
+en|April
+en|What month comes after April?
+en|May
+en|What month comes after May?
+en|June
+en|What month comes after June?
+en|July
+en|What month comes after July?
+en|August
+en|What month comes after August?
+en|September
+en|What month comes after September?
+en|October
+en|What month comes after October?
+en|November
+en|What month comes after November?
+en|December
+en|The first of June
+en|1st June
+en|The second of November
+en|2nd November
+en|The third of April
+en|3rd April
+en|The fourth of September
+en|4th September
+en|The fifth of February
+en|5th February
+en|The ninth of October
+en|9th October
+en|The twentieth of May
+en|20th May
+en|The twenty-first of October
+en|21st October
+en|The twenty-third of August
+en|23rd August
+en|The thirty-first of December
+en|31st December
+en|This is a pen.
+en|This
+en|That is a dress.
+en|That
+en|These are shoes.
+en|These
+en|Those are flip-flops.
+en|Those
+en|These are my green flip-flops.
+en|are
+en|That is my favourite hat.
+en|is
+en|Those are my boots.
+en|This is my yellow T-shirt.
+en|This is Finn's present. This is his present.
+en|his
+en|This is Lily's present. This is her present.
+en|her
+en|This is Chris and Sid's present. This is their present.
+en|their
+en|I am Sid. My tummy is yellow and green.
+en|My
+en|We are in the garden. Our mum is here, too.
+en|Our
+en|The kids are happy. Their friends are there.
+en|Their
+en|Look at Chris! Her tummy is spotty.
+en|Her
+en|Tom's jacket is green. His favourite colour is green.
+en|His
+en|I, my
+en|my
+en|you, your
+en|your
+en|he, his
+en|she, her
+en|it, its
+en|its
+en|we, our
+en|our
+en|they, their
+en|What time is it?
+en|three o'clock
+en|half past eight
+en|a quarter to four
+en|a quarter past three
+en|five past three
+en|twenty-five to four
+en|half past ten
+en|a quarter to eleven
+en|a quarter past ten
+en|five to three
+en|maths
+en|art
+en|science
+en|PE
+en|music
+en|history
+en|geography
+en|Is your birthday in July?
+en|No, it isn't.
+en|Is your birthday in August?
+en|Yes, it is.
+en|Are you ready?
+en|Nearly.
+en|Where is Rosie?
+en|She's at gymnastics.
+en|Great job, Guardian!
+en|Fuel cell secured!
+en|My engines feel stronger!
+en|Yes! That is right!
+en|You are a real Guardian!
+en|Guardian! You are here! I am happy to see you.
+en|My new rocket engines are ready, but the fuel tanks are empty.
+en|Fuel cells are falling from the supply ship. Each one has an English word.
+en|Listen to the question and catch the right fuel cell. If you are not sure, listen again. There is no hurry.
+en|Mission complete! Great work, Guardian.
+en|Next time we will practise these words.
+en|Hello, Guardian. I am Aegis Seven.
+pl|spódnica
+pl|krawat
+pl|mundurek
+pl|styczeń
+pl|luty
+pl|marzec
+pl|kwiecień
+pl|maj
+pl|czerwiec
+pl|lipiec
+pl|sierpień
+pl|wrzesień
+pl|październik
+pl|listopad
+pl|grudzień
+pl|matematyka
+pl|plastyka
+pl|przyroda
+pl|WF
+pl|muzyka
+pl|historia
+pl|geografia
+pl|czapka
+pl|koszula
+pl|sweter
+pl|mundurek szkolny

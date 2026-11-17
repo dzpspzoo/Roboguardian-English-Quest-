@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Historia AEGIS-7 – podgląd</title>
+<style>
+body{margin:0;background:#05070d;color:#fff;font-family:'Segoe UI',system-ui,sans-serif;display:flex;min-height:100vh;align-items:center;justify-content:center}
+button{font:inherit;font-size:22px;font-weight:700;padding:16px 32px;border-radius:14px;border:0;background:#f08a24;color:#16213a;cursor:pointer}
+p{opacity:.7;text-align:center}
+</style>
+</head>
+<body>
+<main><p>Podgląd historii początkowej (10 scen, ok. 3 minuty)</p><p><button id="go">▶ Nowa gra</button></p></main>
+<script type="module">
+import { playStory } from './player.js';
+const base = '../../';
+document.getElementById('go').onclick = async () => {
+  const data = await (await fetch('intro.json')).json();
+  playStory(document.body, data, { basePath: base, onEnd: r => { document.querySelector('main p').textContent = r.skipped ? 'Historia pominięta.' : 'Koniec historii. Tu zaczyna się kalibracja.'; } });
+};
+</script>
+</body>
+</html>

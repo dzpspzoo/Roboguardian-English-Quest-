@@ -38,7 +38,9 @@ function on(el, sel, fn) { el.querySelectorAll(sel).forEach(b => b.addEventListe
 
 // AEGIS-7 mówi: najpierw nagranie robota (assets/audio/aegis/<slug>.wav|mp3), potem zwykły głos.
 function aegisSay(text) {
-  return new Promise(res => {
+  try { RGAudio.duck && RGAudio.duck(true); } catch (e) {}
+  return new Promise(res0 => {
+    const res = v => { try { RGAudio.duck && RGAudio.duck(false); } catch (e) {} res0(v); };
     const tryFile = (exts) => {
       if (!exts.length) { say(text).then(res); return; }
       const a = new Audio(`assets/audio/aegis/${slug(text)}.${exts[0]}`);
@@ -134,6 +136,7 @@ function loadScreen() {
 /* ---------- kolejność: historia → test → hangar ---------- */
 function routeForProfile() {
   const p = store.getProfile(); if (!p) return titleScreen();
+  try { RGAudio.setVolume('music', p.settings.musicVol); RGAudio.setVolume('sfx', p.settings.sfxVol); } catch (e) {}
   if (!p.progress.storySeen) return storyScreen();
   if (!p.progress.calibrationDone) return calibrationScreen();
   hangarScreen();

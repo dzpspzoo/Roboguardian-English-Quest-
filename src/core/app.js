@@ -275,7 +275,8 @@ function missionScreen(m) {
     aegisSay,
     audio: RGAudio,
     assistant: window.RGAssistant || null,
-    base: `src/missions/${m.id}/`,
+    base: "", // prefiks ścieżek od katalogu gry (index.html); folder misji: missionDir
+    missionDir: `src/missions/${m.id}/`,
     done: (res = {}) => { if (finished) return; finished = true; rewardScreen(m, res); },
     exit: () => hangarScreen(),
   };

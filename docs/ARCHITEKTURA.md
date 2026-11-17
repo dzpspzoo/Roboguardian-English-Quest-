@@ -52,7 +52,7 @@ Asystent eksportuje z `src/assistant/assistant.js` i dodatkowo ustawia `window.R
   ```js
   export const meta = { id, title, titleEn, chapter: 1, part: 'arm_left', skills: ['phoneme.ae'], minutes: 6 };
   export function mount(root, ctx) { … return () => {/* sprzątanie */}; }
-  // ctx = { profile, record, done({ stars, partEarned, summary }), say(text,{slow}), audio: RGAudio, assistant: RGAssistant, base }
+  // ctx = { profile, record, done({ stars, partEarned, summary }), say(text,{slow}), audio: RGAudio, assistant: RGAssistant, base: "" = katalog gry, missionDir: "src/missions/<id>/" }
   ```
   Rejestracja: dopisz misję w `src/missions/index.json` (`[{ id, path }]`). Rdzeń pokazuje montaż części i podsumowanie AEGIS-7 po `done`.
 - **Audio**: `src/audio/audio.js` eksportuje `RGAudio` i ustawia `window.RGAudio`. `RGAudio.init()` woła rdzeń przy pierwszym kliknięciu.

@@ -9,12 +9,15 @@ const VERSION = '0.1.0';
 /* ---------- moduły opcjonalne (wpinane, gdy inne wątki je dostarczą) ---------- */
 const NOOP_AUDIO = { init() {}, music() {}, sfx() {}, setVolume() {}, mute() {}, stop() {} };
 let RGAudio = NOOP_AUDIO;
+let renderParentPanel = null;
 async function optionalImport(path) { try { return await import(path); } catch (e) { return null; } }
 const ready = (async () => {
   const a = await optionalImport('../audio/audio.js');
   RGAudio = (a && (a.RGAudio || a.default)) || window.RGAudio || NOOP_AUDIO;
   const s = await optionalImport('../assistant/assistant.js');
   if (s && (s.RGAssistant || s.default) && !window.RGAssistant) window.RGAssistant = s.RGAssistant || s.default;
+  const pm = await optionalImport('../assistant/panel.js');
+  if (pm && pm.renderParentPanel) renderParentPanel = pm.renderParentPanel;
 })();
 const sfx = id => { try { RGAudio.sfx(id); } catch (e) {} };
 const music = id => { try { RGAudio.music(id); } catch (e) {} };
@@ -359,13 +362,13 @@ function parentScreen() {
     const log = (p.assistant && p.assistant.log) || [];
     const ok = log.filter(e => e.ok).length;
     let report = '';
-    if (A && A.report) { try { report = A.report(p); } catch (e) { report = ''; } }
+    if (!renderParentPanel && A && A.report) { try { report = A.report(p); } catch (e) { report = ''; } }
     return `<div class="panel col">
       <div class="row"><span style="font-size:32px">${esc(p.avatar)}</span><h3 class="grow">${esc(p.name)}</h3>
         <button class="btn small" data-del="${p.id}">Usuń</button></div>
       <p>Części robota: <b>${p.progress.parts.length}/${PARTS.length}</b> · historia: ${p.progress.storySeen ? 'obejrzana' : 'nie'} · test startowy: ${p.progress.calibrationDone ? 'zrobiony' : 'nie'}</p>
       <p>Odpowiedzi w grze: <b>${log.length}</b>${log.length ? `, poprawnych ${Math.round(100 * ok / log.length)}%` : ''}</p>
-      ${report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
+      ${renderParentPanel ? `<div data-panel="${p.id}"></div>` : report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
     </div>`;
   }).join('');
   const el = show(h(`
@@ -382,6 +385,7 @@ function parentScreen() {
       </div>
     </div>
   </section>`));
+  el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
   on(el, '[data-a=back]', titleScreen);
   on(el, '[data-del]', (e, b) => { if (confirm('Usunąć tego gracza i jego wyniki?')) { store.deleteProfile(b.dataset.del); parentScreen(); } });
   on(el, '[data-a=export]', () => {

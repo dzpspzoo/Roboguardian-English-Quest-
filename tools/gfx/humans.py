@@ -214,7 +214,7 @@ def hair_mom(cx, cy, r):
 def hair_dad(cx, cy, r):
     back = ""
     front = part(f"M {cx - r*1.02:g} {cy - r*.05:g} C {cx - r*1.1:g} {cy - r*1.3:g}, {cx + r*1.1:g} {cy - r*1.3:g}, {cx + r*1.02:g} {cy - r*.05:g} "
-                 f"C {cx + r*.85:g} {cy - r*.55:g}, {cx + r*.5:g} {cy - r*.62:g}, {cx:g} {cy - r*.6:g} C {cx - r*.5:g} {cy - r*.62:g}, {cx - r*.85:g} {cy - r*.55:g}, {cx - r*1.02:g} {cy - r*.05:g} Z", "#2a201b", "#16110e")
+                 f"C {cx + r*.85:g} {cy - r*.55:g}, {cx + r*.5:g} {cy - r*.62:g}, {cx:g} {cy - r*.6:g} C {cx - r*.5:g} {cy - r*.62:g}, {cx - r*.85:g} {cy - r*.55:g}, {cx - r*1.02:g} {cy - r*.05:g} Z", "#a07a45", "#6e5230")
     # gogle na czole
     front += part(f"M {cx - r*.95:g} {cy - r*.62:g} L {cx + r*.95:g} {cy - r*.62:g} L {cx + r*.95:g} {cy - r*.42:g} L {cx - r*.95:g} {cy - r*.42:g} Z", ORANGE, ORANGE_D, sw=4, k=2)
     for sx in (-1, 1):
@@ -272,7 +272,7 @@ def item_wrench(arms):
     return (f'<g transform="rotate(-30 {x:g} {y:g})">' +
             part(f"M {x - 7:g} {y - 70:g} L {x + 7:g} {y - 70:g} L {x + 7:g} {y + 18:g} L {x - 7:g} {y + 18:g} Z", SILVER, SILVER_D, sw=4, k=3) +
             part(f"M {x - 20:g} {y - 92:g} L {x - 8:g} {y - 92:g} L {x - 6:g} {y - 80:g} L {x + 6:g} {y - 80:g} L {x + 8:g} {y - 92:g} L {x + 20:g} {y - 92:g} L {x + 16:g} {y - 66:g} L {x - 16:g} {y - 66:g} Z", SILVER, SILVER_D, sw=4, k=3) +
-            '</g>' + circle(x, y, 13, SKIN_B[0], sw=4))
+            '</g>' + circle(x, y, 13, SKIN_A[0], sw=4))
 
 
 def item_ball(arms):
@@ -290,9 +290,9 @@ MOM = dict(k=1.0, height=480, head_r=44, torso=135, shoulder_w=112, leg_w=30, ar
            torso_fn=coat_torso(TEAL, TEAL_D), hair_back=_hb(hair_mom), hair_front=_hf(hair_mom),
            face=dict(glasses=TEAL_D))
 DAD = dict(k=1.05, height=500, head_r=46, torso=140, shoulder_w=128, leg_w=34, arm_w=27, arm_up=86, arm_low=80,
-           skin=SKIN_B, legs=("#5b6b84", "#3e4b60"), shoes=(NAVY_L, NAVY), sleeve=COAT,
+           skin=SKIN_A, legs=("#5b6b84", "#3e4b60"), shoes=(NAVY_L, NAVY), sleeve=COAT,
            torso_fn=coat_torso(ORANGE, ORANGE_D), hair_back=_hb(hair_dad), hair_front=_hf(hair_dad),
-           face=dict(beard="#2a201b"))
+           face=dict(beard="#8a6a3e"))
 LEO = dict(k=0.82, height=385, head_r=48, torso=98, shoulder_w=96, leg_w=27, arm_w=22, arm_up=58, arm_low=54,
            skin=SKIN_A, legs=(NAVY_L, NAVY), shoes=("#f4f7fb", "#b9c5d3"), sleeve=(ORANGE, ORANGE_D),
            torso_fn=hoodie_torso(ORANGE, ORANGE_D), hair_back=_hb(hair_leo), hair_front=_hf(hair_leo),

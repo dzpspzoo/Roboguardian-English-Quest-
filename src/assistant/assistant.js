@@ -40,6 +40,9 @@ const RGAssistant = (function (root) {
     'grammar.his_her': { name: 'his / her', tip: 'Zdjęcia rodziny: „his” o chłopcu lub mężczyźnie, „her” o dziewczynce lub kobiecie. Najpierw pytanie „chłopiec czy dziewczynka?”, potem wybór.' },
     'grammar.he_she':  { name: 'he / she', tip: 'Ta sama zasada co po polsku on/ona. Krótkie zdania o członkach rodziny: „Mum? She…”, „Dad? He…”.' },
     'time':            { name: 'godziny', tip: 'Zegar ze wskazówkami: rodzic ustawia, dziecko mówi godzinę po angielsku (najpierw pełne, potem „half past”, na końcu kwadranse).' },
+    'phoneme.cmd':     { name: 'rozumienie poleceń', tip: 'Zabawa „Simon says”: rodzic wydaje krótkie polecenia po angielsku (stand up, touch your nose), dziecko je wykonuje.' },
+    'phoneme.talk':    { name: 'rozmowa', tip: 'Codziennie jedna krótka wymiana zdań po angielsku, np. „How are you?” – „I am fine, thank you”.' },
+    'dialog':          { name: 'rozmowa', tip: 'Codziennie jedna krótka wymiana zdań po angielsku, np. „How are you?” – „I am fine, thank you”.' },
     'speaking':        { name: 'mówienie', tip: 'Dziecko powtarza za lektorem i nagrywa się telefonem, potem razem słuchacie. Chwalimy próbę, nie poprawiamy każdego dźwięku.' }
   };
   // inne nazwy tych samych umiejętności (misje, test startowy)
@@ -48,7 +51,7 @@ const RGAssistant = (function (root) {
   var SOUNDS = {
     ae: 'æ / e (bad – bed)', ih: 'ɪ / iː (ship – sheep)', td: 't / d na końcu (cat – cad)', pb: 'p / b (pig – big)',
     th: 'th (think, this)', wv: 'w / v (wine – vine)', wh: 'w na początku (what, where)', h: 'h na początku (hat – at)',
-    onset: 'pierwsza głoska słowa'
+    onset: 'pierwsza głoska słowa', vowels: 'samogłoski', mix: 'różne dźwięki'
   };
   var SOUND_ALIAS = { ae_e: 'ae', i_ee: 'ih', t_d_final: 'td', p_b: 'pb', th_s_f: 'th', w_v: 'wv' };
   var SOUND_TIP = 'Dźwięki, których nie ma w polskim, ćwiczcie parami: rodzic mówi jedno słowo z pary, dziecko pokazuje obrazek. 2 minuty dziennie, z przesadną wymową. Lustro pomaga (np. przy th język między zębami).';

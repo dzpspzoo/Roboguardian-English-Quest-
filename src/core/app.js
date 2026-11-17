@@ -225,8 +225,9 @@ async function hangarScreen() {
             <h2>Misje</h2>
             ${metas.length ? `<div class="cards">${metas.map(m => {
               const st = p.progress.missions[m.id]; const stars = st ? '★'.repeat(st.bestStars || 0) + '☆'.repeat(3 - (st.bestStars || 0)) : '';
-              return `<button class="card" data-m="${esc(m.id)}"><h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>
-                <span>${m.part ? `<span class="tag">część: ${esc(partName(m.part))}</span>` : ''} <span class="tag orange">${m.minutes || 6} min</span></span>
+              const lock = (m.requires || []).some(r => !p.progress.missions[r]);
+              return `<button class="card${lock ? ' locked' : ''}" data-m="${esc(m.id)}" ${lock ? 'disabled title="Najpierw ukończ poprzednią misję"' : ''}>${lock ? '<span class="tag">🔒 najpierw poprzednia misja</span>' : ''}<h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>
+                <span>${m.part ? `<span class="tag">część: ${esc(partName(normPart(m.part)))}</span>` : ''} <span class="tag orange">${m.minutes || 6} min</span></span>
                 ${stars ? `<span style="font-size:22px;color:var(--rg-accent)">${stars}</span>` : ''}</button>`; }).join('')}</div>`
               : `<p class="muted">Misje rozdziału 1 są w budowie. W tym czasie możesz zagrać w misję specjalną poniżej.</p>`}
           </div>
@@ -294,11 +295,18 @@ function rewardScreen(m, res) {
   const stars = Math.max(0, Math.min(3, res.stars ?? 2));
   const st = p.progress.missions[m.id] || { plays: 0, bestStars: 0 };
   st.plays++; st.bestStars = Math.max(st.bestStars || 0, stars); st.last = new Date().toISOString(); p.progress.missions[m.id] = st;
-  let newPart = null;
-  const partId = res.partEarned === false ? null : (typeof res.partEarned === 'string' ? res.partEarned : m.part);
-  if (partId && !p.progress.parts.includes(partId)) { p.progress.parts.push(partId); newPart = partId; lastNewPart = partId; }
+  const ids = Array.isArray(res.parts) && res.parts.length ? res.parts
+    : res.partEarned === false ? [] : [typeof res.partEarned === 'string' ? res.partEarned : m.part].filter(Boolean);
+  const newParts = [];
+  for (const raw of ids) { const id = normPart(raw); if (id && !p.progress.parts.includes(id)) { p.progress.parts.push(id); newParts.push(id); } }
+  const newPart = newParts[0] || null; lastNewPart = newPart;
   store.saveProfile(p);
-  const cheer = CHEERS[Math.floor(Math.random() * CHEERS.length)];
+  const sm = res.summary && typeof res.summary === 'object' ? res.summary : null;
+  const cheer = sm && sm.cheer && sm.cheer.en ? [sm.cheer.en, sm.cheer.pl || ''] : CHEERS[Math.floor(Math.random() * CHEERS.length)];
+  const summaryHtml = !res.summary ? '' : !sm ? esc(res.summary)
+    : [sm.good && sm.good.length ? `<p>Dobrze poszło: <b>${sm.good.map(esc).join(', ')}</b></p>` : '',
+       sm.hard && sm.hard.length ? `<p>Poćwiczymy jeszcze: <b>${sm.hard.map(esc).join(', ')}</b></p>` : '',
+       sm.final ? '<p><b>Rozdział 1 ukończony!</b></p>' : ''].join('');
   music('reward_fanfare'); sfx(newPart ? 'part_attach' : 'star');
   const el = show(h(`
   <section class="screen">
@@ -306,10 +314,10 @@ function rewardScreen(m, res) {
     <div class="wrap center">
       <h2>Misja ukończona!</h2>
       <div class="stars" style="color:var(--rg-accent)">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
-      ${newPart ? `<p class="tag" style="font-size:20px">Nowa część: ${esc(partName(newPart))}</p>` : ''}
+      ${newParts.map(n => `<p class="tag" style="font-size:20px">Nowa część: ${esc(partName(n))}</p>`).join('')}
       <img class="title-robot" src="assets/img/aegis.webp" alt="AEGIS-7">
       <p class="subtitle">${esc(cheer[1])}</p>
-      ${res.summary ? `<div class="panel" style="max-width:700px">${esc(res.summary)}</div>` : ''}
+      ${summaryHtml ? `<div class="panel" style="max-width:700px">${summaryHtml}</div>` : ''}
       <div class="row" style="justify-content:center"><button class="btn" data-a="again">🔊</button><button class="btn primary big" data-a="next" autofocus>Do hangaru ▶</button></div>
     </div>
   </section>`));
@@ -434,3 +442,8 @@ async function mountAssembly(box, got, fresh) {
     lastNewPart = null;
   } catch { /* zostaje obrazek zapasowy */ }
 }
+
+// Misje rozdziału 1 używają nazw części '01_tulow' itd.; rdzeń trzyma id z src/core/parts.js.
+const PART_ALIAS = { '01_tulow': 'torso', '02_glowa': 'head', '03_miednica': 'pelvis', '04_udo_L': 'thigh_l', '05_udo_P': 'thigh_r',
+  '06_golen_L': 'shin_l', '07_golen_P': 'shin_r', '08_ramie_L': 'arm_l', '09_przedramie_L': 'forearm_l', '10_ramie_P': 'arm_r', '11_przedramie_P': 'forearm_r' };
+function normPart(id) { return id ? (PART_ALIAS[id] || id) : null; }

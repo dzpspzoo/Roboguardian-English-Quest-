@@ -1,0 +1,92 @@
+en|Hello, Guardian! I am AEGIS-7. My systems are damaged. Let's scan your communicator, so I can understand you.
+en|Can you hear me, Guardian?
+en|Now say: Hello!
+en|I can hear you!
+en|No problem. We will talk later.
+en|Got it!
+en|Data saved.
+en|Next signal.
+en|Good. Keep going!
+en|My battery is low. Let's take a short break. Stand up and stretch!
+en|Battery charged. Let's continue!
+en|Scan complete! Thank you, Guardian. Now I know how to help you.
+en|Listen and touch the picture.
+en|Listen carefully. You will hear two words. Then touch the one I say.
+en|Are the two words the same, or different?
+en|Listen and choose how to write it.
+en|Read and touch the picture.
+en|Listen to the message and choose the picture.
+en|Listen and build the word.
+en|Now talk to me. Repeat after me.
+en|cat
+en|dog
+en|sun
+en|apple
+en|car
+en|fish
+en|house
+en|ball
+en|book
+en|jacket
+en|dress
+en|trousers
+en|socks
+en|rainy
+en|snowy
+en|windy
+en|cloudy
+en|clock
+en|rocket
+en|umbrella
+en|bridge
+en|ladder
+en|key
+en|scissors
+en|island
+en|castle
+en|volcano
+en|pan
+en|pen
+en|man
+en|men
+en|ship
+en|sheep
+en|bin
+en|bean
+en|cart
+en|card
+en|at
+en|add
+en|pear
+en|bear
+en|pin
+en|three
+en|tree
+en|mouth
+en|mouse
+en|wet
+en|vet
+en|west
+en|vest
+en|heart
+en|art
+en|hair
+en|air
+en|bed
+en|sit
+en|shop
+en|think
+en|cheese
+en|window
+en|night
+en|Touch the red circle.
+en|Show me number five.
+en|Touch the blue square.
+en|It's cold and snowy today.
+en|It's three o'clock.
+en|Put on your jacket, please.
+en|Max is ten years old. How old is Max?
+en|Anna likes music. She plays the guitar. What does Anna play?
+en|Tom's birthday is in winter. He wants a new bike. What does Tom want?
+en|hello
+en|thank you

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test startowy – podgląd</title>
+<link rel="stylesheet" href="../../assets/gfx/theme.css" onerror="this.remove()">
+<style>
+  html, body { margin: 0; height: 100%; background: #0a1426; color: #e8f1ff; font-family: system-ui, "Segoe UI", sans-serif; }
+  #app { height: 100%; }
+  .done { max-width: 760px; margin: 40px auto; padding: 0 20px; line-height: 1.5; }
+  .done pre { white-space: pre-wrap; background: #13233f; padding: 16px; border-radius: 12px; }
+  .done button { font-size: 18px; padding: 10px 18px; border-radius: 10px; border: 0; background: #38d3ff; margin-right: 8px; cursor: pointer; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script type="module">
+  import { startCalibration, describeForParent } from './calibration.js';
+  const app = document.getElementById('app');
+  const events = [];
+  app.innerHTML = '<div class="done"><h1>Test startowy: podgląd</h1><p>Strona do sprawdzania samego testu, poza grą. Wyniki zostają w tej karcie.</p><button id="go">Start ▶</button></div>';
+  document.getElementById('go').onclick = () => startCalibration({
+    root: app,
+    profile: { id: 'demo', name: 'Demo', settings: { tablet: false } },
+    audioBase: '../../',
+    // ?cichy=1: bez dźwięku (do szybkiego sprawdzenia przez rodzica lub test automatyczny)
+    sayFn: new URLSearchParams(location.search).has('cichy') ? () => new Promise(r => setTimeout(r, 60)) : undefined,
+    record: ev => { events.push(ev); console.log('record', ev); },
+    onExit: () => location.reload(),
+    onComplete: result => {
+      window.rgCalibrationResult = result;
+      app.innerHTML = '';
+      const d = document.createElement('div'); d.className = 'done';
+      d.innerHTML = '<h1>Wynik testu</h1><pre id="sum"></pre><button id="dl">Pobierz wynik (JSON)</button><button onclick="location.reload()">Jeszcze raz</button>';
+      app.appendChild(d);
+      d.querySelector('#sum').textContent = describeForParent(result);
+      d.querySelector('#dl').onclick = () => {
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(new Blob([JSON.stringify({ result, events }, null, 2)], { type: 'application/json' }));
+        a.download = 'kalibracja-wynik.json'; a.click();
+      };
+    }
+  });
+</script>
+</body>
+</html>

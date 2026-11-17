@@ -31,8 +31,9 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.rgs-img{transition:none}}
 `;
 
-const LINE_GAP = 700;      // przerwa między zdaniami (ms)
-const SCENE_GAP = 900;     // przerwa po scenie (ms)
+const LINE_GAP = 1400;     // przerwa między zdaniami (ms): czas na wsłuchanie się
+const SCENE_GAP = 1800;    // cisza po ostatnim zdaniu sceny (ms)
+const SCENE_LEAD = 2200;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
 
 export function playStory(rootEl, data, opts = {}) {
   const base = opts.basePath ?? './';
@@ -101,7 +102,7 @@ export function playStory(rootEl, data, opts = {}) {
     const tf = p => `translate(${p.x || 0}%,${p.y || 0}%) scale(${p.scale || 1})`;
     if (!reduced && layer.animate) {
       anim = layer.animate([{ transform: tf(m.from) }, { transform: tf(m.to) }],
-        { duration: Math.max(8000, s.lines.length * 6000), easing: 'ease-in-out', fill: 'forwards' });
+        { duration: Math.max(12000, s.lines.length * 7500 + SCENE_LEAD), easing: 'ease-in-out', fill: 'forwards' });
     }
     layer.classList.add('on'); other.classList.remove('on');
     titleEl.textContent = s.title_pl || '';
@@ -152,7 +153,7 @@ export function playStory(rootEl, data, opts = {}) {
     if (si + 1 < data.scenes.length) {
       si++; li = 0;
       subEl.classList.remove('on');
-      timer = setTimeout(() => { showScene(si); timer = setTimeout(playLine, 900); }, SCENE_GAP);
+      timer = setTimeout(() => { showScene(si); timer = setTimeout(playLine, SCENE_LEAD); }, SCENE_GAP);
       return;
     }
     finish(false);
@@ -206,9 +207,11 @@ export function playStory(rootEl, data, opts = {}) {
   // start
   si = 0; li = 0;
   showScene(0);
-  timer = setTimeout(playLine, 1200);
+  timer = setTimeout(playLine, SCENE_LEAD + 600);
 
-  return { stop: () => finish(true) };
+  const stop = () => finish(true);
+  stop.stop = stop;   // rdzeń woła stop() przy sprzątaniu
+  return stop;
 }
 
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }

@@ -74,7 +74,12 @@ export function playStory(rootEl, data, opts = {}) {
   const audio = new Audio();
   audio.preload = 'auto';
   const fx = makeFx(canvas, reduced);
-  const music = onMusic ? null : makeAmbient();
+  const RG = opts.audio || window.RGAudio || null;   // moduł audio z wątku muzyki (jeśli jest)
+  const music = (onMusic || RG) ? null : makeAmbient();
+  let loopSfx = null;
+  const sfx = (id, o) => { try { return RG && RG.sfx ? RG.sfx(id, o) : null; } catch { return null; } };
+  const duck = on => { try { RG && RG.duck && RG.duck(on); } catch { } };
+  const stopLoop = () => { Promise.resolve(loopSfx).then(a => a && a.stop && a.stop()).catch(() => {}); loopSfx = null; };
 
   let si = 0, li = -1, imgFlip = 0, timer = 0, token = 0, finished = false, anim = null;
 
@@ -82,7 +87,9 @@ export function playStory(rootEl, data, opts = {}) {
   data.scenes.forEach(s => { const i = new Image(); i.src = base + s.image; });
 
   function setMusic(id) {
-    if (onMusic) onMusic(id); else music && music.set(id);
+    if (onMusic) onMusic(id);
+    else if (RG && RG.music) { try { RG.music(id); } catch { } }
+    else music && music.set(id);
   }
 
   function showScene(i) {
@@ -100,6 +107,11 @@ export function playStory(rootEl, data, opts = {}) {
     titleEl.textContent = s.title_pl || '';
     [...dotsEl.children].forEach((d, k) => d.className = k < i ? 'done' : k === i ? 'now' : '');
     fx.set(s.fx || 'none');
+    stopLoop();
+    for (const e of (s.sfx || [])) {
+      if (e.loop) loopSfx = sfx(e.id, { loop: true });
+      else setTimeout(() => !finished && sfx(e.id), e.at || 0);
+    }
     setMusic(s.music || 'story_family');
   }
 
@@ -124,7 +136,8 @@ export function playStory(rootEl, data, opts = {}) {
       if (my !== token) return;
       timer = setTimeout(() => my === token && advance(), 900 + line.en.split(/\s+/).length * (slow ? 520 : 420));
     };
-    audio.onended = () => { if (my === token) timer = setTimeout(advance, LINE_GAP); };
+    duck(true);
+    audio.onended = () => { duck(false); if (my === token) timer = setTimeout(advance, LINE_GAP); };
     audio.onerror = fallback;
     const p = audio.play();
     if (p && p.catch) p.catch(err => {
@@ -167,7 +180,7 @@ export function playStory(rootEl, data, opts = {}) {
 
   function finish(skipped) {
     if (finished) return;
-    finished = true; token++; clearTimeout(timer); audio.pause();
+    finished = true; token++; clearTimeout(timer); audio.pause(); duck(false); stopLoop();
     fx.stop(); music && music.stop();
     document.removeEventListener('keydown', onKey);
     el.style.transition = 'opacity .6s'; el.style.opacity = '0';

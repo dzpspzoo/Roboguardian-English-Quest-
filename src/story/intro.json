@@ -84,6 +84,12 @@
           "en": "Mia smiled. \"We are your family.\"",
           "pl": "Mia się uśmiechnęła: „Jesteśmy twoją rodziną”."
         }
+      ],
+      "sfx": [
+        {
+          "id": "power_up",
+          "at": 5500
+        }
       ]
     },
     {
@@ -201,6 +207,16 @@
           "en": "Danger! Everyone, go inside!",
           "pl": "Niebezpieczeństwo! Wszyscy do środka!"
         }
+      ],
+      "sfx": [
+        {
+          "id": "signal_space",
+          "at": 300
+        },
+        {
+          "id": "alarm",
+          "loop": true
+        }
       ]
     },
     {
@@ -239,6 +255,12 @@
           "audio": "assets/audio/story/s06_03.mp3",
           "en": "Stay behind me!",
           "pl": "Zostańcie za mną!"
+        }
+      ],
+      "sfx": [
+        {
+          "id": "whoosh",
+          "at": 0
         }
       ]
     },
@@ -312,6 +334,12 @@
           "en": "The aliens took the family to their space station.",
           "pl": "Kosmici zabrali rodzinę na swoją stację kosmiczną."
         }
+      ],
+      "sfx": [
+        {
+          "id": "crash_impact",
+          "at": 200
+        }
       ]
     },
     {
@@ -357,6 +385,12 @@
           "en": "I can hear you. Please, help me.",
           "pl": "Słyszę cię. Proszę, pomóż mi."
         }
+      ],
+      "sfx": [
+        {
+          "id": "robot_beep",
+          "at": 9000
+        }
       ]
     },
     {
@@ -401,6 +435,12 @@
           "audio": "assets/audio/story/s10_04.mp3",
           "en": "Guardian, let's begin.",
           "pl": "Strażniku, zaczynajmy."
+        }
+      ],
+      "sfx": [
+        {
+          "id": "whoosh",
+          "at": 0
         }
       ]
     }

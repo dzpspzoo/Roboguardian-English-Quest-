@@ -8,7 +8,7 @@ Głębsza analiza: rodzic kopiuje raport (`claudePrompt`) i wkleja go we własny
 | `assistant.js` | moduł ES `RGAssistant` (ustawia też `window.RGAssistant`) |
 | `panel.js` | `renderParentPanel(root, profile)` – gotowy widok raportu do panelu rodzica |
 | `demo.html` | podgląd na danych symulowanych (`python -m http.server`, potem `/src/assistant/demo.html`) |
-| `tests/` | `node --test src/assistant/tests/` |
+| `tests/` | `node --test src/assistant/tests/*.mjs` |
 
 ## Wejście: zdarzenia odpowiedzi
 

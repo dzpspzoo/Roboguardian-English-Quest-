@@ -1,0 +1,408 @@
+{
+  "id": "intro",
+  "version": 1,
+  "scenes": [
+    {
+      "id": "s01",
+      "title_pl": "Laboratorium",
+      "image": "assets/story/img/s01.webp",
+      "motion": {
+        "from": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.0
+        },
+        "to": {
+          "x": -3,
+          "y": -2,
+          "scale": 1.12
+        }
+      },
+      "music": "story_creation",
+      "fx": "dust",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s01_01.mp3",
+          "en": "In a quiet lab, a family of scientists had a big dream.",
+          "pl": "W cichym laboratorium rodzina naukowców miała wielkie marzenie."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s01_02.mp3",
+          "en": "Mom and Dad built a robot. Their children, Leo and Mia, helped them.",
+          "pl": "Mama i tata budowali robota. Ich dzieci, Leo i Mia, pomagały."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s01_03.mp3",
+          "en": "Piece by piece, he got arms, legs and a heart of blue light.",
+          "pl": "Część po części dostał ręce, nogi i serce z niebieskiego światła."
+        }
+      ]
+    },
+    {
+      "id": "s02",
+      "title_pl": "Przebudzenie",
+      "image": "assets/story/img/s02.webp",
+      "motion": {
+        "from": {
+          "x": 2,
+          "y": 0,
+          "scale": 1.15
+        },
+        "to": {
+          "x": 0,
+          "y": -3,
+          "scale": 1.0
+        }
+      },
+      "music": "story_creation",
+      "fx": "core",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s02_01.mp3",
+          "en": "But a body is not enough. A friend needs a mind.",
+          "pl": "Ale samo ciało nie wystarczy. Przyjaciel potrzebuje umysłu."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s02_02.mp3",
+          "en": "They gave him a mind that can think, learn and feel.",
+          "pl": "Dali mu umysł, który potrafi myśleć, uczyć się i czuć."
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s02_03.mp3",
+          "en": "Hello. I am AEGIS-7. Who are you?",
+          "pl": "Cześć. Jestem AEGIS-7. Kim jesteście?"
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s02_04.mp3",
+          "en": "Mia smiled. \"We are your family.\"",
+          "pl": "Mia się uśmiechnęła: „Jesteśmy twoją rodziną”."
+        }
+      ]
+    },
+    {
+      "id": "s03",
+      "title_pl": "Pierwsze słowa",
+      "image": "assets/story/img/s03.webp",
+      "motion": {
+        "from": {
+          "x": -2,
+          "y": 0,
+          "scale": 1.05
+        },
+        "to": {
+          "x": 2,
+          "y": 0,
+          "scale": 1.12
+        }
+      },
+      "music": "story_creation",
+      "fx": "none",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s03_01.mp3",
+          "en": "Every day, Leo and Mia taught him new words.",
+          "pl": "Każdego dnia Leo i Mia uczyli go nowych słów."
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s03_02.mp3",
+          "en": "Ball. Sun. Tree. Friend.",
+          "pl": "Piłka. Słońce. Drzewo. Przyjaciel."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s03_03.mp3",
+          "en": "Sometimes he made mistakes. That was OK. He tried again and again.",
+          "pl": "Czasem robił błędy. To nic. Próbował znowu i znowu."
+        }
+      ]
+    },
+    {
+      "id": "s04",
+      "title_pl": "Rodzina",
+      "image": "assets/story/img/s04.webp",
+      "motion": {
+        "from": {
+          "x": 0,
+          "y": 2,
+          "scale": 1.0
+        },
+        "to": {
+          "x": 0,
+          "y": -2,
+          "scale": 1.1
+        }
+      },
+      "music": "story_family",
+      "fx": "stars",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s04_01.mp3",
+          "en": "He played football with the kids. He helped in the garden.",
+          "pl": "Grał z dziećmi w piłkę. Pomagał w ogrodzie."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s04_02.mp3",
+          "en": "At night, they all looked at the stars together.",
+          "pl": "Wieczorami wszyscy razem patrzyli w gwiazdy."
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s04_03.mp3",
+          "en": "This is my family. I will always protect them.",
+          "pl": "To moja rodzina. Zawsze będę ich chronić."
+        }
+      ]
+    },
+    {
+      "id": "s05",
+      "title_pl": "Sygnał",
+      "image": "assets/story/img/s05.webp",
+      "motion": {
+        "from": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.0
+        },
+        "to": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.15
+        }
+      },
+      "music": "story_attack",
+      "fx": "alarm",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s05_01.mp3",
+          "en": "One night, a strange signal came from space.",
+          "pl": "Pewnej nocy z kosmosu przyszedł dziwny sygnał."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s05_02.mp3",
+          "en": "Dark ships covered the stars. The Kraken army was coming.",
+          "pl": "Ciemne statki zasłoniły gwiazdy. Nadlatywała armia Krakenów."
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s05_03.mp3",
+          "en": "Danger! Everyone, go inside!",
+          "pl": "Niebezpieczeństwo! Wszyscy do środka!"
+        }
+      ]
+    },
+    {
+      "id": "s06",
+      "title_pl": "Atak",
+      "image": "assets/story/img/s06.webp",
+      "motion": {
+        "from": {
+          "x": 3,
+          "y": 0,
+          "scale": 1.12
+        },
+        "to": {
+          "x": -3,
+          "y": 0,
+          "scale": 1.12
+        }
+      },
+      "music": "story_attack",
+      "fx": "lasers",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s06_01.mp3",
+          "en": "Octopus aliens in heavy armor landed in the city.",
+          "pl": "Kosmici-ośmiornice w ciężkich zbrojach wylądowali w mieście."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s06_02.mp3",
+          "en": "They wanted the scientists and their secret: the energy core.",
+          "pl": "Chcieli porwać naukowców i ich tajemnicę: rdzeń energii."
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s06_03.mp3",
+          "en": "Stay behind me!",
+          "pl": "Zostańcie za mną!"
+        }
+      ]
+    },
+    {
+      "id": "s07",
+      "title_pl": "Walka",
+      "image": "assets/story/img/s07.webp",
+      "motion": {
+        "from": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.0
+        },
+        "to": {
+          "x": 0,
+          "y": -2,
+          "scale": 1.18
+        }
+      },
+      "music": "story_attack",
+      "fx": "sparks",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s07_01.mp3",
+          "en": "AEGIS-7 raised his shield. He stood between the aliens and his family.",
+          "pl": "AEGIS-7 podniósł tarczę. Stanął między kosmitami a swoją rodziną."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s07_02.mp3",
+          "en": "One robot against a whole army. He did not run.",
+          "pl": "Jeden robot przeciwko całej armii. Nie uciekł."
+        }
+      ]
+    },
+    {
+      "id": "s08",
+      "title_pl": "Upadek",
+      "image": "assets/story/img/s08.webp",
+      "motion": {
+        "from": {
+          "x": 0,
+          "y": -2,
+          "scale": 1.15
+        },
+        "to": {
+          "x": 0,
+          "y": 2,
+          "scale": 1.0
+        }
+      },
+      "music": "story_crash",
+      "fx": "smoke",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s08_01.mp3",
+          "en": "But there were too many of them. A huge blast hit him.",
+          "pl": "Ale było ich za dużo. Trafił go potężny wybuch."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s08_02.mp3",
+          "en": "AEGIS-7 broke into many pieces. His light went dark.",
+          "pl": "AEGIS-7 rozpadł się na wiele części. Jego światło zgasło."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s08_03.mp3",
+          "en": "The aliens took the family to their space station.",
+          "pl": "Kosmici zabrali rodzinę na swoją stację kosmiczną."
+        }
+      ]
+    },
+    {
+      "id": "s09",
+      "title_pl": "Hangar",
+      "image": "assets/story/img/s09.webp",
+      "motion": {
+        "from": {
+          "x": -2,
+          "y": 0,
+          "scale": 1.0
+        },
+        "to": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.14
+        }
+      },
+      "music": "story_hangar",
+      "fx": "core",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s09_01.mp3",
+          "en": "When the smoke was gone, a rescue team came.",
+          "pl": "Gdy dym opadł, przyjechała ekipa ratunkowa."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s09_02.mp3",
+          "en": "They found every piece and carried it to a secret hangar.",
+          "pl": "Odnaleźli każdą część i zanieśli ją do tajnego hangaru."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s09_03.mp3",
+          "en": "Deep inside his core, a tiny light was still on.",
+          "pl": "Głęboko w jego rdzeniu wciąż świeciło małe światełko."
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s09_04.mp3",
+          "en": "I can hear you. Please, help me.",
+          "pl": "Słyszę cię. Proszę, pomóż mi."
+        }
+      ]
+    },
+    {
+      "id": "s10",
+      "title_pl": "Twoja misja",
+      "image": "assets/story/img/s10.webp",
+      "motion": {
+        "from": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.12
+        },
+        "to": {
+          "x": 0,
+          "y": 0,
+          "scale": 1.0
+        }
+      },
+      "music": "story_hangar",
+      "fx": "stars",
+      "lines": [
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s10_01.mp3",
+          "en": "Now he needs you, Guardian.",
+          "pl": "Teraz potrzebuje ciebie, Strażniku."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s10_02.mp3",
+          "en": "Every English word you learn gives him new power.",
+          "pl": "Każde angielskie słowo, którego się nauczysz, daje mu nową moc."
+        },
+        {
+          "speaker": "narrator",
+          "audio": "assets/audio/story/s10_03.mp3",
+          "en": "Rebuild AEGIS-7. Save the family. Your mission starts now!",
+          "pl": "Odbuduj AEGIS-7. Uratuj rodzinę. Twoja misja zaczyna się teraz!"
+        },
+        {
+          "speaker": "aegis",
+          "audio": "assets/audio/story/s10_04.mp3",
+          "en": "Guardian, let's begin.",
+          "pl": "Strażniku, zaczynajmy."
+        }
+      ]
+    }
+  ]
+}

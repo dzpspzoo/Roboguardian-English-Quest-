@@ -421,11 +421,12 @@ ready.finally(titleScreen);
 window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen } };
 
 // --- Robot składany z części (grafika: assets/gfx/characters/aegis7/assembly.svg) ---
+// Sufiks -l/-r w assembly.svg = strona EKRANU; lewa część robota (jak w druku 3D) jest po prawej stronie ekranu.
 const ASM_IDS = {
   torso: ['part-torso', 'part-core'], head: ['part-head'], pelvis: ['part-pelvis'],
-  thigh_l: ['part-thigh-l'], thigh_r: ['part-thigh-r'], shin_l: ['part-shin-l'], shin_r: ['part-shin-r'],
-  arm_l: ['part-upperarm-l', 'part-shoulder-l'], forearm_l: ['part-forearm-l'],
-  arm_r: ['part-upperarm-r', 'part-shoulder-r'], forearm_r: ['part-forearm-r'],
+  thigh_l: ['part-thigh-r'], thigh_r: ['part-thigh-l'], shin_l: ['part-shin-r'], shin_r: ['part-shin-l'],
+  arm_l: ['part-upperarm-r', 'part-shoulder-r'], forearm_l: ['part-forearm-r'],
+  arm_r: ['part-upperarm-l', 'part-shoulder-l'], forearm_r: ['part-forearm-l'],
 };
 let asmSvgText = null;
 let lastNewPart = null;

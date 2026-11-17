@@ -57,10 +57,10 @@ function titleScreen() {
   const profiles = store.listProfiles();
   const el = show(h(`
   <section class="screen">
-    <div class="bg" style="background-image:url(assets/img/hangar.webp)"></div>
+    <div class="bg" style="background-image:url(assets/gfx/backgrounds/start.svg),url(assets/img/hangar.webp)"></div>
     <div class="wrap center">
-      <img class="title-robot" src="assets/img/aegis.webp" alt="Robot AEGIS-7">
-      <h1>ROBOGUARDIAN<small>ENGLISH QUEST</small></h1>
+      <div style="flex:1;min-height:30vh"></div>
+      <h1 class="logo"><img src="assets/gfx/ui/logo.svg" alt="Roboguardian English Quest" onerror="this.replaceWith(Object.assign(document.createElement('span'),{innerHTML:'ROBOGUARDIAN<small>ENGLISH QUEST</small>'}))"></h1>
       <div class="menu">
         ${profiles.length ? `<button class="btn primary big" data-a="continue" autofocus>▶ Graj dalej: ${esc(profiles[0].avatar)} ${esc(profiles[0].name)}</button>` : ''}
         <button class="btn ${profiles.length ? '' : 'primary'} big" data-a="new" ${profiles.length ? '' : 'autofocus'}>✚ Nowa gra</button>
@@ -197,10 +197,11 @@ async function hangarScreen() {
     if (mod && mod.meta && mod.mount) metas.push({ ...mod.meta, mod });
   }
   const got = new Set(p.progress.parts);
+  queueMicrotask(() => mountAssembly(document.querySelector('[data-asm]'), got, lastNewPart));
   const pct = Math.round(100 * got.size / PARTS.length);
   const el = show(h(`
   <section class="screen">
-    <div class="bg" style="background-image:url(assets/img/hangar.webp)"></div>
+    <div class="bg" style="background-image:url(assets/gfx/backgrounds/hangar.svg),url(assets/img/hangar.webp)"></div>
     <div class="topbar">
       <button class="iconbtn" data-a="home" aria-label="Menu">☰</button>
       <span class="title">${esc(p.avatar)} ${esc(p.name)} · Hangar AEGIS-7</span>
@@ -211,8 +212,10 @@ async function hangarScreen() {
       <div class="hangar">
         <div class="panel robot-box">
           <div style="position:relative">
-            <img src="assets/img/aegis.webp" alt="AEGIS-7 przed naprawą">
-            <img class="lit" src="assets/img/aegis.webp" alt="" style="clip-path:inset(${100 - pct}% 0 0 0)">
+            <div class="asm" data-asm role="img" aria-label="AEGIS-7: naprawione ${got.size} z ${PARTS.length} części">
+              <img src="assets/img/aegis.webp" alt="">
+              <img class="lit" src="assets/img/aegis.webp" alt="" style="clip-path:inset(${100 - pct}% 0 0 0)">
+            </div>
           </div>
           <p style="margin-top:8px">Naprawa: <b>${got.size} / ${PARTS.length}</b> części</p>
           <div class="bar"><i style="width:${pct}%"></i></div>
@@ -293,7 +296,7 @@ function rewardScreen(m, res) {
   st.plays++; st.bestStars = Math.max(st.bestStars || 0, stars); st.last = new Date().toISOString(); p.progress.missions[m.id] = st;
   let newPart = null;
   const partId = res.partEarned === false ? null : (typeof res.partEarned === 'string' ? res.partEarned : m.part);
-  if (partId && !p.progress.parts.includes(partId)) { p.progress.parts.push(partId); newPart = partId; }
+  if (partId && !p.progress.parts.includes(partId)) { p.progress.parts.push(partId); newPart = partId; lastNewPart = partId; }
   store.saveProfile(p);
   const cheer = CHEERS[Math.floor(Math.random() * CHEERS.length)];
   music('reward_fanfare'); sfx(newPart ? 'part_attach' : 'star');
@@ -407,3 +410,27 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
 }
 ready.finally(titleScreen);
 window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen } };
+
+// --- Robot składany z części (grafika: assets/gfx/characters/aegis7/assembly.svg) ---
+const ASM_IDS = {
+  torso: ['part-torso', 'part-core'], head: ['part-head'], pelvis: ['part-pelvis'],
+  thigh_l: ['part-thigh-l'], thigh_r: ['part-thigh-r'], shin_l: ['part-shin-l'], shin_r: ['part-shin-r'],
+  arm_l: ['part-upperarm-l', 'part-shoulder-l'], forearm_l: ['part-forearm-l'],
+  arm_r: ['part-upperarm-r', 'part-shoulder-r'], forearm_r: ['part-forearm-r'],
+};
+let asmSvgText = null;
+let lastNewPart = null;
+async function mountAssembly(box, got, fresh) {
+  if (!box) return;
+  try {
+    if (!asmSvgText) { const r = await fetch('assets/gfx/characters/aegis7/assembly.svg'); if (!r.ok) return; asmSvgText = await r.text(); }
+    if (!box.isConnected) return;
+    box.innerHTML = asmSvgText;
+    for (const [part, ids] of Object.entries(ASM_IDS)) for (const id of ids) {
+      const n = box.querySelector('#' + id); if (!n) continue;
+      n.classList.toggle('rg-missing', !got.has(part));
+      if (part === fresh) n.classList.add('rg-new');
+    }
+    lastNewPart = null;
+  } catch { /* zostaje obrazek zapasowy */ }
+}

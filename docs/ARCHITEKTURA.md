@@ -58,7 +58,7 @@ Asystent eksportuje z `src/assistant/assistant.js` i dodatkowo ustawia `window.R
 - **Audio**: `src/audio/audio.js` eksportuje `RGAudio` i ustawia `window.RGAudio`. `RGAudio.init()` woła rdzeń przy pierwszym kliknięciu.
   Id muzyki: `theme_main, story_creation, story_family, story_attack, story_crash, story_hangar, mission_calm, mission_action, reward_fanfare, level_complete, try_again`.
   Id efektów: `click, correct, wrong, star, part_attach, power_up, robot_beep, whoosh, unlock, level_up, typing`.
-- **Grafika**: `assets/gfx/theme.css` ładuje `index.html` jako pierwszy arkusz. Kolory i fonty tylko przez zmienne CSS z tego pliku.
+- **Grafika**: `assets/gfx/theme.css` ładuje `index.html` PO `src/core/app.css`, więc jego zmienne `--rg-*` wygrywają. Kolory i fonty tylko przez zmienne CSS z tego pliku.
 
 ## Głos i słówka
 

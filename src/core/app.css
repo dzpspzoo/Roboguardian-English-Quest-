@@ -1,4 +1,4 @@
-/* Rdzeń wyglądu. Zmienne --rg-* może nadpisać assets/gfx/theme.css (wątek grafiki). */
+/* Rdzeń wyglądu. Wartości domyślne --rg-*; assets/gfx/theme.css ładuje się PO tym pliku i je nadpisuje. */
 :root {
   --rg-bg: #0b1424;
   --rg-panel: rgba(12, 24, 44, .82);
@@ -80,3 +80,6 @@ td, th { padding: 8px; border-bottom: 1px solid var(--rg-line); text-align: left
 pre.report { white-space: pre-wrap; font-family: inherit; line-height: 1.5; margin: 0; }
 .footer { font-size: 13px; color: var(--rg-muted); text-align: center; padding: 10px; }
 .slider { width: 260px; }
+.asm { position: relative; }
+.asm svg { width: 100%; height: auto; max-height: 52vh; display: block; margin: 0 auto; }
+h1.logo img { width: min(560px, 86vw); height: auto; display: block; margin: 0 auto; filter: drop-shadow(0 4px 18px rgba(0,0,0,.5)); }

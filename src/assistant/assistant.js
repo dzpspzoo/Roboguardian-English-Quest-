@@ -55,8 +55,17 @@ const RGAssistant = (function (root) {
   var ERROR_TYPES = {
     polish_phonetic: 'zapis „po polsku” (tak, jak się słyszy)', voicing_t_d: 'mylenie t i d', vowel_ae_e: 'mylenie æ i e',
     vowel_i_ee: 'mylenie krótkiego i długiego i', initial_consonant: 'zła pierwsza głoska', th: 'dźwięk th', w_v: 'mylenie w i v',
-    h_drop: 'gubienie h', letter_order: 'kolejność liter', missing_letter: 'brakujące litery'
+    h_drop: 'gubienie h', letter_order: 'kolejność liter', missing_letter: 'brakujące litery',
+    vowel_i_e: 'mylenie i oraz e', voicing_p_b: 'mylenie p i b'
   };
+  // typy błędów zbyt ogólne, by robić z nich osobny problem (pokrywa je analiza umiejętności)
+  var GENERIC_ERRORS = { other: 1, vocab: 1, reading: 1, comprehension: 1 };
+  function errorName(k) {
+    if (ERROR_TYPES[k]) return ERROR_TYPES[k];
+    var m = /^contrast_(.+)$/.exec(k);
+    if (m) { var key = SOUND_ALIAS[m[1]] || m[1]; return 'pary dźwięków ' + (SOUNDS[key] || m[1]); }
+    return k;
+  }
   var SPELL_ERRORS = { polish_phonetic: 1, letter_order: 1, missing_letter: 1 };
 
   // ---------- pomocnicze ----------
@@ -314,7 +323,9 @@ const RGAssistant = (function (root) {
     if (!c) return;
     var st = state(profile);
     if (st.calibration && st.calibration.at === (c.finishedAt || null)) return; // już zaimportowany
-    (c.items || []).forEach(function (it) {
+    // test mógł już wołać record() w trakcie (mission 'calibration'): wtedy nie liczymy items[] drugi raz
+    var already = st.log.some(function (e) { return e.mission === 'calibration'; });
+    (already ? [] : c.items || []).forEach(function (it) {
       var ev = {}; for (var k in it) ev[k] = it[k];
       ev.session = 'calibration'; ev.mission = 'calibration';
       ev.t = ev.t || c.finishedAt || Date.now();
@@ -391,11 +402,11 @@ const RGAssistant = (function (root) {
     // 3. typowe błędy (np. zapis „po polsku”)
     var errs = {};
     Object.keys(st.skills).forEach(function (sk) { var e = st.skills[sk].errors || {}; Object.keys(e).forEach(function (k) { errs[k] = (errs[k] || 0) + e[k]; }); });
-    Object.keys(errs).filter(function (k) { return k !== 'other' && errs[k] >= 3; })
+    Object.keys(errs).filter(function (k) { return !GENERIC_ERRORS[k] && errs[k] >= 3; })
       .sort(function (a, b) { return errs[b] - errs[a]; }).slice(0, 2)
       .forEach(function (k) {
         problems.push({ id: 'error:' + k, severity: errs[k] >= 6 ? 2 : 1,
-          title: 'Powtarzający się błąd: ' + (ERROR_TYPES[k] || k),
+          title: 'Powtarzający się błąd: ' + errorName(k),
           evidence: errs[k] + ' razy.',
           action: SPELL_ERRORS[k] ? SKILLS.spelling.tip : SOUND_TIP,
           game: 'Gra dobiera więcej ćwiczeń na ten typ błędu.' });

@@ -94,3 +94,13 @@ test('pickItems: nowe w limicie poziomu, powtórki najpierw', () => {
   assert.equal(out.length, 4);
   assert.equal(out.filter(x => x.startsWith('old')).length, 3);
 });
+
+test('kalibracja: bez podwójnego liczenia, gdy test wołał record()', () => {
+  const p = {};
+  A.record(p, { t: T0, session: 'c', mission: 'calibration', item: 'q1', skill: 'phoneme.i_ee', ok: false, chosen: 'sheep', errorType: 'contrast_i_ee' });
+  A.importCalibration(p, { finishedAt: '2026-11-10T16:10:00Z', items: [{ id: 'q1', skill: 'contrasts', contrast: 'i_ee', correct: false }], profile: { overall: 'A1' } });
+  assert.equal(p.assistant.items.q1.seen, 1);
+  assert.ok(p.assistant.skills['phoneme.ih']);
+  for (let i = 0; i < 3; i++) A.record(p, { t: T0 + i, session: 'c', mission: 'm', item: 'x' + i, ok: false, errorType: 'contrast_i_ee' });
+  assert.ok(A.analyze(p, { now: T0 + 10 }).problems.some(x => /ship – sheep/.test(x.title)));
+});

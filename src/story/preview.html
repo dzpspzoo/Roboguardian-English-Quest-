@@ -13,10 +13,13 @@ p{opacity:.7;text-align:center}
 <main><p>Podgląd historii początkowej (10 scen, ok. 3 minuty)</p><p><button id="go">▶ Nowa gra</button></p></main>
 <script type="module">
 import { playStory } from './player.js';
+let RGAudio = null;
+try { ({ RGAudio } = await import('../audio/audio.js')); } catch (e) { /* bez modułu muzyki: muzyka zastępcza */ }
 const base = '../../';
 document.getElementById('go').onclick = async () => {
+  try { RGAudio && await RGAudio.init(); } catch (e) {}
   const data = await (await fetch('intro.json')).json();
-  playStory(document.body, data, { basePath: base, onEnd: r => { document.querySelector('main p').textContent = r.skipped ? 'Historia pominięta.' : 'Koniec historii. Tu zaczyna się kalibracja.'; } });
+  playStory(document.body, data, { basePath: base, audio: RGAudio, onEnd: r => { document.querySelector('main p').textContent = r.skipped ? 'Historia pominięta.' : 'Koniec historii. Tu zaczyna się kalibracja.'; } });
 };
 </script>
 </body>

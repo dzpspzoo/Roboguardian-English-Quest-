@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Podgląd misji rozdziału 1</title>
+<style>
+  :root{color-scheme:dark}
+  body{margin:0;background:#070b18;color:#eaf2ff;font-family:"Segoe UI",system-ui,sans-serif}
+  #menu{max-width:860px;margin:0 auto;padding:20px 16px}
+  h1{font-size:26px;margin:0 0 4px}
+  .muted{color:#9fb3d9}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin:16px 0}
+  .m{background:#111c3a;border:1px solid #2b3d6b;border-radius:14px;padding:14px;text-align:left;color:inherit;font:inherit;cursor:pointer}
+  .m b{display:block;font-size:18px}
+  .m span{color:#9fb3d9;font-size:14px}
+  select,button.s{font:inherit;background:#111c3a;color:inherit;border:1px solid #2b3d6b;border-radius:10px;padding:8px 12px;min-height:44px}
+  #game{position:fixed;inset:0;display:none}
+  #close{position:fixed;right:10px;bottom:10px;z-index:10;display:none}
+  #end{max-width:720px;margin:40px auto;padding:20px;background:#111c3a;border:1px solid #2b3d6b;border-radius:16px;display:none}
+  pre{white-space:pre-wrap;font-size:12px;max-height:240px;overflow:auto;background:#0b1328;padding:10px;border-radius:10px}
+</style>
+</head>
+<body>
+<div id="menu">
+  <h1>Rozdział 1: Odbudowa AEGIS-7</h1>
+  <div class="muted">Podgląd do testów, bez zapisu w profilu. W pełnej grze misje uruchamia ekran główny.</div>
+  <p>Poziom: <select id="lvl"><option value="">automatycznie (1)</option><option value="1">1 łatwy</option><option value="2">2 średni</option><option value="3">3 trudny</option></select>
+     Mikrofon: <select id="mic"><option value="1">tak</option><option value="0">nie</option></select></p>
+  <div class="grid" id="list"></div>
+  <div class="muted" style="font-size:14px">Brakujące nagrania czyta syntezator przeglądarki (najlepiej brzmi w Edge).</div>
+</div>
+<div id="end"></div>
+<div id="game"></div>
+<button class="s" id="close">✕ Zakończ</button>
+<script type="module">
+import { MISSIONS, PARTS, SOUNDS } from './ch1-data.js';
+import { LEVELS } from './ch1-engine.js';
+import { say } from '../../core/say.js';
+const base = '../../../';
+const list = document.getElementById('list'), game = document.getElementById('game'), end = document.getElementById('end'), menu = document.getElementById('menu'), close = document.getElementById('close');
+let unmount = null, log = [];
+for (const M of MISSIONS) {
+  const b = document.createElement('button'); b.className = 'm';
+  b.innerHTML = `<b>${M.nr}. ${M.title}</b><span>${SOUNDS[M.sound].label}<br>Nagroda: ${M.parts.map(p => PARTS[p]).join(', ') || 'uruchomienie robota'}</span>`;
+  b.onclick = () => start(M.nr);
+  list.append(b);
+}
+async function start(nr) {
+  const mod = await import(`../ch1-m${nr}/mission.js`);
+  const lv = document.getElementById('lvl').value;
+  const profile = { id: 'preview', settings: { mic: document.getElementById('mic').value === '1' }, progress: { missions: {} }, calibration: null };
+  log = [];
+  const assistant = lv ? { nextSettings: () => ({ level: +lv }) } : null;
+  menu.style.display = 'none'; end.style.display = 'none'; game.style.display = 'block'; close.style.display = 'block';
+  unmount = mod.mount(game, {
+    profile, base, assistant, audio: window.RGAudio || null,
+    say: (t, o = {}) => say(t, { ...o, base }),
+    record: ev => { log.push(Object.assign({ t: Date.now() }, ev)); console.log('record', ev); },
+    done: res => finish(res),
+  });
+}
+function stop() { unmount && unmount(); unmount = null; game.style.display = 'none'; close.style.display = 'none'; }
+close.onclick = () => { stop(); menu.style.display = 'block'; };
+function finish(res) {
+  stop();
+  const s = res.summary;
+  end.style.display = 'block';
+  end.innerHTML = `<h2>${'★'.repeat(res.stars)}${'☆'.repeat(3 - res.stars)} Misja ukończona</h2>
+    <p><b>Montaż:</b> ${res.parts.map(p => PARTS[p]).join(', ') || 'uruchomienie robota'}</p>
+    <p><b>AEGIS-7:</b> ${s.cheer.pl}</p>
+    <p>${s.pl}</p>
+    <p class="muted">Za pierwszym razem: ${s.firstTry}/${s.items}. Poziom na start ${s.startLevel}, na koniec ${s.level}.</p>
+    <details><summary>Dane dla asystenta (${log.length} odpowiedzi)</summary><pre>${JSON.stringify({ done: res, events: log }, null, 1).replace(/</g, '&lt;')}</pre></details>
+    <p><button class="s" id="back">Wróć do listy</button></p>`;
+  document.getElementById('back').onclick = () => { end.style.display = 'none'; menu.style.display = 'block'; };
+  say(s.cheer.en, { base });
+}
+</script>
+</body>
+</html>

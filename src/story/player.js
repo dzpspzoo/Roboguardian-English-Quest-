@@ -114,7 +114,7 @@ export function playStory(rootEl, data, opts = {}) {
     if (s.video) {
       vid.loop = !!s.videoLoop;
       vid.src = base + s.video;
-      vid.oncanplay = () => { vid.oncanplay = null; vid.play().then(() => vid.classList.add('on')).catch(() => {}); };
+      vid.oncanplay = () => { vid.oncanplay = null; vid.playbackRate = s.videoRate || 1; vid.play().then(() => vid.classList.add('on')).catch(() => {}); };
       vid.onerror = () => vid.classList.remove('on');
       if (!reduced && vid.animate) vid.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }], { duration: 20000, fill: 'forwards' });
     }

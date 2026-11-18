@@ -33,9 +33,9 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.rgs-img{transition:none}}
 `;
 
-const LINE_GAP = 1400;     // przerwa między zdaniami (ms): czas na wsłuchanie się
-const SCENE_GAP = 1800;    // cisza po ostatnim zdaniu sceny (ms)
-const SCENE_LEAD = 2200;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
+const LINE_GAP = 1000;     // przerwa między zdaniami (ms): czas na wsłuchanie się
+const SCENE_GAP = 1400;    // cisza po ostatnim zdaniu sceny (ms)
+const SCENE_LEAD = 1700;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
 
 export function playStory(rootEl, data, opts = {}) {
   const base = opts.basePath ?? './';

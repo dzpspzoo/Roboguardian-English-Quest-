@@ -41,7 +41,7 @@
         }
       ],
       "video": "assets/story/video/s01.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s02",
@@ -94,7 +94,7 @@
         }
       ],
       "video": "assets/story/video/s02.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s03",
@@ -135,7 +135,7 @@
         }
       ],
       "video": "assets/story/video/s03.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s04",
@@ -176,7 +176,7 @@
         }
       ],
       "video": "assets/story/video/s04.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s05",
@@ -227,7 +227,7 @@
         }
       ],
       "video": "assets/story/video/s05.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s06",
@@ -274,7 +274,7 @@
         }
       ],
       "video": "assets/story/video/s06.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s07",
@@ -309,7 +309,7 @@
         }
       ],
       "video": "assets/story/video/s07.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s08",
@@ -356,7 +356,7 @@
         }
       ],
       "video": "assets/story/video/s08.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s09",
@@ -409,7 +409,7 @@
         }
       ],
       "video": "assets/story/video/s09.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     },
     {
       "id": "s10",
@@ -462,7 +462,7 @@
         }
       ],
       "video": "assets/story/video/s10.mp4",
-      "videoRate": 0.65
+      "videoRate": 1
     }
   ]
 }

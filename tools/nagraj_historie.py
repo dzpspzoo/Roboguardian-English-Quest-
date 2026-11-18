@@ -1,5 +1,5 @@
 """Nagrywa narrację historii początkowej z src/story/intro.json.
-Narrator: ElevenLabs "Brian". AEGIS-7: głos i filtr z robot_voice.py (robot 2).
+Narrator: ElevenLabs "Father Ambrose" (wybrany 18.11.2026), wersja B: wolno, spokojne emocje. AEGIS-7: głos i filtr z robot_voice.py (robot 2).
 Klucz czytany z tools/'eleven labs key.txt' (nigdy nie wypisywany, nigdy w repo).
 
 python tools/nagraj_historie.py                 -> nagrywa brakujące pliki do assets/audio/story/
@@ -11,8 +11,8 @@ import json, pathlib, shutil, subprocess, sys, urllib.request
 HERE = pathlib.Path(__file__).parent
 ROOT = HERE.parent
 STORY = json.loads((ROOT / "src/story/intro.json").read_text(encoding="utf-8"))
-NARRATOR_NAME = "Brian"
-NARRATOR_SETTINGS = {"stability": 0.55, "similarity_boost": 0.8, "style": 0.35, "use_speaker_boost": True, "speed": 0.9}
+NARRATOR_ID = "gRPwZFYxBbXTrxXJzU6u"  # Father Ambrose (biblioteka ElevenLabs, dodany do konta)
+NARRATOR_SETTINGS = {"stability": 0.4, "similarity_boost": 0.8, "style": 0.55, "use_speaker_boost": True, "speed": 0.8}
 
 lines = [l for s in STORY["scenes"] for l in s["lines"]]
 only = [a for a in sys.argv[1:] if not a.startswith("--")]
@@ -36,11 +36,7 @@ def api(path, body=None):
 
 
 def narrator_id():
-    voices = json.loads(api("/v1/voices")).get("voices", [])
-    for v in voices:
-        if v["name"].split(" ")[0].lower() == NARRATOR_NAME.lower():
-            return v["voice_id"]
-    return "nPczCjzI2devNBz1zQrb"  # Brian (biblioteka ElevenLabs)
+    return NARRATOR_ID
 
 
 def to_mp3(wav, mp3):
@@ -77,7 +73,7 @@ for l in lines:
     else:
         nid = nid or narrator_id()
         audio = api(f"/v1/text-to-speech/{nid}?output_format=mp3_44100_96",
-                    {"text": l["en"], "model_id": "eleven_multilingual_v2", "voice_settings": NARRATOR_SETTINGS})
+                    {"text": l.get("tts", l["en"]), "model_id": "eleven_multilingual_v2", "voice_settings": NARRATOR_SETTINGS})
         out.write_bytes(audio)
         res = out
     done += 1

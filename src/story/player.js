@@ -33,9 +33,9 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.rgs-img{transition:none}}
 `;
 
-const LINE_GAP = 1000;     // przerwa między zdaniami (ms): czas na wsłuchanie się
-const SCENE_GAP = 1400;    // cisza po ostatnim zdaniu sceny (ms)
-const SCENE_LEAD = 1700;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
+const LINE_GAP = 600;      // przerwa między zdaniami (ms): czas na wsłuchanie się
+const SCENE_GAP = 900;     // cisza po ostatnim zdaniu sceny (ms)
+const SCENE_LEAD = 1100;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
 
 export function playStory(rootEl, data, opts = {}) {
   const base = opts.basePath ?? './';
@@ -106,7 +106,7 @@ export function playStory(rootEl, data, opts = {}) {
     const tf = p => `translate(${p.x || 0}%,${p.y || 0}%) scale(${p.scale || 1})`;
     if (!reduced && layer.animate) {
       anim = layer.animate([{ transform: tf(m.from) }, { transform: tf(m.to) }],
-        { duration: Math.max(12000, s.lines.length * 7500 + SCENE_LEAD), easing: 'ease-in-out', fill: 'forwards' });
+        { duration: Math.max(12000, s.lines.length * 6000 + SCENE_LEAD), easing: 'ease-in-out', fill: 'forwards' });
     }
     layer.classList.add('on'); other.classList.remove('on');
     // klip wideo sceny (opcjonalny): gra raz i zostaje na ostatniej klatce; obraz jest tłem i zapasem

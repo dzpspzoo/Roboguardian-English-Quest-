@@ -39,7 +39,9 @@
           "en": "Piece by piece, he got arms, legs and a heart of blue light.",
           "pl": "Część po części dostał ręce, nogi i serce z niebieskiego światła."
         }
-      ]
+      ],
+      "video": "assets/story/video/s01.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s02",
@@ -90,7 +92,9 @@
           "id": "power_up",
           "at": 5500
         }
-      ]
+      ],
+      "video": "assets/story/video/s02.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s03",
@@ -129,7 +133,9 @@
           "en": "Sometimes he made mistakes. That was OK. He tried again and again.",
           "pl": "Czasem robił błędy. To nic. Próbował znowu i znowu."
         }
-      ]
+      ],
+      "video": "assets/story/video/s03.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s04",
@@ -168,7 +174,9 @@
           "en": "This is my family. I will always protect them.",
           "pl": "To moja rodzina. Zawsze będę ich chronić."
         }
-      ]
+      ],
+      "video": "assets/story/video/s04.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s05",
@@ -217,7 +225,9 @@
           "id": "alarm",
           "loop": true
         }
-      ]
+      ],
+      "video": "assets/story/video/s05.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s06",
@@ -262,7 +272,9 @@
           "id": "whoosh",
           "at": 0
         }
-      ]
+      ],
+      "video": "assets/story/video/s06.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s07",
@@ -295,7 +307,9 @@
           "en": "One robot against a whole army. He did not run.",
           "pl": "Jeden robot przeciwko całej armii. Nie uciekł."
         }
-      ]
+      ],
+      "video": "assets/story/video/s07.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s08",
@@ -340,7 +354,9 @@
           "id": "crash_impact",
           "at": 200
         }
-      ]
+      ],
+      "video": "assets/story/video/s08.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s09",
@@ -391,7 +407,9 @@
           "id": "robot_beep",
           "at": 9000
         }
-      ]
+      ],
+      "video": "assets/story/video/s09.mp4",
+      "videoRate": 0.65
     },
     {
       "id": "s10",
@@ -442,7 +460,9 @@
           "id": "whoosh",
           "at": 0
         }
-      ]
+      ],
+      "video": "assets/story/video/s10.mp4",
+      "videoRate": 0.65
     }
   ]
 }

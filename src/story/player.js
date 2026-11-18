@@ -8,6 +8,8 @@ const CSS = `
 .rgs{position:fixed;inset:0;background:#05070d;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;z-index:50;user-select:none}
 .rgs-img{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease;will-change:transform,opacity}
 .rgs-img.on{opacity:1}
+.rgs-vid{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
+.rgs-vid.on{opacity:1}
 .rgs-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .rgs-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%),linear-gradient(to bottom,transparent 62%,rgba(0,0,0,.78) 100%)}
 .rgs-title{position:absolute;top:18px;left:22px;font-size:14px;letter-spacing:.18em;text-transform:uppercase;color:#3fe0d0;opacity:.9;text-shadow:0 1px 4px #000}
@@ -31,8 +33,9 @@ const CSS = `
 @media (prefers-reduced-motion:reduce){.rgs-img{transition:none}}
 `;
 
-const LINE_GAP = 700;      // przerwa między zdaniami (ms)
-const SCENE_GAP = 900;     // przerwa po scenie (ms)
+const LINE_GAP = 1400;     // przerwa między zdaniami (ms): czas na wsłuchanie się
+const SCENE_GAP = 1800;    // cisza po ostatnim zdaniu sceny (ms)
+const SCENE_LEAD = 2200;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
 
 export function playStory(rootEl, data, opts = {}) {
   const base = opts.basePath ?? './';
@@ -52,6 +55,7 @@ export function playStory(rootEl, data, opts = {}) {
   el.setAttribute('aria-label', 'Historia AEGIS-7');
   el.innerHTML = `
     <div class="rgs-img"></div><div class="rgs-img"></div>
+    <video class="rgs-vid" muted playsinline preload="auto"></video>
     <canvas class="rgs-fx"></canvas><div class="rgs-vig"></div>
     <div class="rgs-title"></div><div class="rgs-dots"></div>
     <div class="rgs-sub" aria-live="polite"><span class="rgs-pl"></span></div>
@@ -66,6 +70,7 @@ export function playStory(rootEl, data, opts = {}) {
 
   const imgs = [...el.querySelectorAll('.rgs-img')];
   const canvas = el.querySelector('.rgs-fx');
+  const vid = el.querySelector('.rgs-vid');
   const titleEl = el.querySelector('.rgs-title');
   const dotsEl = el.querySelector('.rgs-dots');
   const subEl = el.querySelector('.rgs-pl');
@@ -101,9 +106,18 @@ export function playStory(rootEl, data, opts = {}) {
     const tf = p => `translate(${p.x || 0}%,${p.y || 0}%) scale(${p.scale || 1})`;
     if (!reduced && layer.animate) {
       anim = layer.animate([{ transform: tf(m.from) }, { transform: tf(m.to) }],
-        { duration: Math.max(8000, s.lines.length * 6000), easing: 'ease-in-out', fill: 'forwards' });
+        { duration: Math.max(12000, s.lines.length * 7500 + SCENE_LEAD), easing: 'ease-in-out', fill: 'forwards' });
     }
     layer.classList.add('on'); other.classList.remove('on');
+    // klip wideo sceny (opcjonalny): gra raz i zostaje na ostatniej klatce; obraz jest tłem i zapasem
+    vid.classList.remove('on'); vid.pause();
+    if (s.video) {
+      vid.loop = !!s.videoLoop;
+      vid.src = base + s.video;
+      vid.oncanplay = () => { vid.oncanplay = null; vid.playbackRate = s.videoRate || 1; vid.play().then(() => vid.classList.add('on')).catch(() => {}); };
+      vid.onerror = () => vid.classList.remove('on');
+      if (!reduced && vid.animate) vid.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }], { duration: 20000, fill: 'forwards' });
+    }
     titleEl.textContent = s.title_pl || '';
     [...dotsEl.children].forEach((d, k) => d.className = k < i ? 'done' : k === i ? 'now' : '');
     fx.set(s.fx || 'none');
@@ -152,7 +166,7 @@ export function playStory(rootEl, data, opts = {}) {
     if (si + 1 < data.scenes.length) {
       si++; li = 0;
       subEl.classList.remove('on');
-      timer = setTimeout(() => { showScene(si); timer = setTimeout(playLine, 900); }, SCENE_GAP);
+      timer = setTimeout(() => { showScene(si); timer = setTimeout(playLine, SCENE_LEAD); }, SCENE_GAP);
       return;
     }
     finish(false);
@@ -180,7 +194,7 @@ export function playStory(rootEl, data, opts = {}) {
 
   function finish(skipped) {
     if (finished) return;
-    finished = true; token++; clearTimeout(timer); audio.pause(); duck(false); stopLoop();
+    finished = true; token++; clearTimeout(timer); audio.pause(); vid.pause(); duck(false); stopLoop();
     fx.stop(); music && music.stop();
     document.removeEventListener('keydown', onKey);
     el.style.transition = 'opacity .6s'; el.style.opacity = '0';
@@ -206,9 +220,11 @@ export function playStory(rootEl, data, opts = {}) {
   // start
   si = 0; li = 0;
   showScene(0);
-  timer = setTimeout(playLine, 1200);
+  timer = setTimeout(playLine, SCENE_LEAD + 600);
 
-  return { stop: () => finish(true) };
+  const stop = () => finish(true);
+  stop.stop = stop;   // rdzeń woła stop() przy sprzątaniu
+  return stop;
 }
 
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }

@@ -307,6 +307,20 @@ const CHEERS = [
   ['Great job, Guardian!', 'Świetna robota, Strażniku!'],
   ['You are a real Guardian!', 'Jesteś prawdziwym Strażnikiem!'],
 ];
+// Paczki do druku 3D: assets/druk3d/druk3d.json (misja -> zip, miniatury, rozmiar)
+let druk3dCache = null;
+function druk3d() { return druk3dCache || (druk3dCache = fetch('assets/druk3d/druk3d.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))); }
+function printLink(d, label) {
+  return `<a class="btn" href="${esc(d.zip)}" download>🖨️ ${esc(label)} (${esc(String(d.size_mb))} MB)</a>`;
+}
+function fillPrintBox(box, missionId) {
+  druk3d().then(all => {
+    const d = all && all[missionId]; if (!d || !box.isConnected) return;
+    const imgs = (d.png && d.png.length ? d.png : ['assets/druk3d/AEGIS-7_caly.png']).map(src => `<img src="${esc(src)}" alt="" loading="lazy">`).join('');
+    box.innerHTML = `<div class="print3d"><div class="print3d-img">${imgs}</div><div><p><b>Część do wydrukowania w 3D</b><br><span class="muted">Plik dla rodzica: model w kolorach (.3mf) i STL, z instrukcją.</span></p>${printLink(d, 'Pobierz część do druku 3D')}</div></div>`;
+  });
+}
+
 function rewardScreen(m, res) {
   const p = store.getProfile();
   const stars = Math.max(0, Math.min(3, res.stars ?? 2));
@@ -335,10 +349,12 @@ function rewardScreen(m, res) {
       <img class="title-robot" src="assets/img/aegis.webp" alt="AEGIS-7">
       <p class="subtitle">${esc(cheer[1])}</p>
       ${summaryHtml ? `<div class="panel" style="max-width:700px">${summaryHtml}</div>` : ''}
+      <div data-print></div>
       <div class="row" style="justify-content:center"><button class="btn" data-a="again">🔊</button><button class="btn primary big" data-a="next" autofocus>Do hangaru ▶</button></div>
     </div>
   </section>`));
   setTimeout(() => aegisSay(cheer[0]), 600);
+  fillPrintBox(el.querySelector('[data-print]'), m.id);
   on(el, '[data-a=again]', () => aegisSay(cheer[0]));
   // Filmy fabularne po misjach (raz): „Tymczasem…” po 3. misji rozdziału 1, finał po ostatniej.
   const film = sm && sm.final ? 'finale' : (Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length >= 3 ? 'meanwhile' : null);
@@ -409,6 +425,7 @@ function parentScreen() {
           ${[[-1, 'łatwiej'], [0, 'automatycznie (zalecane)'], [1, 'trudniej']].map(([v, t]) => `<option value="${v}" ${((p.settings && p.settings.levelShift) || 0) === v ? 'selected' : ''}>${t}</option>`).join('')}
         </select></label>
       <p>Odpowiedzi w grze: <b>${log.length}</b>${log.length ? `, poprawnych ${Math.round(100 * ok / log.length)}%` : ''}</p>
+      <div data-print3d="${p.id}"></div>
       <div data-rec="${p.id}"></div>
       ${renderParentPanel ? `<div data-panel="${p.id}"></div>` : report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
     </div>`;
@@ -428,6 +445,12 @@ function parentScreen() {
     </div>
   </section>`));
   el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
+  druk3d().then(all => el.querySelectorAll('[data-print3d]').forEach(box => {
+    const p = ps.find(x => x.id === box.dataset.print3d); if (!p || !all) return;
+    const got = Object.keys(all).filter(id => p.progress.missions[id]);
+    box.innerHTML = got.length ? `<p>Części do druku 3D (zdobyte w misjach):</p><div class="print-list">${got.map((id, i) => printLink(all[id], `Misja ${id.replace('ch1-m', '')}`)).join('')}</div>`
+      : '<p class="muted">Po każdej misji rozdziału 1 pojawi się tu plik części robota do druku 3D.</p>';
+  }));
   import('./recordings.js').then(m => el.querySelectorAll('[data-rec]').forEach(box => {
     const p = ps.find(x => x.id === box.dataset.rec); if (p) m.renderRecordings(box, p, store.saveProfile);
   })).catch(() => {});

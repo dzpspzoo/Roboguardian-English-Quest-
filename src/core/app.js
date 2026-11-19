@@ -59,9 +59,9 @@ function titleScreen() {
   const profiles = store.listProfiles();
   const el = show(h(`
   <section class="screen">
-    <div class="bg" style="background-image:url(assets/gfx/backgrounds/start.svg),url(assets/img/hangar.webp)"></div>
+    <div class="bg title-bg" style="background-image:url(assets/img/hangar.webp)"></div>
     <div class="wrap center">
-      <div style="flex:1;min-height:30vh"></div>
+      <div class="hero"><img src="assets/img/aegis.webp" alt="AEGIS-7" onerror="this.remove()"></div>
       <h1 class="logo"><img src="assets/gfx/ui/logo.svg" alt="Roboguardian English Quest" onerror="this.replaceWith(Object.assign(document.createElement('span'),{innerHTML:'ROBOGUARDIAN<small>ENGLISH QUEST</small>'}))"></h1>
       <div class="menu">
         ${profiles.length ? `<button class="btn primary big" data-a="continue" autofocus>▶ Graj dalej: ${esc(profiles[0].avatar)} ${esc(profiles[0].name)}</button>` : ''}

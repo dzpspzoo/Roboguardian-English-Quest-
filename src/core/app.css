@@ -86,3 +86,10 @@ h1.logo img { width: min(560px, 86vw); height: auto; display: block; margin: 0 a
 .mutebtn { position: fixed; right: 12px; bottom: 12px; z-index: 60; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--rg-line); background: var(--rg-panel-solid); color: var(--rg-text); font-size: 24px; cursor: pointer; opacity: .85; }
 .mutebtn:hover, .mutebtn:focus-visible { opacity: 1; border-color: var(--rg-accent-2); outline: none; }
 .mutebtn[aria-pressed="true"] { border-color: var(--rg-accent); }
+
+/* ekran startowy: malowany hangar i AEGIS-7 */
+.title-bg::after{background:linear-gradient(180deg,rgba(5,10,20,.05) 0%,rgba(5,10,20,.15) 45%,rgba(5,10,20,.8) 100%)}
+.hero{flex:1;min-height:30vh;display:flex;align-items:flex-end;justify-content:center;margin-bottom:-7vh;pointer-events:none}
+.hero img{height:min(50vh,560px);width:auto;filter:drop-shadow(0 0 28px rgba(63,224,208,.45)) drop-shadow(0 12px 18px rgba(0,0,0,.6));animation:heroFloat 5s ease-in-out infinite}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media (prefers-reduced-motion:reduce){.hero img{animation:none}}

@@ -14,13 +14,18 @@ export function say(text, { slow = false, lang = 'en', base = '' } = {}) {
   const a = new Audio(`${base}assets/audio/words/${dir}/${slug(text)}.mp3`);
   current = a;
   return new Promise(res => {
-    a.onended = () => res(true);
-    a.onerror = () => { // brak nagrania: syntezator przeglądarki jako zapas
+    let done = false;
+    const end = v => { if (!done) { done = true; res(v); } };
+    a.onended = () => end(true);
+    // syntezator przeglądarki tylko gdy pliku naprawdę brak (404), nie przy przerwaniu ani blokadzie autoodtwarzania
+    a.onerror = () => {
+      if (done || current !== a) return end(false);
+      done = true;
       try {
         const u = new SpeechSynthesisUtterance(text); u.lang = lang === 'pl' ? 'pl-PL' : 'en-US'; u.rate = slow ? 0.6 : 0.9;
         u.onend = () => res(false); speechSynthesis.cancel(); speechSynthesis.speak(u);
       } catch (e) { res(false); }
     };
-    a.play().catch(() => a.onerror());
+    a.play().catch(() => end(false));
   });
 }

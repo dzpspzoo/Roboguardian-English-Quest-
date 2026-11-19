@@ -191,6 +191,96 @@
    ]
   },
   {
+   "id": "f04a",
+   "title_pl": "Bitwa w kosmosie",
+   "image": "assets/story/img/f04a.webp",
+   "video": "assets/story/video/f04a.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "lasers",
+   "sfx": [
+    {
+     "id": "whoosh",
+     "at": 300
+    },
+    {
+     "id": "crash_impact",
+     "at": 2200
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f04a_01.mp3",
+     "en": "At the station, Kraken drones and ships attacked him.",
+     "pl": "Przy stacji zaatakowały go drony i statki Krakenów."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/f04a_02.mp3",
+     "en": "My shield is strong. You cannot stop me!",
+     "pl": "Moja tarcza jest mocna. Nie zatrzymacie mnie!"
+    }
+   ]
+  },
+  {
+   "id": "f04b",
+   "title_pl": "Pojedynek z Komandorem",
+   "image": "assets/story/img/f04b.webp",
+   "video": "assets/story/video/f04b.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "sparks",
+   "sfx": [
+    {
+     "id": "metal_clank",
+     "at": 1500
+    },
+    {
+     "id": "whoosh",
+     "at": 3000
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f04b_01.mp3",
+     "en": "Then the Kraken Commander came to fight.",
+     "pl": "Wtedy do walki stanął Komandor Krakenów."
+    },
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f04b_02.mp3",
+     "en": "AEGIS knocked his staff away. The Commander ran!",
+     "pl": "AEGIS wytrącił mu laskę. Komandor uciekł!"
+    }
+   ]
+  },
+  {
    "id": "f05",
    "title_pl": "Odbicie rodziny",
    "image": "assets/story/img/f05.webp",

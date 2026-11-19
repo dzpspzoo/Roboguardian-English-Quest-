@@ -18,3 +18,15 @@ Wynik: `assets/audio/music/*.mp3`, `assets/audio/sfx/*.mp3`, `assets/audio/manif
 - `sfx.py` – efekty.
 
 Nowy nastrój: dopisz funkcję w `music.py`, dodaj ją do `SONGS` i do `MUSIC_INFO` w `build.py`.
+
+## Wersja filmowa (od 19.11.2026)
+
+Muzyka i efekty w `assets/audio/` pochodzą teraz z ElevenLabs (Eleven Music v2.5 z motywem głównym jako referencją,
+Sound Effects v3), plan Starter, gra darmowa. Surowe pliki leżą na gałęzi `muzyka-probki` (`elevenlabs/`, `probki/`).
+Do gry wstawia je `import_elevenlabs.py` (normalizacja głośności, pętle z przenikaniem, manifest):
+
+```
+python tools/audio-gen/import_elevenlabs.py <katalog z music/ i sfx/> <katalog z theme_main.mp3 i story_family.mp3>
+```
+
+`build.py` (syntezator) zostaje jako zapas; uruchomienie go nadpisze pliki wersji filmowej.

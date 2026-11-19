@@ -8,6 +8,7 @@ const CSS = `
 .rgs{position:fixed;inset:0;background:#05070d;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;z-index:50;user-select:none}
 .rgs-img{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease;will-change:transform,opacity}
 .rgs-img.on{opacity:1}
+.rgs-film{background:#000}
 .rgs-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease}
 .rgs.has-vid .rgs-img{filter:blur(22px) brightness(.45)}
 .rgs-img{transition:opacity 1.2s ease,filter .9s ease}
@@ -40,6 +41,7 @@ const SCENE_GAP = 900;     // cisza po ostatnim zdaniu sceny (ms)
 const SCENE_LEAD = 1100;   // nowa scena: najpierw sam obraz i muzyka, potem lektor (ms)
 
 export function playStory(rootEl, data, opts = {}) {
+  if (data && data.version === 2 && data.film) return playFilm(rootEl, data, opts);
   const base = opts.basePath ?? './';
   const onEnd = opts.onEnd || (() => {});
   const onMusic = opts.onMusic || null;
@@ -236,6 +238,89 @@ export function playStory(rootEl, data, opts = {}) {
   const stop = () => finish(true);
   stop.stop = stop;   // rdzeń woła stop() przy sprzątaniu
   return stop;
+}
+
+// ---------- film ciągły (version 2): jedno wideo z wmiksowanym dźwiękiem + napisy wg czasu ----------
+const NAMES2 = { narrator: '', aegis: 'AEGIS-7', leo: 'Leo', mia: 'Mia', mom: 'Mama', dad: 'Tata', soldier: 'Żołnierz', worker: 'Robotnik' };
+function playFilm(rootEl, data, opts = {}) {
+  const base = opts.basePath ?? './';
+  const onEnd = opts.onEnd || (() => {});
+  const f = data.film, subs = (f.subs || []).slice().sort((a, b) => a.t0 - b.t0);
+  const store = safeStore();
+  let showEn = store.get('rgs.en') === '1', slow = store.get('rgs.slow') === '1', finished = false, cur = -1;
+  if (!document.getElementById('rgs-css')) { const st = document.createElement('style'); st.id = 'rgs-css'; st.textContent = CSS; document.head.appendChild(st); }
+  try { opts.onMusic ? opts.onMusic(null) : window.RGAudio && window.RGAudio.stopMusic && window.RGAudio.stopMusic(); } catch { }
+  const el = document.createElement('div');
+  el.className = 'rgs rgs-film'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Film AEGIS-7');
+  el.innerHTML = `
+    <video class="rgs-vid on" playsinline preload="auto" ${f.poster ? `poster="${esc(base + f.poster)}"` : ''}></video>
+    <div class="rgs-sub" aria-live="polite"><span class="rgs-pl"></span></div>
+    <div class="rgs-bar">
+      <button data-a="repeat" title="Powtórz zdanie (R)">⟲ Powtórz</button>
+      <button data-a="slow" aria-pressed="${slow}" title="Wolniej">🐢 Wolniej</button>
+      <button data-a="en" aria-pressed="${showEn}" title="Pokaż też angielski tekst">EN</button>
+      <button data-a="pause" class="main" title="Pauza (spacja)">⏸ Pauza</button>
+      <button data-a="skip" title="Pomiń film (Esc)">Pomiń ⏭</button>
+    </div>`;
+  rootEl.appendChild(el);
+  const vid = el.querySelector('video'), subEl = el.querySelector('.rgs-pl'), pauseBtn = el.querySelector('[data-a=pause]');
+  vid.src = base + f.video;
+  const rate = () => { vid.playbackRate = slow ? 0.85 : 1; vid.preservesPitch = true; };
+  function paintSub() {
+    const t = vid.currentTime;
+    let i = -1; for (let k = 0; k < subs.length; k++) { if (subs[k].t0 <= t && t < subs[k].t1) { i = k; break; } }
+    if (i === cur) return; cur = i;
+    subEl.classList.remove('on', 'aegis');
+    if (i < 0) return;
+    const l = subs[i], name = NAMES2[l.speaker];
+    subEl.innerHTML = (name ? `<span class="rgs-who">${esc(name)}</span>` : '') + esc(l.pl || '') + (showEn && l.en ? `<span class="rgs-en" lang="en">${esc(l.en)}</span>` : '');
+    if (l.speaker === 'aegis') subEl.classList.add('aegis');
+    requestAnimationFrame(() => subEl.classList.add('on'));
+  }
+  vid.addEventListener('timeupdate', paintSub);
+  vid.addEventListener('ended', () => finish(false));
+  vid.addEventListener('play', () => { pauseBtn.textContent = '⏸ Pauza'; });
+  vid.addEventListener('pause', () => { if (!finished) pauseBtn.textContent = '▶ Dalej'; });
+  function start() {
+    rate();
+    const p = vid.play();
+    if (p && p.catch) p.catch(err => { if (err && err.name === 'NotAllowedError') askToStart(); });
+  }
+  function askToStart() {
+    if (el.querySelector('.rgs-start')) return;
+    const ov = document.createElement('div'); ov.className = 'rgs-start';
+    ov.innerHTML = '<button>▶ Rozpocznij historię</button>';
+    ov.querySelector('button').onclick = () => { ov.remove(); start(); };
+    el.appendChild(ov);
+  }
+  function repeat() {
+    const t = vid.currentTime; let back = 0;
+    for (const l of subs) if (l.t0 <= t - 0.3) back = l.t0;
+    vid.currentTime = Math.max(0, back - 0.15); cur = -2; if (vid.paused) start();
+  }
+  function finish(skipped) {
+    if (finished) return; finished = true;
+    vid.pause(); document.removeEventListener('keydown', onKey);
+    el.style.transition = 'opacity .6s'; el.style.opacity = '0';
+    setTimeout(() => { vid.removeAttribute('src'); vid.load(); el.remove(); onEnd({ skipped }); }, 600);
+  }
+  function onKey(e) {
+    if (e.key === 'Escape') finish(true);
+    else if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); vid.paused ? start() : vid.pause(); }
+    else if (e.key === 'r' || e.key === 'R') repeat();
+  }
+  document.addEventListener('keydown', onKey);
+  el.querySelector('.rgs-bar').addEventListener('click', e => {
+    const b = e.target.closest('button'); const a = b && b.dataset.a;
+    if (a === 'skip') finish(true);
+    else if (a === 'repeat') repeat();
+    else if (a === 'pause') vid.paused ? start() : vid.pause();
+    else if (a === 'slow') { slow = !slow; store.set('rgs.slow', slow ? '1' : '0'); b.setAttribute('aria-pressed', slow); rate(); }
+    else if (a === 'en') { showEn = !showEn; store.set('rgs.en', showEn ? '1' : '0'); b.setAttribute('aria-pressed', showEn); cur = -2; paintSub(); }
+  });
+  vid.addEventListener('error', () => { if (!finished) { subEl.textContent = 'Nie udało się wczytać filmu.'; subEl.classList.add('on'); setTimeout(() => finish(true), 2500); } });
+  start();
+  const stop = () => finish(true); stop.stop = stop; return stop;
 }
 
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }

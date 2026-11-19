@@ -449,3 +449,19 @@ async function mountAssembly(box, got, fresh) {
 const PART_ALIAS = { '01_tulow': 'torso', '02_glowa': 'head', '03_miednica': 'pelvis', '04_udo_L': 'thigh_l', '05_udo_P': 'thigh_r',
   '06_golen_L': 'shin_l', '07_golen_P': 'shin_r', '08_ramie_L': 'arm_l', '09_przedramie_L': 'forearm_l', '10_ramie_P': 'arm_r', '11_przedramie_P': 'forearm_r' };
 function normPart(id) { return id ? (PART_ALIAS[id] || id) : null; }
+
+// --- Przycisk wyciszenia: zawsze w prawym dolnym rogu, na każdym ekranie (także w misjach) ---
+(function muteButton() {
+  const b = document.createElement('button');
+  b.className = 'mutebtn';
+  const paint = () => {
+    const m = !!(RGAudio && RGAudio.isMuted && RGAudio.isMuted());
+    b.textContent = m ? '🔇' : '🔊';
+    b.setAttribute('aria-label', m ? 'Włącz dźwięk' : 'Wycisz muzykę i dźwięki');
+    b.title = b.getAttribute('aria-label');
+    b.setAttribute('aria-pressed', String(m));
+  };
+  b.addEventListener('click', () => { try { RGAudio.toggleMute(); } catch (e) {} paint(); });
+  document.body.append(b);
+  paint(); setTimeout(paint, 500);
+})();

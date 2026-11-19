@@ -356,12 +356,16 @@ function rewardScreen(m, res) {
   setTimeout(() => aegisSay(cheer[0]), 600);
   fillPrintBox(el.querySelector('[data-print]'), m.id);
   on(el, '[data-a=again]', () => aegisSay(cheer[0]));
-  // Filmy fabularne po misjach (raz): „Tymczasem…” po 3. misji rozdziału 1, finał po ostatniej.
-  const film = sm && sm.final ? 'finale' : (Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length >= 3 ? 'meanwhile' : null);
+  // Filmy fabularne po misjach (raz): „Tymczasem…” po 3. misji rozdziału 1, „W połowie drogi” po 6., finał po ostatniej.
+  const done1 = Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length;
+  const seen = (p.progress.films || {});
+  const film = sm && sm.final ? 'finale' : done1 >= 6 && !seen.midway ? 'midway' : done1 >= 3 && !seen.meanwhile ? 'meanwhile' : null;
   on(el, '[data-a=next]', () => {
-    const q = store.getProfile(); q.progress.films = q.progress.films || {};
-    if (film && !q.progress.films[film]) { q.progress.films[film] = true; store.saveProfile(q); playStoryFile(`src/story/${film}.json`, hangarScreen).then(ok => { if (!ok) hangarScreen(); }); }
-    else hangarScreen();
+    if (!film) return hangarScreen();
+    playStoryFile(`src/story/${film}.json`, hangarScreen).then(ok => {
+      if (!ok) return hangarScreen();
+      const q = store.getProfile(); q.progress.films = q.progress.films || {}; q.progress.films[film] = true; store.saveProfile(q);
+    });
   });
 }
 
@@ -542,7 +546,7 @@ function withLevelShift(A, profile) {
 }
 
 // Kino: obejrzane filmy fabularne do ponownego odtworzenia.
-const FILMS = [['intro', 'Początek historii'], ['meanwhile', 'Tymczasem…'], ['review', 'Podsumowanie'], ['quiz', 'Przed kartkówką'], ['finale', 'Finał rozdziału 1']];
+const FILMS = [['intro', 'Początek historii'], ['meanwhile', 'Tymczasem…'], ['midway', 'W połowie drogi'], ['review', 'Podsumowanie'], ['quiz', 'Przed kartkówką'], ['finale', 'Finał rozdziału 1']];
 function cinemaScreen() {
   const p = store.getProfile(); const seen = (p && p.progress.films) || {};
   const list = FILMS.filter(([id]) => id === 'intro' || seen[id]);

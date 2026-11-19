@@ -1,0 +1,47 @@
+{
+ "id": "quiz",
+ "version": 1,
+ "scenes": [
+  {
+   "id": "p03",
+   "title_pl": "Symulator",
+   "image": "assets/story/img/p03.webp",
+   "video": "assets/story/video/p03.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "core",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/p03_01.mp3",
+     "en": "AEGIS connected to the training simulator.",
+     "pl": "AEGIS podłączył się do symulatora treningowego."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/p03_02.mp3",
+     "en": "Practice mode on. Here come the training drones!",
+     "pl": "Tryb treningu włączony. Nadlatują drony treningowe!"
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/p03_03.mp3",
+     "en": "Don't worry about mistakes. We learn from them.",
+     "pl": "Nie martw się błędami. Uczymy się na nich."
+    }
+   ]
+  }
+ ]
+}

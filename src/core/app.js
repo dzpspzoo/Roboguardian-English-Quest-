@@ -28,7 +28,9 @@ addEventListener('pointerdown', () => { if (!audioUnlocked) { audioUnlocked = tr
 const h = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let cleanup = null;
+let navSeq = 0; // rośnie przy każdej zmianie ekranu; ekran asynchroniczny sprawdza, czy nadal jest aktualny
 function show(el) {
+  navSeq++;
   if (typeof cleanup === 'function') { try { cleanup(); } catch (e) {} }
   cleanup = null; app.replaceChildren(el); el.querySelector('[autofocus]')?.focus();
   return el;
@@ -143,22 +145,31 @@ function routeForProfile() {
 }
 
 async function storyScreen({ replay = false } = {}) {
-  const root = show(h(`<section class="screen"></section>`));
   const finish = () => { const p = store.getProfile(); if (p && !p.progress.storySeen) { p.progress.storySeen = true; store.saveProfile(p); } replay ? hangarScreen() : routeForProfile(); };
-  const mod = await optionalImport('../story/player.js');
-  let data = null; try { data = await (await fetch('src/story/intro.json')).json(); } catch (e) {}
-  if (mod && mod.playStory && data) {
-    try { const stop = mod.playStory(root, data, { onEnd: finish, onMusic: id => music(id), basePath: '' }); cleanup = typeof stop === 'function' ? stop : null; return; }
-    catch (e) { console.error(e); }
-  }
-  placeholder(root, 'Historia AEGIS-7', 'Film z historią robota i rodziny naukowców jest właśnie nagrywany. Pojawi się tutaj w kolejnej wersji.',
+  const ok = await playStoryFile('src/story/intro.json', finish);
+  if (!ok) placeholder(show(h(`<section class="screen"></section>`)), 'Historia AEGIS-7', 'Film z historią robota i rodziny naukowców jest właśnie nagrywany. Pojawi się tutaj w kolejnej wersji.',
     'Hello, Guardian. I am Aegis Seven.', 'Witaj, Strażniku. Jestem AEGIS-7.', finish);
+}
+
+// Odtwarza film fabularny (JSON w formacie src/story/*.json). onDone wołane po końcu lub „Pomiń”,
+// ale nie wtedy, gdy gracz przeszedł na inny ekran. Zwraca false, gdy filmu nie da się wczytać.
+async function playStoryFile(file, onDone) {
+  const root = show(h(`<section class="screen"></section>`));
+  const seq = navSeq;
+  const mod = await optionalImport('../story/player.js');
+  let data = null; try { const r = await fetch(file); if (r.ok) data = await r.json(); } catch (e) {}
+  if (seq !== navSeq) return true;
+  if (!mod || !mod.playStory || !data) return false;
+  const done = () => { if (seq === navSeq) onDone(); };
+  try { const stop = mod.playStory(root, data, { onEnd: done, onMusic: id => music(id), basePath: '' }); cleanup = typeof stop === 'function' ? stop : null; return true; }
+  catch (e) { console.error(e); return false; }
 }
 
 async function calibrationScreen() {
   const root = show(h(`<section class="screen"></section>`));
+  const seq = navSeq;
   const p = store.getProfile();
-  const finish = (result) => { const q = store.getProfile(); q.progress.calibrationDone = true; if (result) q.calibration = result; store.saveProfile(q); hangarScreen(); };
+  const finish = (result) => { if (seq !== navSeq) return; const q = store.getProfile(); q.progress.calibrationDone = true; if (result) q.calibration = result; store.saveProfile(q); hangarScreen(); };
   const mod = await optionalImport('../calibration/calibration.js');
   if (mod && mod.startCalibration) {
     try {
@@ -190,12 +201,14 @@ async function loadMissions() {
 async function hangarScreen() {
   music('mission_calm');
   const p = store.getProfile(); if (!p) return titleScreen();
+  const seq = navSeq;
   const list = await loadMissions();
   const metas = [];
   for (const m of list) {
     const mod = await optionalImport(`../missions/${m.path || m.id + '/mission.js'}`.replace('../missions/src/missions/', '../missions/'));
     if (mod && mod.meta && mod.mount) metas.push({ ...mod.meta, mod });
   }
+  if (seq !== navSeq) return; // gracz zdążył przejść na inny ekran
   const got = new Set(p.progress.parts);
   queueMicrotask(() => mountAssembly(document.querySelector('[data-asm]'), got, lastNewPart));
   const pct = Math.round(100 * got.size / PARTS.length);
@@ -245,7 +258,7 @@ async function hangarScreen() {
   </section>`));
   on(el, '[data-a=home]', titleScreen);
   on(el, '[data-a=settings]', settingsScreen);
-  on(el, '[data-a=story]', () => storyScreen({ replay: true }));
+  on(el, '[data-a=story]', cinemaScreen);
   on(el, '[data-m]', (e, b) => missionScreen(metas.find(m => m.id === b.dataset.m)));
 }
 
@@ -279,6 +292,8 @@ function missionScreen(m) {
     missionDir: `src/missions/${m.id}/`,
     done: (res = {}) => { if (finished) return; finished = true; rewardScreen(m, res); },
     exit: () => hangarScreen(),
+    // Film fabularny z src/story/<name>.json (np. 'review', 'quiz'); po nim onDone (domyślnie powrót do hangaru).
+    playStory: (name, onDone) => playStoryFile(`src/story/${name}.json`, onDone || hangarScreen),
   };
   try { const stop = m.mod.mount(root, ctx); cleanup = typeof stop === 'function' ? stop : null; }
   catch (e) { console.error(e); toast('Misja nie wczytała się'); hangarScreen(); }
@@ -324,7 +339,13 @@ function rewardScreen(m, res) {
   </section>`));
   setTimeout(() => aegisSay(cheer[0]), 600);
   on(el, '[data-a=again]', () => aegisSay(cheer[0]));
-  on(el, '[data-a=next]', hangarScreen);
+  // Filmy fabularne po misjach (raz): „Tymczasem…” po 3. misji rozdziału 1, finał po ostatniej.
+  const film = sm && sm.final ? 'finale' : (Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length >= 3 ? 'meanwhile' : null);
+  on(el, '[data-a=next]', () => {
+    const q = store.getProfile(); q.progress.films = q.progress.films || {};
+    if (film && !q.progress.films[film]) { q.progress.films[film] = true; store.saveProfile(q); playStoryFile(`src/story/${film}.json`, hangarScreen).then(ok => { if (!ok) hangarScreen(); }); }
+    else hangarScreen();
+  });
 }
 
 /* ---------- ustawienia ---------- */
@@ -387,6 +408,7 @@ function parentScreen() {
           ${[[-1, 'łatwiej'], [0, 'automatycznie (zalecane)'], [1, 'trudniej']].map(([v, t]) => `<option value="${v}" ${((p.settings && p.settings.levelShift) || 0) === v ? 'selected' : ''}>${t}</option>`).join('')}
         </select></label>
       <p>Odpowiedzi w grze: <b>${log.length}</b>${log.length ? `, poprawnych ${Math.round(100 * ok / log.length)}%` : ''}</p>
+      <div data-rec="${p.id}"></div>
       ${renderParentPanel ? `<div data-panel="${p.id}"></div>` : report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
     </div>`;
   }).join('');
@@ -405,6 +427,9 @@ function parentScreen() {
     </div>
   </section>`));
   el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
+  import('./recordings.js').then(m => el.querySelectorAll('[data-rec]').forEach(box => {
+    const p = ps.find(x => x.id === box.dataset.rec); if (p) m.renderRecordings(box, p, store.saveProfile);
+  })).catch(() => {});
   el.querySelectorAll('[data-shift]').forEach(sel => sel.addEventListener('change', () => {
     const p = ps.find(x => x.id === sel.dataset.shift); if (!p) return;
     p.settings = p.settings || {}; p.settings.levelShift = +sel.value; store.saveProfile(p); toast('Zapisano poziom trudności');
@@ -426,7 +451,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 ready.finally(titleScreen);
-window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen } };
+window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen, film: name => playStoryFile(`src/story/${name}.json`, hangarScreen) } };
 
 // --- Robot składany z części (grafika: assets/gfx/characters/aegis7/assembly.svg) ---
 // Sufiks -l/-r w assembly.svg = strona EKRANU; lewa część robota (jak w druku 3D) jest po prawej stronie ekranu.
@@ -490,4 +515,20 @@ function withLevelShift(A, profile) {
   if (A.getDifficulty) w.getDifficulty = (...a) => adj(A.getDifficulty(...a));
   if (A.nextSettings) w.nextSettings = (...a) => adj(A.nextSettings(...a));
   return w;
+}
+
+// Kino: obejrzane filmy fabularne do ponownego odtworzenia.
+const FILMS = [['intro', 'Początek historii'], ['meanwhile', 'Tymczasem…'], ['review', 'Podsumowanie'], ['quiz', 'Przed kartkówką'], ['finale', 'Finał rozdziału 1']];
+function cinemaScreen() {
+  const p = store.getProfile(); const seen = (p && p.progress.films) || {};
+  const list = FILMS.filter(([id]) => id === 'intro' || seen[id]);
+  const el = show(h(`
+  <section class="screen">
+    <div class="bg" style="background-image:url(assets/gfx/backgrounds/hangar.svg),url(assets/img/hangar.webp)"></div>
+    <div class="topbar"><button class="iconbtn" data-a="back" aria-label="Wstecz">←</button><span class="title">Kino AEGIS-7</span></div>
+    <div class="wrap"><div class="cards">${list.map(([id, t]) => `<button class="card" data-film="${id}"><span class="big">🎬</span><h3>${esc(t)}</h3></button>`).join('')}</div>
+      <p class="muted">Kolejne filmy odblokujesz w misjach.</p></div>
+  </section>`));
+  on(el, '[data-a=back]', hangarScreen);
+  on(el, '[data-film]', (e, b) => b.dataset.film === 'intro' ? storyScreen({ replay: true }) : playStoryFile(`src/story/${b.dataset.film}.json`, cinemaScreen));
 }

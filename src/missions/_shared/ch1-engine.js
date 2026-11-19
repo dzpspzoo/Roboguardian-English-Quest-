@@ -575,7 +575,7 @@ export function runMission(root, ctx, M) {
               const stopped = new Promise(r => mr.onstop = r);
               mr.start(); await wait(2500); mr.stop(); await stopped;
               const blob = new Blob(chunks, { type: mr.mimeType });
-              saveClip({ t: Date.now(), mission: M.id, item: w, blob }).catch(() => {});
+              saveClip({ t: Date.now(), mission: M.id, item: w, profileId: ctx.profile?.id || null, blob }).catch(() => {});
               rb.textContent = '▶ Twój głos'; const a = new Audio(URL.createObjectURL(blob)); curAudio = a;
               await new Promise(r => { a.onended = r; a.onerror = r; a.play().catch(r); });
               rb.textContent = '🔊 AEGIS'; await word(w, false);

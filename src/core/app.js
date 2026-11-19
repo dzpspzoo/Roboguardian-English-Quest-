@@ -274,7 +274,7 @@ function missionScreen(m) {
     say: (text, opt = {}) => say(text, { slow: opt.slow ?? store.getProfile()?.settings.slowVoice, lang: opt.lang }),
     aegisSay,
     audio: RGAudio,
-    assistant: window.RGAssistant || null,
+    assistant: withLevelShift(window.RGAssistant || null, store.getProfile()),
     base: "", // prefiks ścieżek od katalogu gry (index.html); folder misji: missionDir
     missionDir: `src/missions/${m.id}/`,
     done: (res = {}) => { if (finished) return; finished = true; rewardScreen(m, res); },
@@ -382,6 +382,10 @@ function parentScreen() {
       <div class="row"><span style="font-size:32px">${esc(p.avatar)}</span><h3 class="grow">${esc(p.name)}</h3>
         <button class="btn small" data-del="${p.id}">Usuń</button></div>
       <p>Części robota: <b>${p.progress.parts.length}/${PARTS.length}</b> · historia: ${p.progress.storySeen ? 'obejrzana' : 'nie'} · test startowy: ${p.progress.calibrationDone ? 'zrobiony' : 'nie'}</p>
+      <label class="row">Poziom trudności:
+        <select data-shift="${p.id}" style="font:inherit;font-size:18px;padding:6px 10px;border-radius:10px">
+          ${[[-1, 'łatwiej'], [0, 'automatycznie (zalecane)'], [1, 'trudniej']].map(([v, t]) => `<option value="${v}" ${((p.settings && p.settings.levelShift) || 0) === v ? 'selected' : ''}>${t}</option>`).join('')}
+        </select></label>
       <p>Odpowiedzi w grze: <b>${log.length}</b>${log.length ? `, poprawnych ${Math.round(100 * ok / log.length)}%` : ''}</p>
       ${renderParentPanel ? `<div data-panel="${p.id}"></div>` : report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
     </div>`;
@@ -401,6 +405,10 @@ function parentScreen() {
     </div>
   </section>`));
   el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
+  el.querySelectorAll('[data-shift]').forEach(sel => sel.addEventListener('change', () => {
+    const p = ps.find(x => x.id === sel.dataset.shift); if (!p) return;
+    p.settings = p.settings || {}; p.settings.levelShift = +sel.value; store.saveProfile(p); toast('Zapisano poziom trudności');
+  }));
   on(el, '[data-a=back]', titleScreen);
   on(el, '[data-del]', (e, b) => { if (confirm('Usunąć tego gracza i jego wyniki?')) { store.deleteProfile(b.dataset.del); parentScreen(); } });
   on(el, '[data-a=export]', () => {
@@ -465,3 +473,21 @@ function normPart(id) { return id ? (PART_ALIAS[id] || id) : null; }
   document.body.append(b);
   paint(); setTimeout(paint, 500);
 })();
+
+// Ręczna korekta poziomu z panelu rodzica (profile.settings.levelShift: -1 łatwiej, 0 auto, +1 trudniej).
+// Nakładana na to, co proponuje asystent, w zakresie poziomów misji 1–3.
+function withLevelShift(A, profile) {
+  const shift = (profile && profile.settings && +profile.settings.levelShift) || 0;
+  if (!A || !shift) return A;
+  const adj = r => {
+    if (!r || typeof r !== 'object') return r;
+    const o = { ...r };
+    if (typeof o.level === 'number') o.level = Math.max(1, Math.min(3, Math.round(o.level) + shift));
+    if (shift < 0) { if ('maxChoices' in o) o.maxChoices = Math.max(2, (o.maxChoices || 3) - 1); o.slowAudioDefault = true; if ('polishHint' in o) o.polishHint = 'after-wrong'; }
+    return o;
+  };
+  const w = Object.create(A);
+  if (A.getDifficulty) w.getDifficulty = (...a) => adj(A.getDifficulty(...a));
+  if (A.nextSettings) w.nextSettings = (...a) => adj(A.nextSettings(...a));
+  return w;
+}

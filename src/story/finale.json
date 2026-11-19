@@ -1,0 +1,327 @@
+{
+ "id": "finale",
+ "version": 1,
+ "scenes": [
+  {
+   "id": "f01",
+   "title_pl": "Scalenie",
+   "image": "assets/story/img/f01.webp",
+   "video": "assets/story/video/f01.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_creation",
+   "fx": "core",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f01_01.mp3",
+     "en": "The last part clicked into place.",
+     "pl": "Ostatnia część wskoczyła na miejsce."
+    },
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f01_02.mp3",
+     "en": "AEGIS-7 was whole again!",
+     "pl": "AEGIS-7 znów był cały!"
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/f01_03.mp3",
+     "en": "Thank you. You rebuilt me.",
+     "pl": "Dziękuję. Odbudowałeś mnie."
+    }
+   ]
+  },
+  {
+   "id": "f02",
+   "title_pl": "Miecz i tarcza",
+   "image": "assets/story/img/f02.webp",
+   "video": "assets/story/video/f02.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "sparks",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f02_01.mp3",
+     "en": "He turned on his sword and his shield.",
+     "pl": "Włączył swój miecz i tarczę."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/f02_02.mp3",
+     "en": "Shield ready. Sword ready.",
+     "pl": "Tarcza gotowa. Miecz gotowy."
+    }
+   ]
+  },
+  {
+   "id": "f03",
+   "title_pl": "Działo laserowe",
+   "image": "assets/story/img/f03.webp",
+   "video": "assets/story/video/f03.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "sparks",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f03_01.mp3",
+     "en": "Then he lifted a big laser cannon.",
+     "pl": "Potem podniósł wielkie działo laserowe."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/f03_02.mp3",
+     "en": "Now I am ready. I am coming, family!",
+     "pl": "Teraz jestem gotowy. Lecę po was, rodzino!"
+    }
+   ]
+  },
+  {
+   "id": "f04",
+   "title_pl": "Start do stacji",
+   "image": "assets/story/img/f04.webp",
+   "video": "assets/story/video/f04.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "stars",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f04_01.mp3",
+     "en": "AEGIS flew up into the sky, to the alien station.",
+     "pl": "AEGIS poleciał w niebo, do stacji kosmitów."
+    }
+   ]
+  },
+  {
+   "id": "f05",
+   "title_pl": "Odbicie rodziny",
+   "image": "assets/story/img/f05.webp",
+   "video": "assets/story/video/f05.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_attack",
+   "fx": "lasers",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f05_01.mp3",
+     "en": "He broke the green wall of the cell.",
+     "pl": "Rozbił zieloną ścianę celi."
+    },
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f05_02.mp3",
+     "en": "Mia ran to him first. The family was free!",
+     "pl": "Mia pierwsza do niego podbiegła. Rodzina była wolna!"
+    }
+   ]
+  },
+  {
+   "id": "f06",
+   "title_pl": "Ucieczka na Marsa",
+   "image": "assets/story/img/f06.webp",
+   "video": "assets/story/video/f06.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_family",
+   "fx": "stars",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f06_01.mp3",
+     "en": "The Krakens were scared. They flew away to Mars.",
+     "pl": "Krakeni się przestraszyli. Odlecieli na Marsa."
+    },
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f06_02.mp3",
+     "en": "AEGIS took the family safely back to Earth.",
+     "pl": "AEGIS bezpiecznie zabrał rodzinę na Ziemię."
+    }
+   ]
+  },
+  {
+   "id": "f07",
+   "title_pl": "Wiwaty na Ziemi",
+   "image": "assets/story/img/f07.webp",
+   "video": "assets/story/video/f07.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_family",
+   "fx": "none",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f07_01.mp3",
+     "en": "Everybody cheered. The family was home again.",
+     "pl": "Wszyscy wiwatowali. Rodzina znów była w domu."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/f07_02.mp3",
+     "en": "We did it together!",
+     "pl": "Zrobiliśmy to razem!"
+    }
+   ]
+  },
+  {
+   "id": "f08",
+   "title_pl": "Wiadomość od żołnierza",
+   "image": "assets/story/img/f08.webp",
+   "video": "assets/story/video/f08.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_crash",
+   "fx": "none",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f08_01.mp3",
+     "en": "Then a soldier came with a tablet.",
+     "pl": "Wtedy podszedł żołnierz z tabletem."
+    },
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f08_02.mp3",
+     "en": "\"Look. The Krakens have a base on Mars. They want to attack again.\"",
+     "pl": "„Spójrzcie. Krakeni mają bazę na Marsie. Chcą znowu zaatakować.”"
+    }
+   ]
+  },
+  {
+   "id": "f09",
+   "title_pl": "Plan statku",
+   "image": "assets/story/img/f09.webp",
+   "video": "assets/story/video/f09.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "theme_main",
+   "fx": "core",
+   "lines": [
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f09_01.mp3",
+     "en": "\"So we need a spaceship. A spaceship for AEGIS!\"",
+     "pl": "„Więc potrzebujemy statku kosmicznego. Statku dla AEGISA!”"
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/f09_02.mp3",
+     "en": "Will you help me build it?",
+     "pl": "Pomożesz mi go zbudować?"
+    },
+    {
+     "speaker": "narrator",
+     "audio": "assets/audio/story/f09_03.mp3",
+     "en": "To be continued... Chapter 2.",
+     "pl": "Ciąg dalszy nastąpi... Rozdział 2."
+    }
+   ]
+  }
+ ]
+}

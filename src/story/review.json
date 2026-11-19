@@ -1,0 +1,76 @@
+{
+ "id": "review",
+ "version": 1,
+ "scenes": [
+  {
+   "id": "p01",
+   "title_pl": "Sala treningowa",
+   "image": "assets/story/img/p01.webp",
+   "video": "assets/story/video/p01.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_creation",
+   "fx": "core",
+   "lines": [
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/p01_01.mp3",
+     "en": "Look! These are the words you know now.",
+     "pl": "Zobacz! To są słowa, które już znasz."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/p01_02.mp3",
+     "en": "Every word you learn makes me stronger.",
+     "pl": "Każde słowo, którego się uczysz, daje mi siłę."
+    }
+   ]
+  },
+  {
+   "id": "p02",
+   "title_pl": "Gotowy na test",
+   "image": "assets/story/img/p02.webp",
+   "video": "assets/story/video/p02.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_hangar",
+   "fx": "core",
+   "lines": [
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/p02_01.mp3",
+     "en": "Let's check what you remember.",
+     "pl": "Sprawdźmy, co pamiętasz."
+    },
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/p02_02.mp3",
+     "en": "Are you ready? Let's go!",
+     "pl": "Gotowy? Do dzieła!"
+    }
+   ]
+  }
+ ]
+}

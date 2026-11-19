@@ -28,6 +28,8 @@
   <p>Poziom: <select id="lvl"><option value="">automatycznie (1)</option><option value="1">1 łatwy</option><option value="2">2 średni</option><option value="3">3 trudny</option></select>
      Mikrofon: <select id="mic"><option value="1">tak</option><option value="0">nie</option></select></p>
   <div class="grid" id="list"></div>
+  <h2 style="font-size:20px">Misje specjalne</h2>
+  <div class="grid" id="special"></div>
   <div class="muted" style="font-size:14px">Brakujące nagrania czyta syntezator przeglądarki (najlepiej brzmi w Edge).</div>
 </div>
 <div id="end"></div>
@@ -46,18 +48,37 @@ for (const M of MISSIONS) {
   b.onclick = () => start(M.nr);
   list.append(b);
 }
+for (const id of ['sp-quiz', 'sp-dictation', 'sp-review']) {
+  const mod = await import(`../${id}/mission.js`);
+  const b = document.createElement('button'); b.className = 'm';
+  b.innerHTML = `<b>${mod.meta.icon} ${mod.meta.title}</b><span>${mod.meta.desc}</span>`;
+  b.onclick = () => start(id);
+  document.getElementById('special').append(b);
+}
+// Podgląd: wymyślone wyniki z 3 działów, żeby „Podsumowanie” miało dane.
+function demoAssistant() {
+  const items = {}; const add = (w, ok, wrong) => items[w] = { seen: ok + wrong, ok, wrong, box: ok > wrong ? 3 : 0 };
+  ['jacket','scarf','shoes','dress','T-shirt','trousers','boots','hat'].forEach((w, i) => add(w, i % 3 ? 2 : 0, i % 3 ? 0 : 3));
+  ['sunny','rainy','cloudy','windy'].forEach((w, i) => add(w, i ? 2 : 0, i ? 0 : 2));
+  ['January','February','March','April','May','June','July'].forEach((w, i) => add(w, i % 2 ? 1 : 0, i % 2 ? 1 : 2));
+  return { v: 1, items, log: [] };
+}
 async function start(nr) {
-  const mod = await import(`../ch1-m${nr}/mission.js`);
+  const mod = await import(typeof nr === 'string' ? `../${nr}/mission.js` : `../ch1-m${nr}/mission.js`);
   const lv = document.getElementById('lvl').value;
-  const profile = { id: 'preview', settings: { mic: document.getElementById('mic').value === '1' }, progress: { missions: {} }, calibration: null };
+  const profile = { id: 'preview', settings: { mic: document.getElementById('mic').value === '1', quizMinutes: +(new URLSearchParams(location.search).get('min') || 10), reviewMinutes: +(new URLSearchParams(location.search).get('min') || 8) }, progress: { missions: {} }, calibration: null, assistant: demoAssistant() };
   log = [];
   const assistant = lv ? { nextSettings: () => ({ level: +lv }) } : null;
   menu.style.display = 'none'; end.style.display = 'none'; game.style.display = 'block'; close.style.display = 'block';
-  unmount = mod.mount(game, {
+  const sec = document.createElement('section'); game.replaceChildren(sec);
+  unmount = mod.mount(sec, {
     profile, base, assistant, audio: window.RGAudio || null,
-    say: (t, o = {}) => say(t, { ...o, base }),
+    say: (t, o = {}) => { window.__lastSay = t; return say(t, { ...o, base }); },
     record: ev => { log.push(Object.assign({ t: Date.now() }, ev)); console.log('record', ev); },
     done: res => finish(res),
+    exit: () => close.onclick(),
+    // Podgląd filmu: 2 sekundy planszy zamiast prawdziwego filmu (jak w rdzeniu: ekran filmu zastępuje misję).
+    playStory: (name, onDone) => { const f = document.createElement('div'); f.style.cssText = 'position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;background:#000;z-index:20'; f.textContent = `🎬 film „${name}”`; game.replaceChildren(f); setTimeout(() => { f.remove(); onDone && onDone(); }, 2000); return Promise.resolve(true); },
   });
 }
 function stop() { unmount && unmount(); unmount = null; game.style.display = 'none'; close.style.display = 'none'; }
@@ -67,10 +88,10 @@ function finish(res) {
   const s = res.summary;
   end.style.display = 'block';
   end.innerHTML = `<h2>${'★'.repeat(res.stars)}${'☆'.repeat(3 - res.stars)} Misja ukończona</h2>
-    <p><b>Montaż:</b> ${res.parts.map(p => PARTS[p]).join(', ') || 'uruchomienie robota'}</p>
+    <p><b>Montaż:</b> ${(res.parts || []).map(p => PARTS[p]).join(', ') || '—'}</p>
     <p><b>AEGIS-7:</b> ${s.cheer.pl}</p>
     <p>${s.pl}</p>
-    <p class="muted">Za pierwszym razem: ${s.firstTry}/${s.items}. Poziom na start ${s.startLevel}, na koniec ${s.level}.</p>
+    ${s.items ? `<p class="muted">Za pierwszym razem: ${s.firstTry}/${s.items}. Poziom na start ${s.startLevel}, na koniec ${s.level}.</p>` : ''}
     <details><summary>Dane dla asystenta (${log.length} odpowiedzi)</summary><pre>${JSON.stringify({ done: res, events: log }, null, 1).replace(/</g, '&lt;')}</pre></details>
     <p><button class="s" id="back">Wróć do listy</button></p>`;
   document.getElementById('back').onclick = () => { end.style.display = 'none'; menu.style.display = 'block'; };

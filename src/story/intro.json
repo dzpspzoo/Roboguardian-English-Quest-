@@ -356,8 +356,6 @@
    "id": "s07b",
    "title_pl": "Trafienie",
    "image": "assets/story/img/s07b.webp",
-   "video": "assets/story/video/s07b.mp4",
-   "videoRate": 1,
    "motion": {
     "from": {
      "x": 0,
@@ -365,9 +363,9 @@
      "scale": 1.0
     },
     "to": {
-     "x": -2,
-     "y": -1,
-     "scale": 1.1
+     "x": 0,
+     "y": -2,
+     "scale": 1.15
     }
    },
    "music": "story_crash",

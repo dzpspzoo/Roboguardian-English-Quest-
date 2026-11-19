@@ -154,8 +154,10 @@ export function playStory(rootEl, data, opts = {}) {
     audio.src = base + line.audio;
     audio.playbackRate = slow ? 0.85 : 1;
     audio.preservesPitch = true;
-    const fallback = () => { // brak nagrania: czas wg długości tekstu
-      if (my !== token) return;
+    let fellBack = false;
+    const fallback = () => { // brak nagrania: czas wg długości tekstu (raz, bo error i odrzucone play() przychodzą oba)
+      if (my !== token || fellBack) return;
+      fellBack = true;
       timer = setTimeout(() => my === token && advance(), 900 + line.en.split(/\s+/).length * (slow ? 520 : 420));
     };
     duck(true);

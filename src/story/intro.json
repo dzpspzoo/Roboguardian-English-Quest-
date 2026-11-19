@@ -383,7 +383,9 @@
      "en": "But there were too many of them. A huge blast hit him.",
      "pl": "Ale było ich za dużo. Trafił go potężny wybuch."
     }
-   ]
+   ],
+   "video": "assets/story/video/s07b.mp4",
+   "videoRate": 1
   },
   {
    "id": "s08",

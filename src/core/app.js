@@ -209,6 +209,7 @@ async function hangarScreen() {
     if (mod && mod.meta && mod.mount) metas.push({ ...mod.meta, mod });
   }
   if (seq !== navSeq) return; // gracz zdążył przejść na inny ekran
+  const specials = metas.filter(m => m.special); metas.splice(0, metas.length, ...metas.filter(m => !m.special));
   const got = new Set(p.progress.parts);
   queueMicrotask(() => mountAssembly(document.querySelector('[data-asm]'), got, lastNewPart));
   const pct = Math.round(100 * got.size / PARTS.length);
@@ -246,7 +247,7 @@ async function hangarScreen() {
           </div>
           <div class="panel col">
             <h2>Misje specjalne</h2>
-            <div class="cards">${specialCards()}</div>
+            <div class="cards">${specials.map(m => `<button class="card" data-m="${esc(m.id)}"><span class="big">${esc(m.icon || '⭐')}</span><h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>${m.desc ? `<span>${esc(m.desc)}</span>` : ''}</button>`).join('')}${specialCards()}</div>
           </div>
           <div class="panel col">
             <h3>Części robota</h3>
@@ -259,7 +260,7 @@ async function hangarScreen() {
   on(el, '[data-a=home]', titleScreen);
   on(el, '[data-a=settings]', settingsScreen);
   on(el, '[data-a=story]', cinemaScreen);
-  on(el, '[data-m]', (e, b) => missionScreen(metas.find(m => m.id === b.dataset.m)));
+  on(el, '[data-m]', (e, b) => missionScreen(metas.find(m => m.id === b.dataset.m) || specials.find(m => m.id === b.dataset.m)));
 }
 
 const SPECIAL = [{ id: 'paliwo', title: 'Paliwo do silników', en: 'Rocket fuel', desc: 'Unit 2: ubrania, pogoda, miesiące, godziny, this/that, his/her', href: 'missions/paliwo/index.html', icon: '⛽' }];

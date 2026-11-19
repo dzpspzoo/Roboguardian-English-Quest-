@@ -247,7 +247,7 @@ async function hangarScreen() {
           </div>
           <div class="panel col">
             <h2>Misje specjalne</h2>
-            <div class="cards">${specials.map(m => `<button class="card" data-m="${esc(m.id)}"><span class="big">${esc(m.icon || '⭐')}</span><h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>${m.desc ? `<span>${esc(m.desc)}</span>` : ''}</button>`).join('')}${specialCards()}</div>
+            <div class="cards">${specials.map(m => { let av = { ok: true }; try { if (m.mod.available) av = m.mod.available(p) || av; } catch (e) {} return `<button class="card${av.ok ? '' : ' locked'}" data-m="${esc(m.id)}" ${av.ok ? '' : 'disabled'}>${av.ok ? '' : `<span class="tag">🔒 ${esc(av.reason || 'jeszcze zablokowane')}</span>`}<span class="big">${esc(m.icon || '⭐')}</span><h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>${m.desc ? `<span>${esc(m.desc)}</span>` : ''}</button>`; }).join('')}${specialCards()}</div>
           </div>
           <div class="panel col">
             <h3>Części robota</h3>

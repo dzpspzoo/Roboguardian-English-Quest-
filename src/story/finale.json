@@ -41,6 +41,24 @@
      "en": "Thank you. You rebuilt me.",
      "pl": "Dziękuję. Odbudowałeś mnie."
     }
+   ],
+   "sfx": [
+    {
+     "id": "servo",
+     "at": 300
+    },
+    {
+     "id": "part_attach",
+     "at": 1500
+    },
+    {
+     "id": "part_attach",
+     "at": 2600
+    },
+    {
+     "id": "power_up",
+     "at": 4200
+    }
    ]
   },
   {
@@ -75,6 +93,16 @@
      "audio": "assets/audio/story/f02_02.mp3",
      "en": "Shield ready. Sword ready.",
      "pl": "Tarcza gotowa. Miecz gotowy."
+    }
+   ],
+   "sfx": [
+    {
+     "id": "power_up",
+     "at": 500
+    },
+    {
+     "id": "whoosh",
+     "at": 1600
     }
    ]
   },
@@ -111,6 +139,16 @@
      "en": "Now I am ready. I am coming, family!",
      "pl": "Teraz jestem gotowy. Lecę po was, rodzino!"
     }
+   ],
+   "sfx": [
+    {
+     "id": "servo",
+     "at": 400
+    },
+    {
+     "id": "metal_clank",
+     "at": 1800
+    }
    ]
   },
   {
@@ -139,6 +177,16 @@
      "audio": "assets/audio/story/f04_01.mp3",
      "en": "AEGIS flew up into the sky, to the alien station.",
      "pl": "AEGIS poleciał w niebo, do stacji kosmitów."
+    }
+   ],
+   "sfx": [
+    {
+     "id": "whoosh",
+     "at": 300
+    },
+    {
+     "id": "whoosh",
+     "at": 1400
     }
    ]
   },
@@ -175,6 +223,12 @@
      "en": "Mia ran to him first. The family was free!",
      "pl": "Mia pierwsza do niego podbiegła. Rodzina była wolna!"
     }
+   ],
+   "sfx": [
+    {
+     "id": "crash_impact",
+     "at": 500
+    }
    ]
   },
   {
@@ -209,6 +263,12 @@
      "audio": "assets/audio/story/f06_02.mp3",
      "en": "AEGIS took the family safely back to Earth.",
      "pl": "AEGIS bezpiecznie zabrał rodzinę na Ziemię."
+    }
+   ],
+   "sfx": [
+    {
+     "id": "whoosh",
+     "at": 600
     }
    ]
   },
@@ -245,6 +305,12 @@
      "en": "We did it together!",
      "pl": "Zrobiliśmy to razem!"
     }
+   ],
+   "sfx": [
+    {
+     "id": "level_up",
+     "at": 400
+    }
    ]
   },
   {
@@ -279,6 +345,12 @@
      "audio": "assets/audio/story/f08_02.mp3",
      "en": "\"Look. The Krakens have a base on Mars. They want to attack again.\"",
      "pl": "„Spójrzcie. Krakeni mają bazę na Marsie. Chcą znowu zaatakować.”"
+    }
+   ],
+   "sfx": [
+    {
+     "id": "typing",
+     "at": 1200
     }
    ]
   },
@@ -320,6 +392,12 @@
      "audio": "assets/audio/story/f09_03.mp3",
      "en": "To be continued... Chapter 2.",
      "pl": "Ciąg dalszy nastąpi... Rozdział 2."
+    }
+   ],
+   "sfx": [
+    {
+     "id": "unlock",
+     "at": 1000
     }
    ]
   }

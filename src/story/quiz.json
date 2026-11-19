@@ -41,6 +41,16 @@
      "en": "Don't worry about mistakes. We learn from them.",
      "pl": "Nie martw się błędami. Uczymy się na nich."
     }
+   ],
+   "sfx": [
+    {
+     "id": "servo",
+     "at": 300
+    },
+    {
+     "id": "robot_beep",
+     "at": 2500
+    }
    ]
   }
  ]

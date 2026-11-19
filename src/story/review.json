@@ -35,6 +35,12 @@
      "en": "Every word you learn makes me stronger.",
      "pl": "Każde słowo, którego się uczysz, daje mi siłę."
     }
+   ],
+   "sfx": [
+    {
+     "id": "power_up",
+     "at": 400
+    }
    ]
   },
   {
@@ -69,6 +75,12 @@
      "audio": "assets/audio/story/p02_02.mp3",
      "en": "Are you ready? Let's go!",
      "pl": "Gotowy? Do dzieła!"
+    }
+   ],
+   "sfx": [
+    {
+     "id": "robot_beep",
+     "at": 800
     }
    ]
   }

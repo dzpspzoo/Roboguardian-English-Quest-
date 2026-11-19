@@ -41,6 +41,12 @@
      "en": "Dad smiled. He was building something small and secret.",
      "pl": "Tata się uśmiechnął. Budował coś małego i tajnego."
     }
+   ],
+   "sfx": [
+    {
+     "id": "signal_space",
+     "at": 300
+    }
    ]
   },
   {
@@ -87,6 +93,16 @@
      "audio": "assets/audio/story/h02_04.mp3",
      "en": "Everybody laughed. Then they went back to work.",
      "pl": "Wszyscy się śmiali. Potem wrócili do pracy."
+    }
+   ],
+   "sfx": [
+    {
+     "id": "hangar_ambience",
+     "loop": true
+    },
+    {
+     "id": "metal_clank",
+     "at": 4200
     }
    ]
   }

@@ -5,7 +5,7 @@
   --c-orange:var(--rg-primary,#ff9a3c);--c-ok:var(--rg-ok,#4be38a);--c-bad:var(--rg-bad,#ff6b6b);
   position:absolute;inset:0;display:flex;flex-direction:column;color:var(--c-txt);
   font-family:var(--rg-font,"Segoe UI",system-ui,sans-serif);
-  background:radial-gradient(ellipse at 50% 0%,rgba(56,225,255,.10),transparent 60%),var(--c-bg);
+  background:linear-gradient(180deg,rgba(7,11,24,.62),rgba(7,11,24,.78) 55%,rgba(7,11,24,.9)),url(../../../assets/img/hangar.webp) center/cover no-repeat,var(--c-bg);
   overflow:hidden;user-select:none;-webkit-user-select:none
 }
 .ch1 button{font:inherit;cursor:pointer;border:0;border-radius:14px;color:var(--c-txt);min-height:48px}
@@ -17,7 +17,7 @@
 .ch1-bar-txt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
 .ch1-snd{background:rgba(56,225,255,.14)!important;border:1px solid var(--c-cyan)!important;width:52px;font-size:22px}
 .ch1-snd:disabled{opacity:.3}
-.ch1-stage{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:8px 16px 120px;overflow:auto}
+.ch1-stage{flex:1;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:14px;padding:8px 16px calc(var(--buddy-w) * .62);overflow:auto;position:relative;z-index:1}
 .ch1-q{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
 .ch1-label{color:var(--c-muted);font-size:clamp(16px,2.2vw,22px)}
 .ch1-soundtitle{font-size:clamp(28px,5vw,48px);font-weight:800;margin-top:12vh;text-shadow:0 0 18px var(--c-cyan)}
@@ -64,9 +64,13 @@
 .ch1-next{background:linear-gradient(180deg,#ffb35c,#ff7d1a);color:#1b0d00!important;font-weight:800;font-size:22px;padding:12px 34px;box-shadow:0 0 22px rgba(255,154,60,.5)}
 .ch1-ghost{background:rgba(255,255,255,.08);border:1px solid var(--c-line)!important;padding:10px 20px}
 .ch1-act{font-size:110px;animation:ch1pop .7s}
-.ch1-bubble{position:absolute;left:50%;bottom:14px;transform:translate(-50%,20px);width:min(820px,92vw);display:flex;align-items:center;gap:14px;background:var(--c-panel);border:1px solid var(--c-line);border-radius:18px;padding:10px 16px;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none}
-.ch1-bubble.on{opacity:1;transform:translate(-50%,0)}
-.ch1-av{width:64px;height:64px;object-fit:contain;flex:0 0 auto}
+.ch1-bubble{position:absolute;left:calc(var(--buddy-w) - 20px);right:16px;bottom:18px;max-width:820px;transform:translateY(20px);z-index:3;display:flex;align-items:center;gap:14px;background:var(--c-panel);border:1px solid var(--c-line);border-radius:18px;padding:10px 16px;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none}
+.ch1-bubble.on{opacity:1;transform:translateY(0)}
+.ch1-bubble::before{content:'';position:absolute;left:-10px;bottom:22px;border:10px solid transparent;border-right-color:var(--c-line);border-left:0}
+.ch1{--buddy-w:clamp(150px,22vw,280px)}
+.ch1-buddy{position:absolute;left:-6px;bottom:-6px;width:var(--buddy-w);height:auto;z-index:2;pointer-events:none;filter:drop-shadow(0 0 18px rgba(56,225,255,.25));transform-origin:50% 100%;transition:transform .3s,filter .3s}
+.ch1-bubble.on ~ .ch1-buddy{filter:drop-shadow(0 0 26px rgba(56,225,255,.6));animation:ch1talk .9s ease-in-out infinite}
+@keyframes ch1talk{50%{transform:translateY(-4px) rotate(-1deg)}}
 .ch1-sub-pl{font-size:clamp(17px,2.2vw,22px);line-height:1.35}
 @keyframes ch1sh{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
 @keyframes ch1pulse{50%{box-shadow:0 0 8px var(--c-cyan)}}

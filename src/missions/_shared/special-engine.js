@@ -63,8 +63,9 @@ export function createShell(root, ctx, { id, title }) {
   const bExit = ctx.exit ? h('button', { class: 'ch1-snd', title: 'Wyjdź', onclick: () => ctx.exit() }, '✕') : null;
   const stage = h('div', { class: 'ch1-stage' });
   const subPl = h('div', { class: 'ch1-sub-pl' });
-  const bubble = h('div', { class: 'ch1-bubble' }, h('img', { src: `${ctx.base || ''}assets/img/aegis.webp`, alt: '', class: 'ch1-av', onerror: e => e.target.remove() }), subPl);
-  root.append(h('div', { class: 'ch1' }, h('div', { class: 'ch1-top' }, h('div', { class: 'ch1-title' }, title), h('div', { class: 'ch1-bar' }, bar, barTxt), bHear, bSlow, bExit), stage, bubble));
+  const bubble = h('div', { class: 'ch1-bubble' }, subPl);
+  const buddy = h('img', { src: new URL('./img/aegis-bust.webp', import.meta.url).href, alt: '', class: 'ch1-buddy', 'aria-hidden': 'true', onerror: e => e.target.remove() });
+  root.append(h('div', { class: 'ch1' }, h('div', { class: 'ch1-top' }, h('div', { class: 'ch1-title' }, title), h('div', { class: 'ch1-bar' }, bar, barTxt), bHear, bSlow, bExit), stage, bubble, buddy));
   let replay = null;
   bHear.onclick = () => replay && replay(false).catch(() => {});
   bSlow.onclick = () => replay && replay(true).catch(() => {});

@@ -103,13 +103,14 @@ export function runMission(root, ctx, M) {
   const bSlow = h('button', { class: 'ch1-snd', title: 'Wolniej' }, '🐢');
   const stage = h('div', { class: 'ch1-stage' });
   const subPl = h('div', { class: 'ch1-sub-pl' });
-  const bubble = h('div', { class: 'ch1-bubble' }, h('img', { src: `${base}assets/img/aegis.webp`, alt: '', class: 'ch1-av', onerror: e => e.target.remove() }), subPl);
+  const bubble = h('div', { class: 'ch1-bubble' }, subPl);
+  const buddy = h('img', { src: new URL('./img/aegis-bust.webp', import.meta.url).href, alt: '', class: 'ch1-buddy', 'aria-hidden': 'true', onerror: e => e.target.remove() });
   const wrap = h('div', { class: 'ch1' },
     h('div', { class: 'ch1-top' },
       h('div', { class: 'ch1-title' }, `Misja ${M.nr}: ${M.title}`),
       h('div', { class: 'ch1-bar' }, bar, barTxt),
       bHear, bSlow),
-    stage, bubble);
+    stage, bubble, buddy);
   root.append(wrap);
   let replay = null; // aktualne nagranie pod przyciskami 🔊 / 🐢
   bHear.onclick = () => replay && replay(false);

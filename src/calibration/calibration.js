@@ -61,7 +61,8 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
       ${onExit ? '<button class="rgc-exit" title="Przerwij test (dla rodzica)">✕</button>' : ''}
     </div>
     <div class="rgc-stage"></div>
-    <div class="rgc-sub" aria-live="polite"></div>`;
+    <div class="rgc-sub rgc-bubble" aria-live="polite"></div>
+    <img class="rgc-buddy" src="${audioBase}src/missions/_shared/img/aegis-bust.webp" alt="AEGIS-7" onerror="this.src='${audioBase}assets/img/aegis.webp'">`;
   root.appendChild(wrap);
   const stage = wrap.querySelector('.rgc-stage');
   const sub = wrap.querySelector('.rgc-sub');
@@ -74,7 +75,9 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
   async function speak(text, opts = {}) {
     check();
     const limit = 2500 + String(text).length * (opts.slow ? 160 : 100);
+    wrap.classList.add('rgc-talking');
     try { await Promise.race([say(text, opts), sleep(limit)]); } catch (e) {}
+    wrap.classList.remove('rgc-talking');
     check();
   }
   async function line(l, opts) { sub.textContent = l.pl; await speak(l.en, opts); }
@@ -225,7 +228,9 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
   }
 
   function aegisScreen(extraHtml = '') {
-    stage.innerHTML = `<div class="rgc-aegis"><img src="${audioBase}assets/img/aegis.webp" alt="AEGIS-7" onerror="this.style.display='none'"><div class="rgc-wave"></div></div>${extraHtml}`;
+    // AEGIS-7 stoi w rogu ekranu (.rgc-buddy), tu tylko tytuł skanu i ewentualne elementy (mikrofon, ładowanie)
+    const t = wrap.querySelector('.rgc-title').textContent;
+    stage.innerHTML = `<div class="rgc-scan"><div class="rgc-scan-ring"></div><div class="rgc-scan-title">${esc(t)}</div></div>${extraHtml}`;
   }
 
   // ---------- część 0: pytania dla rodzica, dźwięk, mikrofon ----------

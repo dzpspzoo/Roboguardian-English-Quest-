@@ -173,7 +173,7 @@ async function calibrationScreen() {
   const mod = await optionalImport('../calibration/calibration.js');
   if (mod && mod.startCalibration) {
     try {
-      const stop = mod.startCalibration({ root, profile: p, audioBase: 'assets/audio/words/', record: store.record, onComplete: finish });
+      const stop = mod.startCalibration({ root, profile: p, audioBase: '', record: store.record, onComplete: finish });
       cleanup = typeof stop === 'function' ? stop : null; return;
     } catch (e) { console.error(e); }
   }

@@ -4,6 +4,7 @@ Te same pliki co nagraj_edge_tts.py: assets/audio/words/en/<slug>.mp3 i en-slow/
 python nagraj_eleven_slowa.py liczenie frazy-ch1.txt [frazy-kalibracja.txt ...]   -> ile znaków (kredytów) zużyje, nic nie nagrywa
 python nagraj_eleven_slowa.py probka VOICE_ID cat ship sheep                       -> 3 próbki do probki-slow/ (do odsłuchu przed całością)
 python nagraj_eleven_slowa.py nagraj VOICE_ID frazy-ch1.txt [...] ../assets/audio/words
+python nagraj_eleven_slowa.py nagraj-normalne VOICE_ID frazy.txt [...] wyjscie   -> tylko en/ (połowa kredytów); en-slow robi się potem lokalnie (ffmpeg atempo)
 
 Klucz: plik 'eleven labs key.txt' obok skryptu (nigdy nie wypisywany, nigdy w repo).
 Wolne tempo: parametr speed=0.7 ElevenLabs (ten sam głos, bez przeciągania dźwięku jak w edge-tts -40%).
@@ -74,6 +75,16 @@ def main():
             for d, sp in SPEED.items():
                 (out / f"{w}_{d}.mp3").write_bytes(tts(voice, w, sp))
         print("próbki w", out)
+    elif cmd == "nagraj-normalne":
+        voice, files, outdir = sys.argv[2], sys.argv[3:-1], pathlib.Path(sys.argv[-1])
+        p = phrases(files); n = 0
+        for text in p:
+            f = outdir / "en" / f"{slug(text)}.mp3"; f.parent.mkdir(parents=True, exist_ok=True)
+            if f.exists() and f.stat().st_size > 1000:
+                continue  # wznowienie po przerwie bez ponownego zużycia kredytów
+            f.write_bytes(tts(voice, text, 1.0)); n += 1
+            print("ok", text)
+        print(f"nagrano {n} plików ({len(p)} fraz)")
     elif cmd == "nagraj":
         voice, files, outdir = sys.argv[2], sys.argv[3:-1], pathlib.Path(sys.argv[-1])
         p = phrases(files); n = 0

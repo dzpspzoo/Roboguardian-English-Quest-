@@ -1,7 +1,7 @@
 // Silnik misji rozdziału 1. Jedna funkcja: runMission(root, ctx, M) -> sprzątanie.
 // Zasady: bez kar i presji czasu, angielski głos + polski napis, gra sama ocenia,
 // po 1. błędzie „posłuchaj jeszcze raz” + polska wskazówka, po 2. błędzie podświetlenie dobrej odpowiedzi.
-import { WORDS, SOUNDS, SPELL_TIPS, AEGIS_LINES, MISSIONS } from './ch1-data.js';
+import { WORDS, SOUNDS, SPELL_TIPS, AEGIS_LINES, MISSIONS, PARTS } from './ch1-data.js';
 import { slug } from '../../core/say.js';
 
 const CSS_ID = 'ch1-css';
@@ -103,13 +103,14 @@ export function runMission(root, ctx, M) {
   const bSlow = h('button', { class: 'ch1-snd', title: 'Wolniej' }, '🐢');
   const stage = h('div', { class: 'ch1-stage' });
   const subPl = h('div', { class: 'ch1-sub-pl' });
-  const bubble = h('div', { class: 'ch1-bubble' }, h('img', { src: `${base}assets/img/aegis.webp`, alt: '', class: 'ch1-av', onerror: e => e.target.remove() }), subPl);
+  const bubble = h('div', { class: 'ch1-bubble' }, subPl);
+  const buddy = h('img', { src: new URL('./img/aegis-bust.webp', import.meta.url).href, alt: '', class: 'ch1-buddy', 'aria-hidden': 'true', onerror: e => e.target.remove() });
   const wrap = h('div', { class: 'ch1' },
     h('div', { class: 'ch1-top' },
       h('div', { class: 'ch1-title' }, `Misja ${M.nr}: ${M.title}`),
       h('div', { class: 'ch1-bar' }, bar, barTxt),
       bHear, bSlow),
-    stage, bubble);
+    stage, bubble, buddy);
   root.append(wrap);
   let replay = null; // aktualne nagranie pod przyciskami 🔊 / 🐢
   bHear.onclick = () => replay && replay(false);
@@ -575,7 +576,7 @@ export function runMission(root, ctx, M) {
               const stopped = new Promise(r => mr.onstop = r);
               mr.start(); await wait(2500); mr.stop(); await stopped;
               const blob = new Blob(chunks, { type: mr.mimeType });
-              saveClip({ t: Date.now(), mission: M.id, item: w, blob }).catch(() => {});
+              saveClip({ t: Date.now(), mission: M.id, item: w, profileId: ctx.profile?.id || null, blob }).catch(() => {});
               rb.textContent = '▶ Twój głos'; const a = new Audio(URL.createObjectURL(blob)); curAudio = a;
               await new Promise(r => { a.onended = r; a.onerror = r; a.play().catch(r); });
               rb.textContent = '🔊 AEGIS'; await word(w, false);
@@ -587,10 +588,39 @@ export function runMission(root, ctx, M) {
     } finally { stream && stream.getTracks().forEach(t => t.stop()); }
   };
 
+  // ---------- odprawa: cel gry, zadania w tej misji, nagroda ----------
+  const STEP_PL = {
+    listen: 'Posłuchasz nowych słów', ear: 'Rozpoznasz, które słowo słychać', letter: 'Uzupełnisz brakującą literę',
+    catch: 'Złapiesz chwytakiem część z właściwym słowem', build: 'Ułożysz słowo z liter', read: 'Przeczytasz słowo i wybierzesz, co znaczy',
+    phrase: 'Zrozumiesz krótkie zdanie', command: 'Wydasz robotowi polecenia po angielsku', talk: 'Porozmawiasz z AEGIS-7', echo: 'Powiesz słowo robotowi (nagranie dla Ciebie)',
+  };
+  async function briefing() {
+    const have = (ctx.profile?.progress?.parts || []).length;
+    const total = Object.keys(PARTS).length;
+    const partsPl = M.parts.map(p => PARTS[p]);
+    const steps = [...new Set(M.steps)].map(s => STEP_PL[s]).filter(Boolean);
+    stage.innerHTML = '';
+    const go = h('button', { class: 'ch1-next' }, 'Start misji ›');
+    stage.append(h('div', { class: 'ch1-brief' },
+      h('div', { class: 'ch1-brief-goal' }, h('b', {}, 'Cel gry: '), 'odbudować robota AEGIS-7 część po części i razem z nim uratować rodzinę naukowców uwięzioną na stacji kosmicznej. ',
+        h('span', { class: 'ch1-pl' }, `Masz już ${have} z ${total} części.`)),
+      h('h2', {}, `Misja ${M.nr}: ${M.title}`),
+      h('div', { class: 'ch1-brief-cols' },
+        h('div', {}, h('div', { class: 'ch1-label' }, 'Co zrobisz:'), h('ol', {}, steps.map(t => h('li', {}, t)))),
+        h('div', { class: 'ch1-brief-reward' }, h('div', { class: 'ch1-label' }, 'Nagroda:'),
+          M.final ? h('p', {}, '🤖 AEGIS-7 wstaje i rusza na ratunek rodzinie!')
+            : h('p', {}, '🔧 ', h('b', {}, partsPl.join(' i ')), ' do robota w grze'),
+          M.final ? null : h('p', {}, partsPl.length > 1 ? '🖨️ pliki tych części do druku 3D do pobrania po misji' : '🖨️ plik tej części do druku 3D do pobrania po misji'))),
+      h('div', { class: 'ch1-hint' }, 'Nie ma limitu czasu ani kar. Gdy coś jest trudne, AEGIS-7 podpowie. 🔊 powtarza, 🐢 mówi wolniej.'),
+      h('div', { class: 'ch1-row' }, go)));
+    await new Promise((res, rej) => { const iv = setInterval(() => { if (!alive) { clearInterval(iv); rej(new Stop()); } }, 300); go.onclick = () => { clearInterval(iv); res(); }; });
+  }
+
   // ---------- przebieg misji ----------
   (async () => {
     try {
       progress(0);
+      await briefing();
       header(h('div', { class: 'ch1-soundtitle' }, SOUNDS[M.sound].label));
       await aegis(M.intro);
       const steps = M.steps;

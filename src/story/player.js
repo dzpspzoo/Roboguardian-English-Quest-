@@ -8,7 +8,9 @@ const CSS = `
 .rgs{position:fixed;inset:0;background:#05070d;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif;color:#fff;z-index:50;user-select:none}
 .rgs-img{position:absolute;inset:-4%;background-size:cover;background-position:center;opacity:0;transition:opacity 1.2s ease;will-change:transform,opacity}
 .rgs-img.on{opacity:1}
-.rgs-vid{position:absolute;inset:-4%;width:108%;height:108%;object-fit:cover;opacity:0;transition:opacity 1.2s ease}
+.rgs-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s ease}
+.rgs.has-vid .rgs-img{filter:blur(22px) brightness(.45)}
+.rgs-img{transition:opacity 1.2s ease,filter .9s ease}
 .rgs-vid.on{opacity:1}
 .rgs-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 .rgs-vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.55) 100%),linear-gradient(to bottom,transparent 62%,rgba(0,0,0,.78) 100%)}
@@ -55,7 +57,7 @@ export function playStory(rootEl, data, opts = {}) {
   el.setAttribute('aria-label', 'Historia AEGIS-7');
   el.innerHTML = `
     <div class="rgs-img"></div><div class="rgs-img"></div>
-    <video class="rgs-vid" muted playsinline preload="auto"></video>
+    <video class="rgs-vid" muted playsinline preload="auto"></video><video class="rgs-vid" muted playsinline preload="auto"></video>
     <canvas class="rgs-fx"></canvas><div class="rgs-vig"></div>
     <div class="rgs-title"></div><div class="rgs-dots"></div>
     <div class="rgs-sub" aria-live="polite"><span class="rgs-pl"></span></div>
@@ -70,7 +72,7 @@ export function playStory(rootEl, data, opts = {}) {
 
   const imgs = [...el.querySelectorAll('.rgs-img')];
   const canvas = el.querySelector('.rgs-fx');
-  const vid = el.querySelector('.rgs-vid');
+  const vids = [...el.querySelectorAll('.rgs-vid')]; let vidFlip = 0;
   const titleEl = el.querySelector('.rgs-title');
   const dotsEl = el.querySelector('.rgs-dots');
   const subEl = el.querySelector('.rgs-pl');
@@ -110,13 +112,19 @@ export function playStory(rootEl, data, opts = {}) {
     }
     layer.classList.add('on'); other.classList.remove('on');
     // klip wideo sceny (opcjonalny): gra raz i zostaje na ostatniej klatce; obraz jest tłem i zapasem
-    vid.classList.remove('on'); vid.pause();
+    // klip wideo sceny: płynne przenikanie z poprzedniego klipu (dwa odtwarzacze na zmianę)
+    const cur = vids[vidFlip], nxt = vids[vidFlip ^ 1];
+    nxt.oncanplay = null; nxt.pause();
     if (s.video) {
-      vid.loop = !!s.videoLoop;
-      vid.src = base + s.video;
-      vid.oncanplay = () => { vid.oncanplay = null; vid.playbackRate = s.videoRate || 1; vid.play().then(() => vid.classList.add('on')).catch(() => {}); };
-      vid.onerror = () => vid.classList.remove('on');
-      if (!reduced && vid.animate) vid.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.06)' }], { duration: 20000, fill: 'forwards' });
+      vidFlip ^= 1;
+      nxt.loop = !!s.videoLoop;
+      nxt.src = base + s.video;
+      nxt.oncanplay = () => { nxt.oncanplay = null; nxt.playbackRate = s.videoRate || 1;
+        nxt.play().then(() => { nxt.classList.add('on'); el.classList.add('has-vid');
+          setTimeout(() => { if (vids[vidFlip] === nxt) { cur.classList.remove('on'); cur.pause(); } }, 950); }).catch(() => {}); };
+      nxt.onerror = () => { nxt.classList.remove('on'); cur.classList.remove('on'); el.classList.remove('has-vid'); };
+    } else {
+      cur.classList.remove('on'); setTimeout(() => cur.pause(), 950); el.classList.remove('has-vid');
     }
     titleEl.textContent = s.title_pl || '';
     [...dotsEl.children].forEach((d, k) => d.className = k < i ? 'done' : k === i ? 'now' : '');
@@ -194,7 +202,7 @@ export function playStory(rootEl, data, opts = {}) {
 
   function finish(skipped) {
     if (finished) return;
-    finished = true; token++; clearTimeout(timer); audio.pause(); vid.pause(); duck(false); stopLoop();
+    finished = true; token++; clearTimeout(timer); audio.pause(); vids.forEach(v => v.pause()); duck(false); stopLoop();
     fx.stop(); music && music.stop();
     document.removeEventListener('keydown', onKey);
     el.style.transition = 'opacity .6s'; el.style.opacity = '0';

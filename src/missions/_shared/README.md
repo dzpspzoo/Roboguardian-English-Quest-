@@ -50,5 +50,18 @@ Kolejność i dobór słów: `RGAssistant.pickItems(profile, pool, n, missionId)
 ## Podgląd i nagrania
 
 - Podgląd bez profilu: `python -m http.server 8000`, potem http://localhost:8000/src/missions/_shared/podglad.html
-- Listy do nagrania: `node tools/frazy_ch1.mjs` → `tools/frazy-ch1.txt` (77 słów i zdań) i `tools/frazy-aegis-ch1.txt` (34 kwestie AEGIS-7, ok. 1300 znaków ElevenLabs).
+- Listy do nagrania: `node tools/frazy_ch1.mjs` → `tools/frazy-ch1.txt` (126 słów i zdań, także działy misji specjalnych) i `tools/frazy-aegis-ch1.txt` (44 kwestie AEGIS-7).
 - Treść misji (słowa, pary, zdania, kwestie): `ch1-data.js`.
+
+## Misje specjalne (`meta.special = true`)
+
+| Id | Misja | Przebieg |
+|---|---|---|
+| `sp-quiz` | Przygotuj się do kartkówki | wybór działu albo własne słówka (`jacket = kurtka`, jedno w linii) → film `quiz` → ok. 10 min treningu (posłuchaj → słyszę → czytam / polski→angielski → układam → piszę) → sprawdzian: polskie słowo, wpisz po angielsku, jedna próba, maks. 10 słów |
+| `sp-dictation` | Dyktando | wybór działu, własnych albo najtrudniejszych słów → 10 słów: robot mówi, dziecko wpisuje; złe litery na czerwono, „_” = brak litery, przekreślona = zbędna; po 2. błędzie wzór do przepisania |
+| `sp-review` | Podsumowanie działów | dostępne po 3 przećwiczonych działach (`available(profile)`), film `review` → raport z działów → powtórka 10 najtrudniejszych słów |
+
+- Działy: `special-data.js` (Unit 2: ubrania, pogoda, miesiące, przedmioty, this/that, my/your…, oraz dźwięki z misji 1–5). Własne słówka rodzica: `localStorage['rg.special.custom']`.
+- `ctx.record`: `mission` = `sp-quiz:<dział>` (np. `sp-quiz:u2-weather`), dzięki temu wiadomo, które działy są przećwiczone; w sprawdzianie dodatkowo `test: true`.
+- Film: `ctx.playStory(name, onDone)` zastępuje ekran misji; po filmie misja wraca na ten sam ekran.
+- Minuty treningu: `profile.settings.quizMinutes` (domyślnie 10), `reviewMinutes` (8).

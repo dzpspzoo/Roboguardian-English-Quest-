@@ -28,7 +28,9 @@ addEventListener('pointerdown', () => { if (!audioUnlocked) { audioUnlocked = tr
 const h = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 let cleanup = null;
+let navSeq = 0; // rośnie przy każdej zmianie ekranu; ekran asynchroniczny sprawdza, czy nadal jest aktualny
 function show(el) {
+  navSeq++;
   if (typeof cleanup === 'function') { try { cleanup(); } catch (e) {} }
   cleanup = null; app.replaceChildren(el); el.querySelector('[autofocus]')?.focus();
   return el;
@@ -57,9 +59,9 @@ function titleScreen() {
   const profiles = store.listProfiles();
   const el = show(h(`
   <section class="screen">
-    <div class="bg" style="background-image:url(assets/gfx/backgrounds/start.svg),url(assets/img/hangar.webp)"></div>
+    <div class="bg title-bg" style="background-image:url(assets/img/hangar.webp)"></div>
     <div class="wrap center">
-      <div style="flex:1;min-height:30vh"></div>
+      <div class="hero"><img src="assets/img/aegis.webp" alt="AEGIS-7" onerror="this.remove()"></div>
       <h1 class="logo"><img src="assets/gfx/ui/logo.svg" alt="Roboguardian English Quest" onerror="this.replaceWith(Object.assign(document.createElement('span'),{innerHTML:'ROBOGUARDIAN<small>ENGLISH QUEST</small>'}))"></h1>
       <div class="menu">
         ${profiles.length ? `<button class="btn primary big" data-a="continue" autofocus>▶ Graj dalej: ${esc(profiles[0].avatar)} ${esc(profiles[0].name)}</button>` : ''}
@@ -143,26 +145,35 @@ function routeForProfile() {
 }
 
 async function storyScreen({ replay = false } = {}) {
-  const root = show(h(`<section class="screen"></section>`));
   const finish = () => { const p = store.getProfile(); if (p && !p.progress.storySeen) { p.progress.storySeen = true; store.saveProfile(p); } replay ? hangarScreen() : routeForProfile(); };
-  const mod = await optionalImport('../story/player.js');
-  let data = null; try { data = await (await fetch('src/story/intro.json')).json(); } catch (e) {}
-  if (mod && mod.playStory && data) {
-    try { const stop = mod.playStory(root, data, { onEnd: finish, onMusic: id => music(id), basePath: '' }); cleanup = typeof stop === 'function' ? stop : null; return; }
-    catch (e) { console.error(e); }
-  }
-  placeholder(root, 'Historia AEGIS-7', 'Film z historią robota i rodziny naukowców jest właśnie nagrywany. Pojawi się tutaj w kolejnej wersji.',
+  const ok = await playStoryFile('src/story/intro.json', finish);
+  if (!ok) placeholder(show(h(`<section class="screen"></section>`)), 'Historia AEGIS-7', 'Film z historią robota i rodziny naukowców jest właśnie nagrywany. Pojawi się tutaj w kolejnej wersji.',
     'Hello, Guardian. I am Aegis Seven.', 'Witaj, Strażniku. Jestem AEGIS-7.', finish);
+}
+
+// Odtwarza film fabularny (JSON w formacie src/story/*.json). onDone wołane po końcu lub „Pomiń”,
+// ale nie wtedy, gdy gracz przeszedł na inny ekran. Zwraca false, gdy filmu nie da się wczytać.
+async function playStoryFile(file, onDone) {
+  const root = show(h(`<section class="screen"></section>`));
+  const seq = navSeq;
+  const mod = await optionalImport('../story/player.js');
+  let data = null; try { const r = await fetch(file); if (r.ok) data = await r.json(); } catch (e) {}
+  if (seq !== navSeq) return true;
+  if (!mod || !mod.playStory || !data) return false;
+  const done = () => { if (seq === navSeq) onDone(); };
+  try { const stop = mod.playStory(root, data, { onEnd: done, onMusic: id => music(id), basePath: '' }); cleanup = typeof stop === 'function' ? stop : null; return true; }
+  catch (e) { console.error(e); return false; }
 }
 
 async function calibrationScreen() {
   const root = show(h(`<section class="screen"></section>`));
+  const seq = navSeq;
   const p = store.getProfile();
-  const finish = (result) => { const q = store.getProfile(); q.progress.calibrationDone = true; if (result) q.calibration = result; store.saveProfile(q); hangarScreen(); };
+  const finish = (result) => { if (seq !== navSeq) return; const q = store.getProfile(); q.progress.calibrationDone = true; if (result) q.calibration = result; store.saveProfile(q); hangarScreen(); };
   const mod = await optionalImport('../calibration/calibration.js');
   if (mod && mod.startCalibration) {
     try {
-      const stop = mod.startCalibration({ root, profile: p, audioBase: 'assets/audio/words/', record: store.record, onComplete: finish });
+      const stop = mod.startCalibration({ root, profile: p, audioBase: '', record: store.record, onComplete: finish });
       cleanup = typeof stop === 'function' ? stop : null; return;
     } catch (e) { console.error(e); }
   }
@@ -190,12 +201,15 @@ async function loadMissions() {
 async function hangarScreen() {
   music('mission_calm');
   const p = store.getProfile(); if (!p) return titleScreen();
+  const seq = navSeq;
   const list = await loadMissions();
   const metas = [];
   for (const m of list) {
     const mod = await optionalImport(`../missions/${m.path || m.id + '/mission.js'}`.replace('../missions/src/missions/', '../missions/'));
     if (mod && mod.meta && mod.mount) metas.push({ ...mod.meta, mod });
   }
+  if (seq !== navSeq) return; // gracz zdążył przejść na inny ekran
+  const specials = metas.filter(m => m.special); metas.splice(0, metas.length, ...metas.filter(m => !m.special));
   const got = new Set(p.progress.parts);
   queueMicrotask(() => mountAssembly(document.querySelector('[data-asm]'), got, lastNewPart));
   const pct = Math.round(100 * got.size / PARTS.length);
@@ -233,7 +247,7 @@ async function hangarScreen() {
           </div>
           <div class="panel col">
             <h2>Misje specjalne</h2>
-            <div class="cards">${specialCards()}</div>
+            <div class="cards">${specials.map(m => { let av = { ok: true }; try { if (m.mod.available) av = m.mod.available(p) || av; } catch (e) {} return `<button class="card${av.ok ? '' : ' locked'}" data-m="${esc(m.id)}" ${av.ok ? '' : 'disabled'}>${av.ok ? '' : `<span class="tag">🔒 ${esc(av.reason || 'jeszcze zablokowane')}</span>`}<span class="big">${esc(m.icon || '⭐')}</span><h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>${m.desc ? `<span>${esc(m.desc)}</span>` : ''}</button>`; }).join('')}${specialCards()}</div>
           </div>
           <div class="panel col">
             <h3>Części robota</h3>
@@ -245,8 +259,8 @@ async function hangarScreen() {
   </section>`));
   on(el, '[data-a=home]', titleScreen);
   on(el, '[data-a=settings]', settingsScreen);
-  on(el, '[data-a=story]', () => storyScreen({ replay: true }));
-  on(el, '[data-m]', (e, b) => missionScreen(metas.find(m => m.id === b.dataset.m)));
+  on(el, '[data-a=story]', cinemaScreen);
+  on(el, '[data-m]', (e, b) => missionScreen(metas.find(m => m.id === b.dataset.m) || specials.find(m => m.id === b.dataset.m)));
 }
 
 const SPECIAL = [{ id: 'paliwo', title: 'Paliwo do silników', en: 'Rocket fuel', desc: 'Unit 2: ubrania, pogoda, miesiące, godziny, this/that, his/her', href: 'missions/paliwo/index.html', icon: '⛽' }];
@@ -274,11 +288,13 @@ function missionScreen(m) {
     say: (text, opt = {}) => say(text, { slow: opt.slow ?? store.getProfile()?.settings.slowVoice, lang: opt.lang }),
     aegisSay,
     audio: RGAudio,
-    assistant: window.RGAssistant || null,
+    assistant: withLevelShift(window.RGAssistant || null, store.getProfile()),
     base: "", // prefiks ścieżek od katalogu gry (index.html); folder misji: missionDir
     missionDir: `src/missions/${m.id}/`,
     done: (res = {}) => { if (finished) return; finished = true; rewardScreen(m, res); },
     exit: () => hangarScreen(),
+    // Film fabularny z src/story/<name>.json (np. 'review', 'quiz'); po nim onDone (domyślnie powrót do hangaru).
+    playStory: (name, onDone) => playStoryFile(`src/story/${name}.json`, onDone || hangarScreen),
   };
   try { const stop = m.mod.mount(root, ctx); cleanup = typeof stop === 'function' ? stop : null; }
   catch (e) { console.error(e); toast('Misja nie wczytała się'); hangarScreen(); }
@@ -291,6 +307,20 @@ const CHEERS = [
   ['Great job, Guardian!', 'Świetna robota, Strażniku!'],
   ['You are a real Guardian!', 'Jesteś prawdziwym Strażnikiem!'],
 ];
+// Paczki do druku 3D: assets/druk3d/druk3d.json (misja -> zip, miniatury, rozmiar)
+let druk3dCache = null;
+function druk3d() { return druk3dCache || (druk3dCache = fetch('assets/druk3d/druk3d.json').then(r => r.ok ? r.json() : {}).catch(() => ({}))); }
+function printLink(d, label) {
+  return `<a class="btn" href="${esc(d.zip)}" download>🖨️ ${esc(label)} (${esc(String(d.size_mb))} MB)</a>`;
+}
+function fillPrintBox(box, missionId) {
+  druk3d().then(all => {
+    const d = all && all[missionId]; if (!d || !box.isConnected) return;
+    const imgs = (d.png && d.png.length ? d.png : ['assets/druk3d/AEGIS-7_caly.png']).map(src => `<img src="${esc(src)}" alt="" loading="lazy">`).join('');
+    box.innerHTML = `<div class="print3d"><div class="print3d-img">${imgs}</div><div><p><b>Część do wydrukowania w 3D</b><br><span class="muted">Plik dla rodzica: model w kolorach (.3mf) i STL, z instrukcją.</span></p>${printLink(d, 'Pobierz część do druku 3D')}</div></div>`;
+  });
+}
+
 function rewardScreen(m, res) {
   const p = store.getProfile();
   const stars = Math.max(0, Math.min(3, res.stars ?? 2));
@@ -319,12 +349,20 @@ function rewardScreen(m, res) {
       <img class="title-robot" src="assets/img/aegis.webp" alt="AEGIS-7">
       <p class="subtitle">${esc(cheer[1])}</p>
       ${summaryHtml ? `<div class="panel" style="max-width:700px">${summaryHtml}</div>` : ''}
+      <div data-print></div>
       <div class="row" style="justify-content:center"><button class="btn" data-a="again">🔊</button><button class="btn primary big" data-a="next" autofocus>Do hangaru ▶</button></div>
     </div>
   </section>`));
   setTimeout(() => aegisSay(cheer[0]), 600);
+  fillPrintBox(el.querySelector('[data-print]'), m.id);
   on(el, '[data-a=again]', () => aegisSay(cheer[0]));
-  on(el, '[data-a=next]', hangarScreen);
+  // Filmy fabularne po misjach (raz): „Tymczasem…” po 3. misji rozdziału 1, finał po ostatniej.
+  const film = sm && sm.final ? 'finale' : (Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length >= 3 ? 'meanwhile' : null);
+  on(el, '[data-a=next]', () => {
+    const q = store.getProfile(); q.progress.films = q.progress.films || {};
+    if (film && !q.progress.films[film]) { q.progress.films[film] = true; store.saveProfile(q); playStoryFile(`src/story/${film}.json`, hangarScreen).then(ok => { if (!ok) hangarScreen(); }); }
+    else hangarScreen();
+  });
 }
 
 /* ---------- ustawienia ---------- */
@@ -382,7 +420,13 @@ function parentScreen() {
       <div class="row"><span style="font-size:32px">${esc(p.avatar)}</span><h3 class="grow">${esc(p.name)}</h3>
         <button class="btn small" data-del="${p.id}">Usuń</button></div>
       <p>Części robota: <b>${p.progress.parts.length}/${PARTS.length}</b> · historia: ${p.progress.storySeen ? 'obejrzana' : 'nie'} · test startowy: ${p.progress.calibrationDone ? 'zrobiony' : 'nie'}</p>
+      <label class="row">Poziom trudności:
+        <select data-shift="${p.id}" style="font:inherit;font-size:18px;padding:6px 10px;border-radius:10px">
+          ${[[-1, 'łatwiej'], [0, 'automatycznie (zalecane)'], [1, 'trudniej']].map(([v, t]) => `<option value="${v}" ${((p.settings && p.settings.levelShift) || 0) === v ? 'selected' : ''}>${t}</option>`).join('')}
+        </select></label>
       <p>Odpowiedzi w grze: <b>${log.length}</b>${log.length ? `, poprawnych ${Math.round(100 * ok / log.length)}%` : ''}</p>
+      <div data-print3d="${p.id}"></div>
+      <div data-rec="${p.id}"></div>
       ${renderParentPanel ? `<div data-panel="${p.id}"></div>` : report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
     </div>`;
   }).join('');
@@ -401,6 +445,19 @@ function parentScreen() {
     </div>
   </section>`));
   el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
+  druk3d().then(all => el.querySelectorAll('[data-print3d]').forEach(box => {
+    const p = ps.find(x => x.id === box.dataset.print3d); if (!p || !all) return;
+    const got = Object.keys(all).filter(id => p.progress.missions[id]);
+    box.innerHTML = got.length ? `<p>Części do druku 3D (zdobyte w misjach):</p><div class="print-list">${got.map((id, i) => printLink(all[id], `Misja ${id.replace('ch1-m', '')}`)).join('')}</div>`
+      : '<p class="muted">Po każdej misji rozdziału 1 pojawi się tu plik części robota do druku 3D.</p>';
+  }));
+  import('./recordings.js').then(m => el.querySelectorAll('[data-rec]').forEach(box => {
+    const p = ps.find(x => x.id === box.dataset.rec); if (p) m.renderRecordings(box, p, store.saveProfile);
+  })).catch(() => {});
+  el.querySelectorAll('[data-shift]').forEach(sel => sel.addEventListener('change', () => {
+    const p = ps.find(x => x.id === sel.dataset.shift); if (!p) return;
+    p.settings = p.settings || {}; p.settings.levelShift = +sel.value; store.saveProfile(p); toast('Zapisano poziom trudności');
+  }));
   on(el, '[data-a=back]', titleScreen);
   on(el, '[data-del]', (e, b) => { if (confirm('Usunąć tego gracza i jego wyniki?')) { store.deleteProfile(b.dataset.del); parentScreen(); } });
   on(el, '[data-a=export]', () => {
@@ -418,7 +475,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 ready.finally(titleScreen);
-window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen } };
+window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen, film: name => playStoryFile(`src/story/${name}.json`, hangarScreen) } };
 
 // --- Robot składany z części (grafika: assets/gfx/characters/aegis7/assembly.svg) ---
 // Sufiks -l/-r w assembly.svg = strona EKRANU; lewa część robota (jak w druku 3D) jest po prawej stronie ekranu.
@@ -449,3 +506,53 @@ async function mountAssembly(box, got, fresh) {
 const PART_ALIAS = { '01_tulow': 'torso', '02_glowa': 'head', '03_miednica': 'pelvis', '04_udo_L': 'thigh_l', '05_udo_P': 'thigh_r',
   '06_golen_L': 'shin_l', '07_golen_P': 'shin_r', '08_ramie_L': 'arm_l', '09_przedramie_L': 'forearm_l', '10_ramie_P': 'arm_r', '11_przedramie_P': 'forearm_r' };
 function normPart(id) { return id ? (PART_ALIAS[id] || id) : null; }
+
+// --- Przycisk wyciszenia: zawsze w prawym dolnym rogu, na każdym ekranie (także w misjach) ---
+(function muteButton() {
+  const b = document.createElement('button');
+  b.className = 'mutebtn';
+  const paint = () => {
+    const m = !!(RGAudio && RGAudio.isMuted && RGAudio.isMuted());
+    b.textContent = m ? '🔇' : '🔊';
+    b.setAttribute('aria-label', m ? 'Włącz dźwięk' : 'Wycisz muzykę i dźwięki');
+    b.title = b.getAttribute('aria-label');
+    b.setAttribute('aria-pressed', String(m));
+  };
+  b.addEventListener('click', () => { try { RGAudio.toggleMute(); } catch (e) {} paint(); });
+  document.body.append(b);
+  paint(); setTimeout(paint, 500);
+})();
+
+// Ręczna korekta poziomu z panelu rodzica (profile.settings.levelShift: -1 łatwiej, 0 auto, +1 trudniej).
+// Nakładana na to, co proponuje asystent, w zakresie poziomów misji 1–3.
+function withLevelShift(A, profile) {
+  const shift = (profile && profile.settings && +profile.settings.levelShift) || 0;
+  if (!A || !shift) return A;
+  const adj = r => {
+    if (!r || typeof r !== 'object') return r;
+    const o = { ...r };
+    if (typeof o.level === 'number') o.level = Math.max(1, Math.min(3, Math.round(o.level) + shift));
+    if (shift < 0) { if ('maxChoices' in o) o.maxChoices = Math.max(2, (o.maxChoices || 3) - 1); o.slowAudioDefault = true; if ('polishHint' in o) o.polishHint = 'after-wrong'; }
+    return o;
+  };
+  const w = Object.create(A);
+  if (A.getDifficulty) w.getDifficulty = (...a) => adj(A.getDifficulty(...a));
+  if (A.nextSettings) w.nextSettings = (...a) => adj(A.nextSettings(...a));
+  return w;
+}
+
+// Kino: obejrzane filmy fabularne do ponownego odtworzenia.
+const FILMS = [['intro', 'Początek historii'], ['meanwhile', 'Tymczasem…'], ['review', 'Podsumowanie'], ['quiz', 'Przed kartkówką'], ['finale', 'Finał rozdziału 1']];
+function cinemaScreen() {
+  const p = store.getProfile(); const seen = (p && p.progress.films) || {};
+  const list = FILMS.filter(([id]) => id === 'intro' || seen[id]);
+  const el = show(h(`
+  <section class="screen">
+    <div class="bg" style="background-image:url(assets/gfx/backgrounds/hangar.svg),url(assets/img/hangar.webp)"></div>
+    <div class="topbar"><button class="iconbtn" data-a="back" aria-label="Wstecz">←</button><span class="title">Kino AEGIS-7</span></div>
+    <div class="wrap"><div class="cards">${list.map(([id, t]) => `<button class="card" data-film="${id}"><span class="big">🎬</span><h3>${esc(t)}</h3></button>`).join('')}</div>
+      <p class="muted">Kolejne filmy odblokujesz w misjach.</p></div>
+  </section>`));
+  on(el, '[data-a=back]', hangarScreen);
+  on(el, '[data-film]', (e, b) => b.dataset.film === 'intro' ? storyScreen({ replay: true }) : playStoryFile(`src/story/${b.dataset.film}.json`, cinemaScreen));
+}

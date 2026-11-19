@@ -1,4 +1,4 @@
-// Wypisuje wszystkie zdania misji rozdziału 1 do nagrania (zawsze zgodne z danymi misji).
+// Wypisuje wszystkie zdania misji rozdziału 1 i misji specjalnych do nagrania (zawsze zgodne z danymi misji).
 // node tools/frazy_ch1.mjs  ->  tools/frazy-ch1.txt (słówka i zdania, czysty głos)
 //                              tools/frazy-aegis-ch1.txt (kwestie AEGIS-7, głos robota)
 // Nagrania (na komputerze z kluczem):
@@ -6,6 +6,7 @@
 //   python tools/robot_voice.py batch tools/frazy-aegis-ch1.txt assets/audio/aegis
 import { writeFileSync } from 'node:fs';
 import { WORDS, MISSIONS, AEGIS_LINES } from '../src/missions/_shared/ch1-data.js';
+import { UNITS, LINES } from '../src/missions/_shared/special-data.js';
 
 const words = new Set(Object.keys(WORDS));
 const aegis = new Set();
@@ -16,6 +17,8 @@ for (const m of MISSIONS) {
   for (const t of m.talk || []) { aegis.add(t.q.en); for (const a of t.a) words.add(a.en); }
   aegis.add(m.intro.en); aegis.add(m.cheer.en);
 }
+for (const u of UNITS) for (const w of u.words) words.add(w.en);  // misje specjalne
+for (const l of Object.values(LINES)) aegis.add(l.en);
 for (const v of Object.values(AEGIS_LINES)) (Array.isArray(v) ? v : [v]).forEach(l => aegis.add(l.en));
 const here = new URL('.', import.meta.url);
 writeFileSync(new URL('frazy-ch1.txt', here), [...words].map(w => `en|${w}`).join('\n') + '\n');

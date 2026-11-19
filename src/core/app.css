@@ -83,3 +83,19 @@ pre.report { white-space: pre-wrap; font-family: inherit; line-height: 1.5; marg
 .asm { position: relative; }
 .asm svg { width: 100%; height: auto; max-height: 52vh; display: block; margin: 0 auto; }
 h1.logo img { width: min(560px, 86vw); height: auto; display: block; margin: 0 auto; filter: drop-shadow(0 4px 18px rgba(0,0,0,.5)); }
+.mutebtn { position: fixed; right: 12px; bottom: 12px; z-index: 60; width: 52px; height: 52px; border-radius: 50%; border: 2px solid var(--rg-line); background: var(--rg-panel-solid); color: var(--rg-text); font-size: 24px; cursor: pointer; opacity: .85; }
+.mutebtn:hover, .mutebtn:focus-visible { opacity: 1; border-color: var(--rg-accent-2); outline: none; }
+.mutebtn[aria-pressed="true"] { border-color: var(--rg-accent); }
+
+/* ekran startowy: malowany hangar i AEGIS-7 */
+.title-bg::after{background:linear-gradient(180deg,rgba(5,10,20,.05) 0%,rgba(5,10,20,.15) 45%,rgba(5,10,20,.8) 100%)}
+.hero{flex:1;min-height:30vh;display:flex;align-items:flex-end;justify-content:center;margin-bottom:-7vh;pointer-events:none}
+.hero img{height:min(50vh,560px);width:auto;filter:drop-shadow(0 0 28px rgba(63,224,208,.45)) drop-shadow(0 12px 18px rgba(0,0,0,.6));animation:heroFloat 5s ease-in-out infinite}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media (prefers-reduced-motion:reduce){.hero img{animation:none}}
+
+/* paczka do druku 3D na ekranie nagrody i w panelu rodzica */
+.print3d{display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:center;background:rgba(10,18,34,.75);border:1px solid rgba(63,224,208,.35);border-radius:16px;padding:12px 16px;max-width:700px;margin:8px auto;text-align:left}
+.print3d-img{display:flex;gap:6px}.print3d-img img{width:84px;height:84px;object-fit:contain;background:#0b1424;border-radius:10px}
+.print3d .btn{text-decoration:none;display:inline-block}
+.print-list{display:flex;flex-wrap:wrap;gap:8px}

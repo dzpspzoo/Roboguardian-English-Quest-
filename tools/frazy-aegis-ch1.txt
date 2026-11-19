@@ -19,10 +19,20 @@ Is the ship big?
 Are you ready?
 All my parts are back. Now let us talk, Guardian. Answer me.
 Systems online. AEGIS-7 is back! Together we will save the family.
+Test simulation. First we practise, then a short test.
+Practice complete. Now the test. Take your time.
+Excellent! You are ready for the test at school.
+Good work! Practise the red words one more time.
+Dictation. Listen to the word and type it.
+Look at the red letters and try again.
+Here is the right spelling. Copy it.
+Systems report. These words were the hardest. Let us repair them.
+Memory repaired. Great work, Guardian!
 Great job, Guardian!
+Hmm, not this one. Listen again.
+Hmm, not this one. Look again.
 Yes! That is right!
 You are a real Guardian!
-Hmm, not this one. Listen again.
 Look! This one glows.
 Let's do it together.
 Let's slow down a little.

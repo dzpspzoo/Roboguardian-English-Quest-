@@ -1,0 +1,370 @@
+{
+ "version": 1,
+ "bye": {
+  "en": "See you tomorrow, Guardian!",
+  "pl": "Widzimy się jutro, Strażniku!",
+  "audio": "assets/audio/aegis/bye.mp3"
+ },
+ "jokes": [
+  {
+   "id": "joke_01",
+   "en": "Why do robots never get tired? We have batteries!",
+   "pl": "Dlaczego roboty się nie męczą? Mamy baterie!",
+   "audio": "assets/audio/aegis/joke_01.mp3"
+  },
+  {
+   "id": "joke_02",
+   "en": "I tried to eat a cookie. Now I have crumbs in my chest!",
+   "pl": "Próbowałem zjeść ciastko. Teraz mam okruszki w piersi!",
+   "audio": "assets/audio/aegis/joke_02.mp3"
+  },
+  {
+   "id": "joke_03",
+   "en": "What is a robot's favourite music? Heavy metal!",
+   "pl": "Jaka jest ulubiona muzyka robota? Heavy metal!",
+   "audio": "assets/audio/aegis/joke_03.mp3"
+  },
+  {
+   "id": "joke_04",
+   "en": "One, two, three... I can count to ten. Then my fingers end!",
+   "pl": "Raz, dwa, trzy... Liczę do dziesięciu. Potem kończą mi się palce!",
+   "audio": "assets/audio/aegis/joke_04.mp3"
+  },
+  {
+   "id": "joke_05",
+   "en": "A cat sat on my head today. Now I am a cat hat!",
+   "pl": "Dziś kot usiadł mi na głowie. Teraz jestem czapką dla kota!",
+   "audio": "assets/audio/aegis/joke_05.mp3"
+  },
+  {
+   "id": "joke_06",
+   "en": "I am big. The cat is small. But the cat is the boss!",
+   "pl": "Ja jestem duży. Kot jest mały. Ale to kot tu rządzi!",
+   "audio": "assets/audio/aegis/joke_06.mp3"
+  },
+  {
+   "id": "joke_07",
+   "en": "Hello, Guardian! I said hello to a lamp. It did not answer.",
+   "pl": "Cześć, Strażniku! Powiedziałem cześć lampie. Nie odpowiedziała.",
+   "audio": "assets/audio/aegis/joke_07.mp3"
+  },
+  {
+   "id": "joke_08",
+   "en": "Why did the robot go to school? To get a little smarter!",
+   "pl": "Po co robot poszedł do szkoły? Żeby być trochę mądrzejszy!",
+   "audio": "assets/audio/aegis/joke_08.mp3"
+  },
+  {
+   "id": "joke_09",
+   "en": "I want a pet. A small robot dog. It says: beep, woof!",
+   "pl": "Chcę zwierzątko. Małego robo-psa. Mówi: bip, hau!",
+   "audio": "assets/audio/aegis/joke_09.mp3"
+  },
+  {
+   "id": "joke_10",
+   "en": "My favourite number is seven. Because I am AEGIS-7!",
+   "pl": "Moja ulubiona liczba to siedem. Bo jestem AEGIS-7!",
+   "audio": "assets/audio/aegis/joke_10.mp3"
+  },
+  {
+   "id": "joke_11",
+   "en": "I dance like this: beep, boop, beep. Do you like it?",
+   "pl": "Tańczę tak: bip, bup, bip. Podoba ci się?",
+   "audio": "assets/audio/aegis/joke_11.mp3"
+  },
+  {
+   "id": "joke_12",
+   "en": "Why is the robot so cool? He has many fans!",
+   "pl": "Dlaczego robot jest taki fajny? Ma dużo wentylatorów!",
+   "audio": "assets/audio/aegis/joke_12.mp3"
+  },
+  {
+   "id": "joke_13",
+   "en": "I tried to jump. The floor said: ouch!",
+   "pl": "Spróbowałem skoczyć. Podłoga powiedziała: au!",
+   "audio": "assets/audio/aegis/joke_13.mp3"
+  },
+  {
+   "id": "joke_14",
+   "en": "A robot walks into a room. Bang! Wrong door.",
+   "pl": "Robot wchodzi do pokoju. Bum! Złe drzwi.",
+   "audio": "assets/audio/aegis/joke_14.mp3"
+  },
+  {
+   "id": "joke_15",
+   "en": "Knock, knock! Who is there? A robot. A robot who? A robot who loves you!",
+   "pl": "Puk, puk! Kto tam? Robot. Jaki robot? Robot, który cię lubi!",
+   "audio": "assets/audio/aegis/joke_15.mp3"
+  },
+  {
+   "id": "joke_16",
+   "en": "My head is round. My feet are big. My jokes are bad!",
+   "pl": "Głowę mam okrągłą. Stopy duże. Żarty słabe!",
+   "audio": "assets/audio/aegis/joke_16.mp3"
+  },
+  {
+   "id": "joke_17",
+   "en": "I sneezed! Achoo! Oops, a screw fell out.",
+   "pl": "Kichnąłem! Apsik! Ups, wypadła śrubka.",
+   "audio": "assets/audio/aegis/joke_17.mp3"
+  },
+  {
+   "id": "joke_18",
+   "en": "Why do robots like the sun? Free energy!",
+   "pl": "Dlaczego roboty lubią słońce? Darmowa energia!",
+   "audio": "assets/audio/aegis/joke_18.mp3"
+  },
+  {
+   "id": "joke_19",
+   "en": "The Krakens have eight legs. I have two. But I am faster!",
+   "pl": "Krakeni mają osiem nóg. Ja mam dwie. Ale jestem szybszy!",
+   "audio": "assets/audio/aegis/joke_19.mp3"
+  },
+  {
+   "id": "joke_20",
+   "en": "I counted the stars. One, two, three... Oh no, I fell asleep!",
+   "pl": "Liczyłem gwiazdy. Raz, dwa, trzy... O nie, zasnąłem!",
+   "audio": "assets/audio/aegis/joke_20.mp3"
+  },
+  {
+   "id": "joke_21",
+   "en": "What does a robot eat for dinner? Microchips!",
+   "pl": "Co robot je na obiad? Mikroczipsy!",
+   "audio": "assets/audio/aegis/joke_21.mp3"
+  },
+  {
+   "id": "joke_22",
+   "en": "The cat is on the table. The robot is under the table. Why? I am hiding!",
+   "pl": "Kot jest na stole. Robot jest pod stołem. Dlaczego? Chowam się!",
+   "audio": "assets/audio/aegis/joke_22.mp3"
+  },
+  {
+   "id": "joke_23",
+   "en": "I have a big heart. It is blue and it glows!",
+   "pl": "Mam wielkie serce. Jest niebieskie i świeci!",
+   "audio": "assets/audio/aegis/joke_23.mp3"
+  },
+  {
+   "id": "joke_24",
+   "en": "Mia says I am funny. Leo says I am loud. Beep!",
+   "pl": "Mia mówi, że jestem zabawny. Leo mówi, że głośny. Bip!",
+   "audio": "assets/audio/aegis/joke_24.mp3"
+  },
+  {
+   "id": "joke_25",
+   "en": "Why did the robot cross the road? To charge on the other side!",
+   "pl": "Po co robot przeszedł przez ulicę? Żeby naładować się po drugiej stronie!",
+   "audio": "assets/audio/aegis/joke_25.mp3"
+  },
+  {
+   "id": "joke_26",
+   "en": "I am a robot, not a toaster. Please, no bread in my mouth!",
+   "pl": "Jestem robotem, nie tosterem. Proszę, żadnego chleba w buzi!",
+   "audio": "assets/audio/aegis/joke_26.mp3"
+  },
+  {
+   "id": "joke_27",
+   "en": "Ten little screws. Nine little screws. Where are they going?",
+   "pl": "Dziesięć małych śrubek. Dziewięć małych śrubek. Dokąd one idą?",
+   "audio": "assets/audio/aegis/joke_27.mp3"
+  },
+  {
+   "id": "joke_28",
+   "en": "My shoes are too big. Oh wait, these are my feet!",
+   "pl": "Moje buty są za duże. A nie, to moje stopy!",
+   "audio": "assets/audio/aegis/joke_28.mp3"
+  },
+  {
+   "id": "joke_29",
+   "en": "I tried to whistle. It sounds like: beep, beep, boop.",
+   "pl": "Próbowałem gwizdać. Wychodzi: bip, bip, bup.",
+   "audio": "assets/audio/aegis/joke_29.mp3"
+  },
+  {
+   "id": "joke_30",
+   "en": "A small cat. A big robot. A big robot who is scared of a small cat!",
+   "pl": "Mały kot. Duży robot. Duży robot, który boi się małego kota!",
+   "audio": "assets/audio/aegis/joke_30.mp3"
+  },
+  {
+   "id": "joke_31",
+   "en": "Good job today! My battery is happy. Look, it is green!",
+   "pl": "Dobra robota! Moja bateria jest szczęśliwa. Zobacz, jest zielona!",
+   "audio": "assets/audio/aegis/joke_31.mp3"
+  },
+  {
+   "id": "joke_32",
+   "en": "What is a robot's favourite snack? Nuts and bolts!",
+   "pl": "Ulubiona przekąska robota? Śrubki i nakrętki!",
+   "audio": "assets/audio/aegis/joke_32.mp3"
+  },
+  {
+   "id": "joke_33",
+   "en": "I said hello to my reflection. It said hello too!",
+   "pl": "Powiedziałem cześć swojemu odbiciu. Też powiedziało cześć!",
+   "audio": "assets/audio/aegis/joke_33.mp3"
+  },
+  {
+   "id": "joke_34",
+   "en": "Why are robots never scared? They have nerves of steel!",
+   "pl": "Dlaczego roboty się nie boją? Mają stalowe nerwy!",
+   "audio": "assets/audio/aegis/joke_34.mp3"
+  },
+  {
+   "id": "joke_35",
+   "en": "I can say red, blue, green... and beep. Beep is my favourite colour!",
+   "pl": "Umiem powiedzieć czerwony, niebieski, zielony... i bip. Bip to mój ulubiony kolor!",
+   "audio": "assets/audio/aegis/joke_35.mp3"
+  },
+  {
+   "id": "joke_36",
+   "en": "I tried to hug a tree. The tree is now my friend.",
+   "pl": "Próbowałem przytulić drzewo. Teraz drzewo to mój przyjaciel.",
+   "audio": "assets/audio/aegis/joke_36.mp3"
+  },
+  {
+   "id": "joke_37",
+   "en": "My left arm says hello. My right arm says goodbye. They are confused!",
+   "pl": "Lewe ramię mówi cześć. Prawe mówi pa. Są skołowane!",
+   "audio": "assets/audio/aegis/joke_37.mp3"
+  },
+  {
+   "id": "joke_38",
+   "en": "I am very strong. But I cannot open this jar. Help!",
+   "pl": "Jestem bardzo silny. Ale nie umiem otworzyć tego słoika. Pomocy!",
+   "audio": "assets/audio/aegis/joke_38.mp3"
+  },
+  {
+   "id": "joke_39",
+   "en": "Leo taught me a new word today: pizza. I want pizza!",
+   "pl": "Leo nauczył mnie dziś nowego słowa: pizza. Chcę pizzę!",
+   "audio": "assets/audio/aegis/joke_39.mp3"
+  },
+  {
+   "id": "joke_40",
+   "en": "Two plus two is four. Four plus robot is... a party!",
+   "pl": "Dwa plus dwa to cztery. Cztery plus robot to... impreza!",
+   "audio": "assets/audio/aegis/joke_40.mp3"
+  },
+  {
+   "id": "joke_41",
+   "en": "Why did the robot sit on the clock? He wanted to be on time!",
+   "pl": "Po co robot usiadł na zegarze? Chciał być na czas!",
+   "audio": "assets/audio/aegis/joke_41.mp3"
+  },
+  {
+   "id": "joke_42",
+   "en": "Shh! The cat is sleeping. I am walking very small. Tip, tip, tip.",
+   "pl": "Ćśś! Kot śpi. Chodzę bardzo cichutko. Tip, tip, tip.",
+   "audio": "assets/audio/aegis/joke_42.mp3"
+  },
+  {
+   "id": "joke_43",
+   "en": "I like my hangar. It is big, warm and full of friends.",
+   "pl": "Lubię mój hangar. Jest duży, ciepły i pełen przyjaciół.",
+   "audio": "assets/audio/aegis/joke_43.mp3"
+  },
+  {
+   "id": "joke_44",
+   "en": "I tried yoga. Now I am stuck. Please call a mechanic!",
+   "pl": "Spróbowałem jogi. Teraz utknąłem. Wezwij mechanika!",
+   "audio": "assets/audio/aegis/joke_44.mp3"
+  },
+  {
+   "id": "joke_45",
+   "en": "The Krakens do not say please. I always say please. Please!",
+   "pl": "Krakeni nie mówią proszę. Ja zawsze mówię proszę. Proszę!",
+   "audio": "assets/audio/aegis/joke_45.mp3"
+  },
+  {
+   "id": "joke_46",
+   "en": "Why was the robot happy? He had a good byte!",
+   "pl": "Dlaczego robot był szczęśliwy? Miał dobry bajt!",
+   "audio": "assets/audio/aegis/joke_46.mp3"
+  },
+  {
+   "id": "joke_47",
+   "en": "I can lift a car. I cannot lift my mood when it rains. Just kidding!",
+   "pl": "Podniosę samochód. Nie podniosę humoru, gdy pada. Żartuję!",
+   "audio": "assets/audio/aegis/joke_47.mp3"
+  },
+  {
+   "id": "joke_48",
+   "en": "My visor is blue. My armour is orange. My jokes are... yellow?",
+   "pl": "Wizjer mam niebieski. Zbroję pomarańczową. Żarty... żółte?",
+   "audio": "assets/audio/aegis/joke_48.mp3"
+  },
+  {
+   "id": "joke_49",
+   "en": "Mia drew a robot. It has three heads. I want three heads too!",
+   "pl": "Mia narysowała robota. Ma trzy głowy. Też chcę trzy głowy!",
+   "audio": "assets/audio/aegis/joke_49.mp3"
+  },
+  {
+   "id": "joke_50",
+   "en": "Ready, steady, go! Oops, I went the wrong way.",
+   "pl": "Do biegu, gotowi, start! Ups, pobiegłem w złą stronę.",
+   "audio": "assets/audio/aegis/joke_50.mp3"
+  },
+  {
+   "id": "joke_51",
+   "en": "A robot and a cat play football. Who wins? The cat. Always.",
+   "pl": "Robot i kot grają w piłkę. Kto wygrywa? Kot. Zawsze.",
+   "audio": "assets/audio/aegis/joke_51.mp3"
+  },
+  {
+   "id": "joke_52",
+   "en": "I learned the word big. Big robot, big heart, big smile!",
+   "pl": "Nauczyłem się słowa big. Duży robot, duże serce, duży uśmiech!",
+   "audio": "assets/audio/aegis/joke_52.mp3"
+  },
+  {
+   "id": "joke_53",
+   "en": "I learned the word small. Small screw, small cat, small... me? No!",
+   "pl": "Nauczyłem się słowa small. Mała śrubka, mały kot, mały... ja? Nie!",
+   "audio": "assets/audio/aegis/joke_53.mp3"
+  },
+  {
+   "id": "joke_54",
+   "en": "Why do robots love English? Because every word gives us power!",
+   "pl": "Dlaczego roboty kochają angielski? Bo każde słowo daje nam moc!",
+   "audio": "assets/audio/aegis/joke_54.mp3"
+  },
+  {
+   "id": "joke_55",
+   "en": "I had a dream. I was a washing machine. Spin, spin, spin!",
+   "pl": "Miałem sen. Byłem pralką. Kręć, kręć, kręć!",
+   "audio": "assets/audio/aegis/joke_55.mp3"
+  },
+  {
+   "id": "joke_56",
+   "en": "Beep! That means thank you in robot language.",
+   "pl": "Bip! To znaczy dziękuję w języku robotów.",
+   "audio": "assets/audio/aegis/joke_56.mp3"
+  },
+  {
+   "id": "joke_57",
+   "en": "Boop! That means good night in robot language.",
+   "pl": "Bup! To znaczy dobranoc w języku robotów.",
+   "audio": "assets/audio/aegis/joke_57.mp3"
+  },
+  {
+   "id": "joke_58",
+   "en": "Today you were great. Tomorrow you will be greater!",
+   "pl": "Dziś byłeś świetny. Jutro będziesz jeszcze lepszy!",
+   "audio": "assets/audio/aegis/joke_58.mp3"
+  },
+  {
+   "id": "joke_59",
+   "en": "I will charge my battery all night. Zzz... beep... zzz...",
+   "pl": "Będę ładować baterię całą noc. Zzz... bip... zzz...",
+   "audio": "assets/audio/aegis/joke_59.mp3"
+  },
+  {
+   "id": "joke_60",
+   "en": "You are my favourite Guardian. Shh, do not tell the others!",
+   "pl": "Jesteś moim ulubionym Strażnikiem. Ćśś, nie mów innym!",
+   "audio": "assets/audio/aegis/joke_60.mp3"
+  }
+ ]
+}

@@ -139,7 +139,8 @@ export function playStory(rootEl, data, opts = {}) {
 
   function showLine(line) {
     subEl.classList.remove('on', 'aegis');
-    const who = line.speaker === 'aegis' ? '<span class="rgs-who">AEGIS-7</span>' : '';
+    const NAMES = { aegis: 'AEGIS-7', leo: 'Leo', mia: 'Mia', mom: 'Mama', dad: 'Tata', soldier: 'Żołnierz', worker: 'Robotnik' };
+    const who = NAMES[line.speaker] ? `<span class="rgs-who">${NAMES[line.speaker]}</span>` : '';
     subEl.innerHTML = who + esc(line.pl) + (showEn ? `<span class="rgs-en" lang="en">${esc(line.en)}</span>` : '');
     if (line.speaker === 'aegis') subEl.classList.add('aegis');
     requestAnimationFrame(() => subEl.classList.add('on'));

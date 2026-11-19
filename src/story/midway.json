@@ -1,0 +1,146 @@
+{
+ "id": "midway",
+ "version": 1,
+ "scenes": [
+  {
+   "id": "F01",
+   "title_pl": "Pierwsze kroki",
+   "image": "assets/story/img/h02.webp",
+   "video": "assets/story/video/F01.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_hangar",
+   "fx": "none",
+   "sfx": [
+    {
+     "id": "servo",
+     "at": 800
+    },
+    {
+     "id": "metal_clank",
+     "at": 7500
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/F01_01.mp3",
+     "en": "First step. Second step. Whoa!",
+     "pl": "Pierwszy krok. Drugi krok. Ojej!"
+    }
+   ]
+  },
+  {
+   "id": "F02",
+   "title_pl": "Tak miało być",
+   "image": "assets/story/img/h02.webp",
+   "video": "assets/story/video/F02.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_hangar",
+   "fx": "none",
+   "sfx": [],
+   "lines": [
+    {
+     "speaker": "aegis",
+     "audio": "assets/audio/story/F02_01.mp3",
+     "en": "I meant to do that.",
+     "pl": "Tak miało być."
+    }
+   ]
+  },
+  {
+   "id": "F03",
+   "title_pl": "Miny dla strażnika",
+   "image": "assets/story/img/h01.webp",
+   "video": "assets/story/video/F03.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_family",
+   "fx": "stars",
+   "sfx": [],
+   "lines": [
+    {
+     "speaker": "mia",
+     "audio": "assets/audio/story/F03_01.mp3",
+     "en": "Hello, octopus!",
+     "pl": "Cześć, ośmiornico!"
+    },
+    {
+     "speaker": "leo",
+     "audio": "assets/audio/story/F03_02.mp3",
+     "en": "He doesn't understand English!",
+     "pl": "On nie rozumie po angielsku!"
+    }
+   ]
+  },
+  {
+   "id": "F04",
+   "title_pl": "Sygnał",
+   "image": "assets/story/img/h01.webp",
+   "video": "assets/story/video/F04.mp4",
+   "videoRate": 1,
+   "motion": {
+    "from": {
+     "x": 0,
+     "y": 0,
+     "scale": 1.0
+    },
+    "to": {
+     "x": -2,
+     "y": -1,
+     "scale": 1.1
+    }
+   },
+   "music": "story_family",
+   "fx": "core",
+   "sfx": [
+    {
+     "id": "robot_beep",
+     "at": 600
+    }
+   ],
+   "lines": [
+    {
+     "speaker": "dad",
+     "audio": "assets/audio/story/F04_01.mp3",
+     "en": "The signal is getting stronger. He's coming.",
+     "pl": "Sygnał jest coraz silniejszy. On nadchodzi."
+    }
+   ]
+  }
+ ]
+}

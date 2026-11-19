@@ -1,5 +1,5 @@
 // Tryb offline: pliki gry zapisywane przy pierwszym użyciu. Kod (html/js/css/json) najpierw z sieci, reszta z pamięci.
-const CACHE = 'rg-v17';
+const CACHE = 'rg-v18';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil((async () => {
   for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);

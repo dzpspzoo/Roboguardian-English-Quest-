@@ -217,6 +217,7 @@ async function hangarScreen() {
   try { if (p.settings?.mic !== false) RGSpeech.preload(); } catch (e) {}
   const got = new Set(p.progress.parts.map(normPart));
   const fresh = lastNewPart; lastNewPart = null;
+  const activate = lastActivate; lastActivate = false;
   const el = show(h(`
   <section class="screen">
     <div class="bg" style="background-image:url(assets/hangar/tlo_hangar.webp);filter:blur(14px) brightness(.4)"></div>
@@ -257,7 +258,7 @@ async function hangarScreen() {
     missionScreen(m);
   };
   on(el, '[data-m]', (e, b) => startMission(b.dataset.m));
-  mountHangarStage(el.querySelector('[data-stage]'), p, metas, fresh, id => { sfx('click'); startMission(id); });
+  mountHangarStage(el.querySelector('[data-stage]'), p, metas, fresh, activate, id => { sfx('click'); startMission(id); });
 }
 
 /* ---------- hangar: malowana scena, robot w ramie, części na podłodze ---------- */
@@ -283,7 +284,20 @@ function migratePartOrder(p) {
   if (a) ms['ch1-m2'] = a; else delete ms['ch1-m2'];
   p.progress.partOrder = 2; store.saveProfile(p);
 }
-async function mountHangarStage(box, p, metas, fresh, startMission) {
+// Klip naukowców (assets/hangar/klipy/<anim>.mp4) na całej scenie; klik pomija. Zwraca po końcu albo po 7 s.
+function hgrClip(box, anim, seq) {
+  return new Promise(res => {
+    if (!anim || matchMedia('(prefers-reduced-motion: reduce)').matches) return res();
+    const wrap = h(`<div class="hgr-clip"><video muted playsinline preload="auto" src="assets/hangar/klipy/${anim}.mp4"></video><span class="hgr-skip">Skip ⏭</span></div>`);
+    const v = wrap.querySelector('video'); let over = false;
+    const end = () => { if (over) return; over = true; wrap.classList.remove('on'); setTimeout(() => wrap.remove(), 400); res(); };
+    v.onended = end; v.onerror = end; wrap.onclick = end; setTimeout(end, 7000);
+    const iv = setInterval(() => { if (seq !== navSeq) { clearInterval(iv); end(); } else if (over) clearInterval(iv); }, 300);
+    box.append(wrap); requestAnimationFrame(() => wrap.classList.add('on'));
+    v.play().catch(end);
+  });
+}
+async function mountHangarStage(box, p, metas, fresh, activate, startMission) {
   if (!box) return;
   const seq = navSeq;
   const cfg = await hgrConfig();
@@ -296,7 +310,7 @@ async function mountHangarStage(box, p, metas, fresh, startMission) {
   const owner = {};
   for (const m of metas) for (const raw of (m.parts && m.parts.length ? m.parts : [m.part]).filter(Boolean)) owner[normPart(raw)] = m;
   const r = cfg.rama || { x: 50, y: 33.5, h: 58 };
-  const st = hgrState(before, active && !freshId);
+  const st = hgrState(before, active && !freshId && !activate);
   // części zamontowane, ale poza ciągłym początkiem (np. sama głowa bez tułowia): nakładka przy ramie
   const overlay = id => `<img class="hgr-over" data-over="${id}" src="assets/hangar/czesci/${HGR_FILE[id]}.webp" alt="" style="left:${r.x}%;top:${r.y - r.h * (id === 'head' ? 0.36 : 0)}%;width:${(cfg[HGR_FILE[id]] || {}).w || 8}%">`;
   const overs = [...before].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= st.n && !(st.head && id === 'head'));
@@ -317,6 +331,16 @@ async function mountHangarStage(box, p, metas, fresh, startMission) {
     ${floor}
     <div class="hgr-count">${got.size} / ${PARTS.length}</div>`;
   box.addEventListener('click', e => { const b = e.target.closest('.hgr-part'); if (b && b.dataset.mid && !b.disabled) startMission(b.dataset.mid); });
+  if (!freshId && activate && active) {
+    // AEGIS-7 kompletny: tankowanie paliwa i uruchomienie
+    const robot = box.querySelector('[data-robot]');
+    await new Promise(res => setTimeout(res, 500));
+    await hgrClip(box, (cfg['ch1-m8'] || {}).anim || 'paliwo', seq);
+    if (seq !== navSeq || !box.isConnected) return;
+    robot.src = hgrState(got, true).src;
+    const fl = box.querySelector('[data-flash]'); fl.classList.add('on'); sfx('power_up');
+    return;
+  }
   if (!freshId) return;
   // animacja montażu: nowa część podlatuje z podłogi do ramy, błysk, obrazek robota się zmienia
   const part = box.querySelector(`[data-part="${freshId}"]`), robot = box.querySelector('[data-robot]');
@@ -334,6 +358,8 @@ async function mountHangarStage(box, p, metas, fresh, startMission) {
   const anim = (cfg[HGR_FILE[freshId]] || {}).anim;
   await new Promise(res => { if (robot.complete) res(); else { robot.onload = res; setTimeout(res, 1500); } });
   await new Promise(res => setTimeout(res, 600));
+  if (seq !== navSeq || !box.isConnected) return;
+  await hgrClip(box, anim, seq);
   if (seq !== navSeq || !box.isConnected) return;
   const pr = part.getBoundingClientRect(), rr = robot.getBoundingClientRect();
   const tx = rr.left + rr.width / 2, ty = rr.top + rr.height * (freshId === 'head' ? 0.12 : HGR_ORDER.indexOf(freshId) >= 5 ? 0.75 : 0.42);
@@ -426,6 +452,7 @@ function rewardScreen(m, res) {
   const newParts = [];
   for (const raw of ids) { const id = normPart(raw); if (id && !p.progress.parts.includes(id)) { p.progress.parts.push(id); newParts.push(id); } }
   const newPart = newParts[0] || null; lastNewPart = newPart;
+  if (m.id === 'ch1-m8' && st.plays === 1) lastActivate = true;
   store.saveProfile(p);
   const sm = res.summary && typeof res.summary === 'object' ? res.summary : null;
   const cheer = sm && sm.cheer && sm.cheer.en ? [sm.cheer.en, sm.cheer.pl || ''] : CHEERS[Math.floor(Math.random() * CHEERS.length)];
@@ -600,7 +627,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 ready.finally(titleScreen);
-window.RG = { store, say, aegisSay, version: VERSION, __fresh: id => { lastNewPart = id; }, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen, film: name => playStoryFile(`src/story/${name}.json`, hangarScreen) } };
+window.RG = { store, say, aegisSay, version: VERSION, __fresh: id => { lastNewPart = id; }, __activate: () => { lastActivate = true; }, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen, film: name => playStoryFile(`src/story/${name}.json`, hangarScreen) } };
 
 // --- Robot składany z części (grafika: assets/gfx/characters/aegis7/assembly.svg) ---
 // Sufiks -l/-r w assembly.svg = strona EKRANU; lewa część robota (jak w druku 3D) jest po prawej stronie ekranu.
@@ -612,6 +639,7 @@ const ASM_IDS = {
 };
 let asmSvgText = null;
 let lastNewPart = null;
+let lastActivate = false;
 async function mountAssembly(box, got, fresh) {
   if (!box) return;
   try {

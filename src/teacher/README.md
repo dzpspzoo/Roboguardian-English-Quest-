@@ -17,10 +17,10 @@ AEGIS-a i „See you tomorrow, Guardian!”. Plan i badania: dokument projektu �
 ## Zasady (z badań)
 
 - Maks. 3 nowe zwroty dziennie, reszta to powtórki z pamięci w rosnących odstępach; pudełko rośnie najwyżej raz dziennie.
-- Dźwięki tylko w prawdziwych słowach, w kilku głosach; po błędzie jawna wskazówka po polsku (czytana lektorem) i ponowne słuchanie.
+- Dźwięki tylko w prawdziwych słowach, w kilku głosach; po błędzie jawna wskazówka po polsku (napis i polski lektor) i ponowne słuchanie.
 - Po 2 błędach podświetlenie dobrej odpowiedzi; bez kar i presji czasu. 3 szybkie błędy albo 12 min = misja skraca się do scenki i pisania.
 - Po przerwie > 3 dni najpierw powtórka bez nowego materiału.
-- Polski lektor (syn słabo czyta): ustawienie w panelu rodzica, domyślnie czyta polecenia, tłumaczenia i podpowiedzi.
+- Całe prowadzenie po angielsku (AEGIS), polskie napisy do czytania. Polski lektor tylko jako podpowiedź po błędzie; dziecko nie ma przycisku, żeby go włączyć (rodzic może go wyłączyć w panelu).
 - Nagroda: część AEGIS-a co 5 Misji dnia (`PART_EVERY`), w kolejności `PART_ORDER` (od głowy).
 
 ## Stan w profilu

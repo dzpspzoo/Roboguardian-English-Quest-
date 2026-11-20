@@ -149,8 +149,13 @@ export const COURSE = CHAPTERS.flatMap(ch => ch.days.map((d, i) => ({ ...d, chap
 export const PART_ORDER = ['head', 'torso', 'pelvis', 'thigh_l', 'thigh_r', 'shin_l', 'shin_r', 'arm_l', 'forearm_l', 'arm_r', 'forearm_r'];
 
 // Wszystkie teksty do nagrania (tools/nagraj_nauczyciel.py).
+// Polecenia AEGIS-a w lekcji (po angielsku; polski tylko w napisie).
+export const AEGIS_LINES = ['Let us remember!', 'What does it mean?', 'Which one?', 'Which word do you hear?', 'New words. Listen!',
+  'Listen. Two words, two sounds.', 'What do you say?', 'Look, listen and remember.', 'Welcome back, Guardian! Let us remember.',
+  'Great job, Guardian! My memory is stronger now.', 'See you tomorrow, Guardian!'];
+
 export function phrases() {
-  const s = new Set();
+  const s = new Set(AEGIS_LINES);
   for (const it of Object.values(ITEMS)) s.add(it.en);
   for (const c of Object.values(CONTRASTS)) { s.add(c.a.en); s.add(c.b.en); }
   for (const d of COURSE) {

@@ -172,11 +172,10 @@ export function renderParentControls(box, profile, save) {
         </select></label>
       ${g.open ? '' : '<button class="btn small" data-unlock>🔓 Otwórz misję teraz</button>'}
     </div>
-    <label class="row">Polski lektor (dla słabo czytających):
+    <label class="row">Polski lektor:
       <select data-plvoice style="font:inherit;font-size:18px;padding:6px 10px;border-radius:10px">
-        <option value="always" ${(t.plVoice || 'always') === 'always' ? 'selected' : ''}>czyta polecenia, tłumaczenia i podpowiedzi</option>
-        <option value="after-wrong" ${t.plVoice === 'after-wrong' ? 'selected' : ''}>tylko podpowiedzi po błędzie</option>
-        <option value="off" ${t.plVoice === 'off' ? 'selected' : ''}>wyłączony (tylko napisy)</option>
+        <option value="after-wrong" ${t.plVoice !== 'off' ? 'selected' : ''}>tylko podpowiedź po błędzie (zalecane)</option>
+        <option value="off" ${t.plVoice === 'off' ? 'selected' : ''}>wyłączony</option>
       </select></label>
     <div class="row">
       <label class="row">PIN rodzica (4–8 cyfr): <input type="password" inputmode="numeric" maxlength="8" data-pinset style="width:140px;font-size:18px;padding:6px 10px;border-radius:10px" placeholder="${t.pinHash ? 'ustawiony' : 'brak'}"></label>

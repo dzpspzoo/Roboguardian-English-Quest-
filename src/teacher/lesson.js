@@ -31,12 +31,12 @@ const STEPS = [
 export function mountLesson(root, ctx, plan) {
   const voice = makeVoice(ctx);
   const profile = ctx.profile;
-  // Polski lektor (syn słabo czyta): 'always' = polecenia i tłumaczenia, 'after-wrong' = tylko podpowiedzi po błędzie, 'off'
-  const cal = profile.calibration && profile.calibration.plan && profile.calibration.plan.supports;
-  const plMode = teacherState(profile).plVoice || (cal && cal.plAudio === false ? 'after-wrong' : 'always');
-  const plSay = (text, kind = 'info') => (plMode === 'always' || (plMode === 'after-wrong' && kind === 'tip')) ? voice.pl(text) : Promise.resolve();
-  // AEGIS mówi po angielsku, potem (wg ustawienia) krótko po polsku
-  const aegisBoth = async (en, pl) => { await voice.aegis(en); if (alive && pl) await plSay(pl); };
+  // Prowadzenie misji po angielsku (dziecko osłuchuje się z głosem), polskie napisy do czytania.
+  // Polski lektor tylko jako podpowiedź PO BŁĘDZIE, bez przycisku dla dziecka (decyzja rodzica).
+  // Ustawienie rodzica: 'after-wrong' (domyślne) albo 'off'. Wartość 'always' z wcześniejszej wersji traktujemy jak 'after-wrong'.
+  const plMode = teacherState(profile).plVoice === 'off' ? 'off' : 'after-wrong';
+  const plTip = text => (plMode === 'after-wrong' ? voice.pl(text) : Promise.resolve());
+  const aegisBoth = async (en) => { await voice.aegis(en); };
   const t0 = Date.now();
   const answers = [];
   let alive = true;
@@ -78,7 +78,7 @@ export function mountLesson(root, ctx, plan) {
       o.en ? h('span', { class: 'tch-en' }, o.en) : null, o.pl ? h('span', { class: 'tch-optpl' }, o.pl) : null));
     const replay = play ? h('button', { class: 'btn', onclick: () => play() }, '🔊 Posłuchaj') : null;
     screen(prompt, replay, h('div', { class: `tch-opts n${options.length}` }, btns), tipBox);
-    if (ask) { await plSay(ask); check(); }
+    if (ask) { await voice.aegis(ask); check(); }
     if (play) { await pause(250); check(); await play(); }
     return new Promise((res, rej) => {
       btns.forEach((b, i) => b.addEventListener('click', async () => {
@@ -94,7 +94,7 @@ export function mountLesson(root, ctx, plan) {
         } else {
           wrong++; sfx('wrong'); b.classList.add('no'); b.disabled = true;
           answers.push({ ok: false, ms: Date.now() - started });
-          if (tip) { tipBox.hidden = false; tipBox.innerHTML = esc(tip); await plSay(tip, 'tip'); }
+          if (tip) { tipBox.hidden = false; tipBox.innerHTML = esc(tip); await plTip(tip); }
           if (wrong >= 2) btns.forEach((x, k) => { if (options[k].value === correct) x.classList.add('hint'); });
           if (play) { await pause(300); await play(); }
         }
@@ -123,11 +123,11 @@ export function mountLesson(root, ctx, plan) {
       let ok;
       if (st.stage >= 2) {
         // zna już ze słuchu: widzi polski, wybiera angielski zapis (czytanie), potem słyszy
-        ok = await choose({ prompt: h('h2', { class: 'tch-q' }, h('span', { class: 'tch-ico' }, it.icon), ' ', it.pl), ask: it.pl, item: id, skill: 'reading', mode: 'read',
+        ok = await choose({ prompt: h('h2', { class: 'tch-q' }, h('span', { class: 'tch-ico' }, it.icon), ' ', it.pl), item: id, skill: 'reading', mode: 'read',
           options: shuffle([id, ...others]).map(x => ({ value: x, en: ITEMS[x].en, after: x === id ? () => voice.play(it.en) : null })), correct: id });
         review(profile, id, ok, { mode: 'say' });
       } else {
-        ok = await choose({ prompt: h('h2', { class: 'tch-q' }, 'Co to znaczy?'), ask: firstAsk('Co to znaczy?'), play: () => voice.play(it.en, { voice: Math.floor(Math.random() * 3) }),
+        ok = await choose({ prompt: h('h2', { class: 'tch-q' }, 'Co to znaczy?'), ask: firstAsk('What does it mean?'), play: () => voice.play(it.en, { voice: Math.floor(Math.random() * 3) }),
           item: id, skill: 'vocab', mode: 'listen', options: shuffle([id, ...others]).map(itemOpt), correct: id, tip: `To „${it.pl}”.` });
         review(profile, id, ok, { mode: 'recognize' });
       }
@@ -154,14 +154,13 @@ export function mountLesson(root, ctx, plan) {
       const again = h('button', { class: 'btn', onclick: () => voice.series(it.en, [0, 1, 2], () => alive) }, '🔊 Jeszcze raz');
       const slow = h('button', { class: 'btn', onclick: () => voice.play(it.en, { slow: true }) }, '🐢 Wolno');
       const b = nextBtn(); b.disabled = true;
-      if (!asked.has('show')) { asked.add('show'); plSay('Nowy zwrot. Posłuchaj.'); }
+      if (!asked.has('show')) { asked.add('show'); await voice.aegis('New words. Listen!'); check(); }
       screen(h('p', { class: 'muted' }, 'Nowy zwrot. Posłuchaj w kilku głosach.'),
         h('div', { class: 'tch-show' }, h('span', { class: 'tch-ico big' }, it.icon), h('span', { class: 'tch-en big' }, it.en), h('span', { class: 'tch-pl' }, it.pl)),
         h('div', { class: 'row', style: 'justify-content:center' }, again, slow), b);
       await pause(900); check();
       await voice.series(it.en, [0, 1, 2], () => alive); check();
       await voice.play(it.en, { slow: true }); check();
-      await plSay(it.pl); check();
       b.disabled = false; b.focus();
       await waitClick(b);
     }
@@ -169,7 +168,7 @@ export function mountLesson(root, ctx, plan) {
     for (const [k, id] of shuffle(ids).entries()) {
       check();
       const others = shuffle(ids.filter(x => x !== id)).slice(0, k === 0 ? 1 : 2);
-      const ok = await choose({ prompt: h('h2', { class: 'tch-q' }, 'Który to?'), ask: firstAsk('Który to?'), play: () => voice.play(ITEMS[id].en, { voice: (k + 1) % 3 }),
+      const ok = await choose({ prompt: h('h2', { class: 'tch-q' }, 'Który to?'), ask: firstAsk('Which one?'), play: () => voice.play(ITEMS[id].en, { voice: (k + 1) % 3 }),
         options: shuffle([id, ...others]).map(itemOpt), correct: id, item: id, skill: 'listening', mode: 'listen', tip: `To „${ITEMS[id].pl}”.` });
       (ok ? good : hard).add(ITEMS[id].en);
     }
@@ -186,14 +185,13 @@ export function mountLesson(root, ctx, plan) {
       h('p', { class: 'tch-tip' }, c.tip), b);
     await aegisBoth('Listen. Two words, two sounds.', 'Posłuchaj: dwa słowa, dwa różne dźwięki.'); check();
     await both(); check();
-    await plSay(c.tip); check();
     await waitClick(b);
     const seq = shuffle(['a', 'a', 'a', 'b', 'b', 'b']);
     for (const [k, side] of seq.entries()) {
       check();
       if (tired(answers, Date.now() - t0)) return;
       const w = c[side];
-      const ok = await choose({ prompt: h('h2', { class: 'tch-q' }, 'Które słowo słyszysz?'), ask: firstAsk('Które słowo słyszysz?'), play: () => voice.play(w.en, { voice: k % 4 }),
+      const ok = await choose({ prompt: h('h2', { class: 'tch-q' }, 'Które słowo słyszysz?'), ask: firstAsk('Which word do you hear?'), play: () => voice.play(w.en, { voice: k % 4 }),
         options: [c.a, c.b].map((x, i) => ({ value: i ? 'b' : 'a', icon: x.icon, en: x.en, pl: x.pl })), correct: side,
         item: w.en, skill: `phoneme.${c.sound}`, mode: 'listen', tip: c.tip });
       (ok ? good : hard).add(`${c.a.en} / ${c.b.en}`);
@@ -262,7 +260,7 @@ export function mountLesson(root, ctx, plan) {
       const correct = line.options[line.answer || 0];
       const opts = shuffle(line.options).map(o => ({ value: o, en: o, after: o === correct ? async () => { await voice.play(o); if (line.reply) { await pause(250); await voice.aegis(line.reply); } } : null }));
       const prompt = aegisRow(line.aegis.en, line.aegis.pl);
-      const said = aegisBoth(line.aegis.en, line.aegis.pl).then(() => k === 0 && plSay('Co odpowiesz?'));
+      const said = aegisBoth(line.aegis.en, line.aegis.pl).then(() => k === 0 && voice.aegis('What do you say?'));
       const ok = await choose({ prompt: h('div', {}, prompt, h('p', { class: 'muted' }, 'Co odpowiesz? Kliknij odpowiedź.')), options: opts, correct,
         item: correct, skill: 'dialog', mode: 'choose', tip: `AEGIS mówi: „${line.aegis.pl}”. Pasuje: „${correct}”.` });
       await said;
@@ -284,7 +282,7 @@ export function mountLesson(root, ctx, plan) {
     const ready = nextBtn('Zapamiętałem ▶');
     screen(h('p', { class: 'muted' }, 'Popatrz, posłuchaj i zapamiętaj.'), h('p', { class: 'tch-en big' }, target),
       h('button', { class: 'btn', onclick: () => voice.play(target) }, '🔊 Posłuchaj'), ready);
-    await plSay('Popatrz, posłuchaj i zapamiętaj.'); check();
+    await voice.aegis('Look, listen and remember.'); check();
     await voice.play(target); check();
     await waitClick(ready); check();
     // 2) zasłoń i napisz; po błędzie: pokaż różnicę, potem przepisz
@@ -307,6 +305,7 @@ export function mountLesson(root, ctx, plan) {
       const b = nextBtn(attempt < 2 ? 'Spróbuję jeszcze raz ▶' : 'Przepiszę ▶');
       screen(h('p', {}, 'Prawie! Zielone litery masz dobrze, pomarańczowe popraw:'), h('p', { class: 'tch-diff' }, diff(target, input.value.trim())),
         h('p', { class: 'muted' }, `Ty: ${input.value || '(puste)'}`), b);
+      await plTip('Prawie! Zielone litery masz dobrze, pomarańczowe popraw.'); check();
       await voice.play(target); check();
       await waitClick(b);
     }

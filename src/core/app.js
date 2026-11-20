@@ -271,6 +271,8 @@ function hgrConfig() { return hgrCfg || (hgrCfg = fetch('assets/hangar/czesci/cz
 function hgrState(parts, active) {
   if (active) return { src: 'assets/hangar/stan_12_aktywny.webp', n: HGR_ORDER.length };
   let n = 0; while (n < HGR_ORDER.length && parts.has(HGR_ORDER[n])) n++;
+  // sama głowa bez tułowia (misja 1 daje głowę): osobny obrazek
+  if (n === 0 && parts.has('head')) return { src: 'assets/hangar/stan_01_glowa.webp', n: 0, head: true };
   return { src: `assets/hangar/stan_${String(n).padStart(2, '0')}.webp`, n };
 }
 // Jednorazowo: misja 1 daje teraz głowę, misja 2 tułów; zamieniamy zapis starych profili.
@@ -297,7 +299,7 @@ async function mountHangarStage(box, p, metas, fresh, startMission) {
   const st = hgrState(before, active && !freshId);
   // części zamontowane, ale poza ciągłym początkiem (np. sama głowa bez tułowia): nakładka przy ramie
   const overlay = id => `<img class="hgr-over" data-over="${id}" src="assets/hangar/czesci/${HGR_FILE[id]}.webp" alt="" style="left:${r.x}%;top:${r.y - r.h * (id === 'head' ? 0.36 : 0)}%;width:${(cfg[HGR_FILE[id]] || {}).w || 8}%">`;
-  const overs = [...before].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= st.n);
+  const overs = [...before].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= st.n && !(st.head && id === 'head'));
   const tagged = new Set();
   const floor = HGR_ORDER.filter(id => !before.has(id)).map(id => {
     const c = cfg[HGR_FILE[id]]; if (!c) return '';
@@ -323,7 +325,7 @@ async function mountHangarStage(box, p, metas, fresh, startMission) {
     const s2 = hgrState(got, active);
     robot.src = s2.src;
     box.querySelectorAll('[data-over]').forEach(n => n.remove());
-    const extra = [...got].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= s2.n);
+    const extra = [...got].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= s2.n && !(s2.head && id === 'head'));
     if (extra.length && !active) robot.insertAdjacentHTML('afterend', extra.map(overlay).join(''));
     const fl = box.querySelector('[data-flash]'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
     sfx('power_up');

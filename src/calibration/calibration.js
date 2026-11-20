@@ -59,7 +59,7 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
   };
   const startedAt = new Date().toISOString();
   const session = 'cal' + Date.now().toString(36);
-  let alive = true, breakTaken = false, answered = 0;
+  let alive = true, breakTaken = false, answered = 0, wrongStreak = 0, plHelpCount = 0, curSection = null;
   const sectionModes = {};
 
   // ---------- szkielet ekranu ----------
@@ -92,12 +92,11 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
     wrap.classList.remove('rgc-talking');
     check();
   }
-  // Polecenia: najpierw angielski głos, potem ten sam tekst polskim lektorem
-  // (dziecko może słabo czytać także po polsku, więc napis nie wystarcza).
+  // Polecenia mówi angielski głos, polski jest tylko napisem w dymku (dziecko ćwiczy czytanie).
+  // Polski lektor włącza się dopiero jako podpowiedź po 2 nieudanych odpowiedziach z rzędu (plHelp).
   async function line(l, opts = {}) {
     sub.textContent = l.pl;
     await speak(l.en, opts);
-    if (l.pl && opts.pl !== false) { await sleep(250); await speak(l.pl, { lang: 'pl' }); }
   }
 
   // postęp: każda część ma równy udział
@@ -132,8 +131,30 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
     try { record(ev); } catch (e) { console.warn('record', e); }
   }
 
+  // Brak odpowiedzi przez 12 s po poleceniu: raz na pytanie polski lektor naprowadza.
+  function idleHelp() {
+    let t = null, done = false;
+    const arm = () => { clearTimeout(t); if (!done) t = setTimeout(async () => {
+      if (done || !alive || !curSection || !curSection.intro) return;
+      done = true; plHelpCount++;
+      sub.textContent = curSection.intro.pl;
+      try { await speak(curSection.intro.pl, { lang: 'pl' }); } catch (e) {}
+    }, 12000); };
+    return { arm, stop: () => { done = true; clearTimeout(t); } };
+  }
+
   async function feedback() {
     blip();
+    const last = items[items.length - 1];
+    if (last && last.correct === false) wrongStreak++; else if (last && last.correct === true) wrongStreak = 0;
+    if (wrongStreak >= 2 && curSection && curSection.intro) {
+      // podpowiedź: to samo polecenie jeszcze raz, teraz polskim lektorem
+      wrongStreak = 0; plHelpCount++;
+      sub.textContent = curSection.intro.pl;
+      await sleep(300);
+      await speak(curSection.intro.pl, { lang: 'pl' });
+      return;
+    }
     if (answered % 5 === 0) { const l = pick(content.lines.gotIt); sub.textContent = l.pl; await speak(l.en); }
     else await sleep(350);
   }
@@ -156,6 +177,7 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
       box.appendChild(row);
       const tools = el('div', 'rgc-tools');
       let replays = 0, slowUsed = false, t0 = performance.now(), busy = false;
+      const help = idleHelp();
       if (prompt) {
         const rep = el('button', 'rgc-tool', '🔊<span>Jeszcze raz</span>');
         const slow = el('button', 'rgc-tool', '🐢<span>Wolniej</span>');
@@ -168,13 +190,15 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
         if (busy) return; busy = true; if (isReplay) replays++;
         try { await prompt(slow, btns); } catch (e) { if (e instanceof Aborted) return reject(e); }
         busy = false; if (!isReplay) t0 = performance.now();
+        help.arm();
       }
       btns.forEach(b => b.onclick = () => {
         if (!alive) return;
+        help.stop();
         btns.forEach(x => x.disabled = true); b.classList.add('rgc-picked');
         resolve({ key: b.dataset.key, rtMs: Math.round(performance.now() - t0), replays, slowUsed });
       });
-      if (prompt) play(false, false); else t0 = performance.now();
+      if (prompt) play(false, false); else { t0 = performance.now(); help.arm(); }
     });
   }
 
@@ -209,10 +233,12 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
       tools.append(rep, slow, back, ok);
       box.append(slots, tilesRow, tools); stage.appendChild(box);
       let replays = 0, slowUsed = false, t0 = performance.now(), busy = false;
+      const help = idleHelp();
       async function play(s, isReplay) {
         if (busy) return; busy = true; if (isReplay) replays++;
         try { await prompt(s); } catch (e) { if (e instanceof Aborted) return reject(e); }
         busy = false; if (!isReplay) t0 = performance.now();
+        help.arm();
       }
       rep.onclick = () => play(false, true);
       slow.onclick = () => { slowUsed = true; play(true, true); };
@@ -226,6 +252,7 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
       };
       document.addEventListener('keydown', keyH);
       ok.onclick = () => {
+        help.stop();
         document.removeEventListener('keydown', keyH);
         [...tiles, rep, slow, back, ok].forEach(b => b.disabled = true);
         resolve({ answer: picked.map(i => letters[i]).join(''), rtMs: Math.round(performance.now() - t0), replays, slowUsed });
@@ -464,14 +491,14 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
       check();
       if (section.key === 'break') { await takeBreak(); continue; }
       if (section.needsMic && !context.micOk) continue;
-      wrap.dataset.section = section.key;
+      wrap.dataset.section = section.key; curSection = section; wrongStreak = 0;
       wrap.querySelector('.rgc-title').textContent = section.title.toUpperCase();
       aegisScreen();
       await line(section.intro);
       await sectionRunners[section.key](section);
     }
     progress(null, 0);
-    const result = buildResult({ profileId: profile.id || null, startedAt, finishedAt: new Date().toISOString(), context, items, breakTaken, version: content.version, sectionModes });
+    const result = buildResult({ profileId: profile.id || null, startedAt, finishedAt: new Date().toISOString(), context, items, breakTaken, plHelpCount, version: content.version, sectionModes });
     aegisScreen();
     await line(content.lines.end);
     mic.close();

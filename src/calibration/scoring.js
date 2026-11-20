@@ -103,7 +103,7 @@ export function overallLevel(sections) {
   return 'A2';
 }
 
-export function buildResult({ profileId, startedAt, finishedAt, context = {}, items = [], breakTaken = false, version = '1.0.0', sectionModes = {} }) {
+export function buildResult({ profileId, startedAt, finishedAt, context = {}, items = [], breakTaken = false, plHelpCount = 0, version = '1.0.0', sectionModes = {} }) {
   const bySection = {};
   items.forEach(it => { (bySection[it.section] = bySection[it.section] || []).push(it); });
 
@@ -154,6 +154,7 @@ export function buildResult({ profileId, startedAt, finishedAt, context = {}, it
     replaysPerItem: round(mean(timed.map(i => i.replays || 0))),
     slowUsageRate: round(mean(timed.map(i => (i.slowUsed ? 1 : 0)))),
     breakTaken: !!breakTaken,
+    plHelpCount, // ile razy włączyła się polska podpowiedź głosowa (po 2 błędach z rzędu)
     fatigueFlag
   };
 
@@ -200,7 +201,7 @@ export function buildResult({ profileId, startedAt, finishedAt, context = {}, it
       slowAudioDefault: attention.slowUsageRate > 0.3 || !sections.words || !sections.words.level || overall === 'preA1',
       pictures: true,
       plHint: overall === 'preA1' || overall === 'A1-',
-      plAudio: on(flags.slowReading) || on(flags.dyslexiaRisk), // polecenia czytane polskim lektorem, nie tylko napis
+      plVoiceHelp: 'onFail', // polski lektor tylko jako podpowiedź po nieudanej próbie, nigdy od początku
       bigText: on(flags.slowReading) || on(flags.dyslexiaRisk),
       shortSteps: on(flags.fatigue),
       letterTiles: !spellingOk,

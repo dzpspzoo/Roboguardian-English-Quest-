@@ -59,4 +59,8 @@ export const LINES = {
   great: { en: 'Great job, Guardian!', pl: 'Świetnie, Strażniku!' },
   again: { en: 'Hmm, not this one. Listen again.', pl: 'Hmm, nie to. Posłuchaj jeszcze raz.' },
   lookAgain: { en: 'Hmm, not this one. Look again.', pl: 'Hmm, nie to. Popatrz jeszcze raz.' },
+  mazeIntro: { en: 'Fly through the tunnel. Choose the right gate!', pl: 'Leć przez tunel. Wybierz właściwą bramkę!' },
+  mazeSave: { en: 'You saved an animal!', pl: 'Uratowałeś zwierzaka!' },
+  mazeBump: { en: 'Bump! Wrong gate. Look at the right one.', pl: 'Bum! Zła bramka. Popatrz na dobrą.' },
+  mazeEnd: { en: 'We are out of the maze. The animals are safe!', pl: 'Wylecieliśmy z labiryntu. Zwierzęta są bezpieczne!' },
 };

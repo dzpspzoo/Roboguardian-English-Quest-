@@ -99,3 +99,27 @@ h1.logo img { width: min(560px, 86vw); height: auto; display: block; margin: 0 a
 .print3d-img{display:flex;gap:6px}.print3d-img img{width:84px;height:84px;object-fit:contain;background:#0b1424;border-radius:10px}
 .print3d .btn{text-decoration:none;display:inline-block}
 .print-list{display:flex;flex-wrap:wrap;gap:8px}
+
+/* hangar: malowana scena 16:9 */
+.hgr-stage{position:relative;width:min(100%, calc((100vh - 110px) * 16 / 9));max-width:1400px;margin:0 auto 18px;aspect-ratio:16/9;border-radius:18px;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#0b1424}
+.hgr-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.hgr-robot{position:absolute;transform:translate(-50%,-50%);width:auto;pointer-events:none;filter:drop-shadow(0 0 18px rgba(63,224,208,.3))}
+.hgr-over{position:absolute;transform:translate(-50%,-50%);pointer-events:none}
+.hgr-flash{position:absolute;transform:translate(-50%,-50%);aspect-ratio:2/3;border-radius:50%;background:radial-gradient(circle,rgba(170,255,245,.95),rgba(63,224,208,0) 65%);opacity:0;pointer-events:none}
+.hgr-flash.on{animation:hgrFlash 1s ease-out forwards}
+@keyframes hgrFlash{0%{opacity:0}20%{opacity:1}100%{opacity:0}}
+.hgr-part{position:absolute;transform:translate(-50%,-50%);background:none;border:0;padding:0;cursor:pointer;display:flex;flex-direction:column;align-items:center;z-index:2}
+.hgr-part img{width:100%;height:auto;filter:drop-shadow(0 6px 8px rgba(0,0,0,.6))}
+.hgr-part.next img{animation:hgrGlow 1.6s ease-in-out infinite}
+@keyframes hgrGlow{50%{filter:drop-shadow(0 0 16px rgba(255,180,60,1))}}
+.hgr-part:hover img,.hgr-part:focus-visible img{filter:drop-shadow(0 0 16px rgba(255,180,60,1))}
+.hgr-part.locked{cursor:default}.hgr-part.locked img{filter:grayscale(.7) brightness(.55) drop-shadow(0 6px 8px rgba(0,0,0,.6))}
+.hgr-part.flying{z-index:5}.hgr-part:disabled{opacity:1}
+.hgr-tag{position:absolute;bottom:92%;left:50%;transform:translateX(-50%);z-index:3;white-space:nowrap;font-size:clamp(9px,1.05vw,15px);font-weight:700;padding:3px 8px;border-radius:999px;background:rgba(10,18,34,.85);border:1px solid rgba(255,160,40,.75);color:#ffd28a}
+.hgr-part.locked .hgr-tag{border-color:rgba(255,255,255,.2);color:#99a}
+.hgr-count{position:absolute;left:2%;top:3%;font-weight:800;font-size:clamp(13px,1.6vw,22px);padding:4px 14px;border-radius:999px;background:rgba(10,18,34,.8);color:#9ff5ec}
+.card-part{height:38px;width:auto;vertical-align:middle}
+/* malowany interfejs (assets/hangar/ui) */
+.panel { border: 44px solid transparent; border-image: url(../../assets/hangar/ui/panel.webp) 90 fill / 44px stretch; background: none; padding: 6px; backdrop-filter: none; }
+.btn.primary { background: url(../../assets/hangar/ui/przycisk.webp) center / 100% 100% no-repeat; border-color: transparent; color: #fff; text-shadow: 0 2px 3px rgba(0,0,0,.6); }
+.btn:not(.primary):not(.ghost):not(.iconbtn) { background: url(../../assets/hangar/ui/przycisk2.webp) center / 100% 100% no-repeat; border-color: transparent; }

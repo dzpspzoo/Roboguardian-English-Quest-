@@ -9,5 +9,6 @@
   {"id": "ch1-m8", "path": "src/missions/ch1-m8/mission.js"},
   {"id": "sp-quiz", "path": "src/missions/sp-quiz/mission.js", "special": true},
   {"id": "sp-dictation", "path": "src/missions/sp-dictation/mission.js", "special": true},
-  {"id": "sp-review", "path": "src/missions/sp-review/mission.js", "special": true}
+  {"id": "sp-review", "path": "src/missions/sp-review/mission.js", "special": true},
+  {"id": "sp-maze", "path": "src/missions/sp-maze/mission.js", "special": true}
 ]

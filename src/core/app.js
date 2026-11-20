@@ -75,7 +75,7 @@ function titleScreen() {
           <button class="btn" data-a="parent">👨‍👩‍👦 Panel rodzica</button>
         </div>
       </div>
-      <p class="footer">Wersja ${VERSION} · darmowa gra · wyniki zostają tylko w tej przeglądarce</p>
+      <p class="footer">Wersja ${VERSION} · darmowa gra · wyniki zostają tylko w tej przeglądarce · <a href="assets/audio/words/CREDITS.md" target="_blank" rel="noopener" style="color:inherit">nagrania wymowy: Wikimedia Commons</a></p>
     </div>
   </section>`));
   on(el, '[data-a]', (e, b) => {
@@ -212,51 +212,35 @@ async function hangarScreen() {
   }
   if (seq !== navSeq) return; // gracz zdążył przejść na inny ekran
   const specials = metas.filter(m => m.special); metas.splice(0, metas.length, ...metas.filter(m => !m.special));
-  const got = new Set(p.progress.parts);
-  queueMicrotask(() => mountAssembly(document.querySelector('[data-asm]'), got, lastNewPart));
-  const pct = Math.round(100 * got.size / PARTS.length);
+  migratePartOrder(p);
+  const got = new Set(p.progress.parts.map(normPart));
+  const fresh = lastNewPart; lastNewPart = null;
   const el = show(h(`
   <section class="screen">
-    <div class="bg" style="background-image:url(assets/gfx/backgrounds/hangar.svg),url(assets/img/hangar.webp)"></div>
+    <div class="bg" style="background-image:url(assets/hangar/tlo_hangar.webp);filter:blur(14px) brightness(.4)"></div>
     <div class="topbar">
       <button class="iconbtn" data-a="home" aria-label="Menu">☰</button>
       <span class="title">${esc(p.avatar)} ${esc(p.name)} · Hangar AEGIS-7</span>
-      <button class="iconbtn" data-a="story" aria-label="Obejrzyj historię" title="Obejrzyj historię">🎬</button>
-      <button class="iconbtn" data-a="settings" aria-label="Ustawienia">⚙</button>
+      <button class="iconbtn" data-a="story" aria-label="Movies" title="Movies">🎬</button>
+      <button class="iconbtn" data-a="settings" aria-label="Settings">⚙</button>
     </div>
     <div class="wrap">
+      <div class="hgr-stage" data-stage role="group" aria-label="AEGIS-7: ${got.size} of ${PARTS.length} parts"></div>
       <div data-today></div>
-      <div class="hangar">
-        <div class="panel robot-box">
-          <div style="position:relative">
-            <div class="asm" data-asm role="img" aria-label="AEGIS-7: naprawione ${got.size} z ${PARTS.length} części">
-              <img src="assets/img/aegis.webp" alt="">
-              <img class="lit" src="assets/img/aegis.webp" alt="" style="clip-path:inset(${100 - pct}% 0 0 0)">
-            </div>
-          </div>
-          <p style="margin-top:8px">Naprawa: <b>${got.size} / ${PARTS.length}</b> części</p>
-          <div class="bar"><i style="width:${pct}%"></i></div>
-        </div>
-        <div class="col">
-          <div class="panel col">
-            <h2>Misje</h2>
-            ${metas.length ? `<div class="cards">${metas.map(m => {
-              const st = p.progress.missions[m.id]; const stars = st ? '★'.repeat(st.bestStars || 0) + '☆'.repeat(3 - (st.bestStars || 0)) : '';
-              const lock = (m.requires || []).some(r => !p.progress.missions[r]);
-              return `<button class="card${lock ? ' locked' : ''}" data-m="${esc(m.id)}" ${lock ? 'disabled title="Najpierw ukończ poprzednią misję"' : ''}>${lock ? '<span class="tag">🔒 najpierw poprzednia misja</span>' : ''}<h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>
-                <span>${m.part ? `<span class="tag">część: ${esc(partName(normPart(m.part)))}</span>` : ''} <span class="tag orange">${m.minutes || 6} min</span></span>
-                ${stars ? `<span style="font-size:22px;color:var(--rg-accent)">${stars}</span>` : ''}</button>`; }).join('')}</div>`
-              : `<p class="muted">Misje rozdziału 1 są w budowie. W tym czasie możesz zagrać w misję specjalną poniżej.</p>`}
-          </div>
-          <div class="panel col">
-            <h2>Misje specjalne</h2>
-            <div class="cards">${specials.map(m => { let av = { ok: true }; try { if (m.mod.available) av = m.mod.available(p) || av; } catch (e) {} return `<button class="card${av.ok ? '' : ' locked'}" data-m="${esc(m.id)}" ${av.ok ? '' : 'disabled'}>${av.ok ? '' : `<span class="tag">🔒 ${esc(av.reason || 'jeszcze zablokowane')}</span>`}<span class="big">${esc(m.icon || '⭐')}</span><h3>${esc(m.title)}</h3><span class="muted">${esc(m.titleEn || '')}</span>${m.desc ? `<span>${esc(m.desc)}</span>` : ''}</button>`; }).join('')}${specialCards()}</div>
-          </div>
-          <div class="panel col">
-            <h3>Części robota</h3>
-            <div class="parts">${PARTS.map(x => `<div class="part ${got.has(x.id) ? 'on' : ''}">${got.has(x.id) ? '✔' : '○'} ${esc(x.pl)}</div>`).join('')}</div>
-          </div>
-        </div>
+      <div class="panel col">
+        <h2>Missions</h2>
+        ${metas.length ? `<div class="cards">${metas.map(m => {
+          const st = p.progress.missions[m.id]; const stars = st ? '★'.repeat(st.bestStars || 0) + '☆'.repeat(3 - (st.bestStars || 0)) : '';
+          const lock = (m.requires || []).some(r => !p.progress.missions[r]);
+          const prt = (m.parts && m.parts.length ? m.parts : [m.part]).filter(Boolean).map(normPart);
+          return `<button class="card${lock ? ' locked' : ''}" data-m="${esc(m.id)}" ${lock ? 'disabled' : ''}>${lock ? '<span class="tag">🔒</span>' : ''}<h3>${esc(m.titleEn || m.title)}</h3>
+            <span>${/^ch1-m[1-8]$/.test(m.id) ? `<img class="card-part" src="assets/hangar/ikony/${m.id}.webp" alt="">` : prt.length && HGR_FILE[prt[0]] ? `<img class="card-part" src="assets/hangar/czesci/${HGR_FILE[prt[0]]}.webp" alt="">` : ''} <span class="tag orange">${m.minutes || 6} min</span></span>
+            ${stars ? `<span style="font-size:22px;color:var(--rg-accent)">${stars}</span>` : ''}</button>`; }).join('')}</div>`
+          : `<p class="muted">Coming soon.</p>`}
+      </div>
+      <div class="panel col">
+        <h2>Special missions</h2>
+        <div class="cards">${specials.map(m => { let av = { ok: true }; try { if (m.mod.available) av = m.mod.available(p) || av; } catch (e) {} return `<button class="card${av.ok ? '' : ' locked'}" data-m="${esc(m.id)}" ${av.ok ? '' : 'disabled'}>${av.ok ? '' : `<span class="tag">🔒 ${esc(av.reason || 'locked')}</span>`}<span class="big">${esc(m.icon || '⭐')}</span><h3>${esc(m.titleEn || m.title)}</h3>${m.desc ? `<span class="muted">${esc(m.desc)}</span>` : ''}</button>`; }).join('')}${specialCards()}</div>
       </div>
     </div>
   </section>`));
@@ -264,12 +248,103 @@ async function hangarScreen() {
   on(el, '[data-a=settings]', settingsScreen);
   on(el, '[data-a=story]', cinemaScreen);
   if (Teacher) { try { Teacher.renderTodayCard(el.querySelector('[data-today]'), p, { start: missionScreen, locked: teacherLock }); } catch (e) { console.warn('Nauczyciel', e); } }
-  on(el, '[data-m]', (e, b) => {
-    const m = metas.find(x => x.id === b.dataset.m) || specials.find(x => x.id === b.dataset.m);
+  const startMission = id => {
+    const m = metas.find(x => x.id === id) || specials.find(x => x.id === id);
     // blokada po misji (12 h lub do rana) dotyczy misji rozdziału; misje specjalne zostają otwarte
     if (m && !m.special && Teacher) { try { if (!Teacher.gate(store.getProfile()).open) return teacherLock(); } catch (e) {} }
     missionScreen(m);
-  });
+  };
+  on(el, '[data-m]', (e, b) => startMission(b.dataset.m));
+  mountHangarStage(el.querySelector('[data-stage]'), p, metas, fresh, id => { sfx('click'); startMission(id); });
+}
+
+/* ---------- hangar: malowana scena, robot w ramie, części na podłodze ---------- */
+// Kolejność stanów obrazka robota (assets/hangar/stan_XX.webp) i pliki części na podłodze.
+const HGR_ORDER = ['torso', 'head', 'pelvis', 'thigh_l', 'thigh_r', 'shin_l', 'shin_r', 'arm_l', 'forearm_l', 'arm_r', 'forearm_r'];
+const HGR_FILE = { torso: '01_tulow', head: '02_glowa', pelvis: '03_miednica', thigh_l: '04_udo_L', thigh_r: '05_udo_P', shin_l: '06_golen_L', shin_r: '07_golen_P', arm_l: '08_ramie_L', forearm_l: '09_przedramie_L', arm_r: '10_ramie_P', forearm_r: '11_przedramie_P' };
+const HGR_SFX = { montaz: 'part_attach', spawanie: 'welding', dokrecanie: 'screw_drill', paliwo: 'servo', silnik: 'servo' };
+let hgrCfg = null;
+function hgrConfig() { return hgrCfg || (hgrCfg = fetch('assets/hangar/czesci/czesci.json').then(r => r.ok ? r.json() : null).catch(() => null)); }
+// Obrazek robota: najdłuższy zamontowany początek listy HGR_ORDER; części spoza niej dokładamy jako nakładki.
+function hgrState(parts, active) {
+  if (active) return { src: 'assets/hangar/stan_12_aktywny.webp', n: HGR_ORDER.length };
+  let n = 0; while (n < HGR_ORDER.length && parts.has(HGR_ORDER[n])) n++;
+  return { src: `assets/hangar/stan_${String(n).padStart(2, '0')}.webp`, n };
+}
+// Jednorazowo: misja 1 daje teraz głowę, misja 2 tułów; zamieniamy zapis starych profili.
+function migratePartOrder(p) {
+  if (p.progress.partOrder === 2) return;
+  const ms = p.progress.missions, a = ms['ch1-m1'], b = ms['ch1-m2'];
+  if (b) ms['ch1-m1'] = b; else delete ms['ch1-m1'];
+  if (a) ms['ch1-m2'] = a; else delete ms['ch1-m2'];
+  p.progress.partOrder = 2; store.saveProfile(p);
+}
+async function mountHangarStage(box, p, metas, fresh, startMission) {
+  if (!box) return;
+  const seq = navSeq;
+  const cfg = await hgrConfig();
+  if (seq !== navSeq || !box.isConnected) return;
+  if (!cfg) { box.remove(); return; }
+  const got = new Set(p.progress.parts.map(normPart));
+  const active = !!p.progress.missions['ch1-m8'];
+  const freshId = fresh && got.has(fresh) ? fresh : null;
+  const before = new Set(got); if (freshId) before.delete(freshId);
+  const owner = {};
+  for (const m of metas) for (const raw of (m.parts && m.parts.length ? m.parts : [m.part]).filter(Boolean)) owner[normPart(raw)] = m;
+  const r = cfg.rama || { x: 50, y: 33.5, h: 58 };
+  const st = hgrState(before, active && !freshId);
+  // części zamontowane, ale poza ciągłym początkiem (np. sama głowa bez tułowia): nakładka przy ramie
+  const overlay = id => `<img class="hgr-over" data-over="${id}" src="assets/hangar/czesci/${HGR_FILE[id]}.webp" alt="" style="left:${r.x}%;top:${r.y - r.h * (id === 'head' ? 0.36 : 0)}%;width:${(cfg[HGR_FILE[id]] || {}).w || 8}%">`;
+  const overs = [...before].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= st.n);
+  const tagged = new Set();
+  const floor = HGR_ORDER.filter(id => !before.has(id)).map(id => {
+    const c = cfg[HGR_FILE[id]]; if (!c) return '';
+    const m = owner[id];
+    const lock = !m || (m.requires || []).some(q => !p.progress.missions[q]);
+    const isFresh = id === freshId;
+    return `<button class="hgr-part${lock && !isFresh ? ' locked' : ''}${m && !lock && !isFresh ? ' next' : ''}" data-part="${id}" ${m ? `data-mid="${esc(m.id)}"` : ''} style="left:${c.x}%;top:${c.y}%;width:${c.w}%" ${lock || isFresh ? 'disabled' : ''} aria-label="${esc(m ? (m.titleEn || m.title) : partName(id))}">
+      <img src="assets/hangar/czesci/${HGR_FILE[id]}.webp" alt="" style="transform:rotate(${c.rot || 0}deg)">
+      ${m && !isFresh && !lock && !tagged.has(m.id) && tagged.add(m.id) ? `<span class="hgr-tag">▶ ${esc(m.titleEn || m.title)}</span>` : ''}</button>`;
+  }).join('');
+  box.innerHTML = `<img class="hgr-bg" src="assets/hangar/tlo_hangar.webp" alt="">
+    <img class="hgr-robot" data-robot src="${st.src}" alt="" style="left:${r.x}%;top:${r.y}%;height:${r.h}%">
+    ${overs.map(overlay).join('')}
+    <div class="hgr-flash" data-flash style="left:${r.x}%;top:${r.y}%;height:${r.h}%"></div>
+    ${floor}
+    <div class="hgr-count">${got.size} / ${PARTS.length}</div>`;
+  box.addEventListener('click', e => { const b = e.target.closest('.hgr-part'); if (b && b.dataset.mid && !b.disabled) startMission(b.dataset.mid); });
+  if (!freshId) return;
+  // animacja montażu: nowa część podlatuje z podłogi do ramy, błysk, obrazek robota się zmienia
+  const part = box.querySelector(`[data-part="${freshId}"]`), robot = box.querySelector('[data-robot]');
+  const finish = () => {
+    if (part) part.remove();
+    const s2 = hgrState(got, active);
+    robot.src = s2.src;
+    box.querySelectorAll('[data-over]').forEach(n => n.remove());
+    const extra = [...got].filter(id => HGR_FILE[id] && HGR_ORDER.indexOf(id) >= s2.n);
+    if (extra.length && !active) robot.insertAdjacentHTML('afterend', extra.map(overlay).join(''));
+    const fl = box.querySelector('[data-flash]'); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on');
+    sfx('power_up');
+  };
+  if (!part) return finish();
+  const anim = (cfg[HGR_FILE[freshId]] || {}).anim;
+  await new Promise(res => { if (robot.complete) res(); else { robot.onload = res; setTimeout(res, 1500); } });
+  await new Promise(res => setTimeout(res, 600));
+  if (seq !== navSeq || !box.isConnected) return;
+  const pr = part.getBoundingClientRect(), rr = robot.getBoundingClientRect();
+  const tx = rr.left + rr.width / 2, ty = rr.top + rr.height * (freshId === 'head' ? 0.12 : HGR_ORDER.indexOf(freshId) >= 5 ? 0.75 : 0.42);
+  const dx = tx - (pr.left + pr.width / 2), dy = ty - (pr.top + pr.height / 2);
+  sfx(HGR_SFX[anim] || 'part_attach');
+  if (part.animate && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    part.classList.add('flying');
+    await part.animate([
+      { transform: 'translate(-50%,-50%)' },
+      { transform: `translate(calc(-50% + ${dx * 0.45}px), calc(-50% + ${dy * 0.45 - rr.height * 0.25}px)) scale(1.2)`, offset: 0.55 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.7)`, opacity: 0.3 },
+    ], { duration: 1800, easing: 'ease-in-out', fill: 'forwards' }).finished.catch(() => {});
+    if (seq !== navSeq || !box.isConnected) return;
+  }
+  finish();
 }
 
 const SPECIAL = [{ id: 'paliwo', title: 'Paliwo do silników', en: 'Rocket fuel', desc: 'Unit 2: ubrania, pogoda, miesiące, godziny, this/that, his/her', href: 'missions/paliwo/index.html', icon: '⛽' }];
@@ -521,7 +596,7 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 ready.finally(titleScreen);
-window.RG = { store, say, aegisSay, version: VERSION, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen, film: name => playStoryFile(`src/story/${name}.json`, hangarScreen) } };
+window.RG = { store, say, aegisSay, version: VERSION, __fresh: id => { lastNewPart = id; }, go: { title: titleScreen, hangar: hangarScreen, story: storyScreen, calibration: calibrationScreen, parent: parentScreen, film: name => playStoryFile(`src/story/${name}.json`, hangarScreen) } };
 
 // --- Robot składany z części (grafika: assets/gfx/characters/aegis7/assembly.svg) ---
 // Sufiks -l/-r w assembly.svg = strona EKRANU; lewa część robota (jak w druku 3D) jest po prawej stronie ekranu.

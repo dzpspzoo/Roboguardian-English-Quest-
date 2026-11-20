@@ -157,8 +157,29 @@ export function planToday(profile, course, now = Date.now()) {
   }
   return {
     index: idx, number: idx + 1, total: course.length, type, comeback, finished,
-    day, newIds: type === 'learn' ? (day.items || []).slice(0, MAX_NEW) : [], reviewIds,
+    day, newIds: type === 'learn' ? newToday(profile, course, idx) : [], reviewIds,
   };
+}
+
+// Nowe zwroty na dziś: najpierw zaległe z poprzednich dni (gdy plan AI zmniejszył dawkę), potem dzisiejsze.
+// Dawka: t.aiPlan.newPerDay (1–3), domyślnie MAX_NEW.
+export function newToday(profile, course, idx) {
+  const t = teacherState(profile);
+  const cap = Math.max(1, Math.min(MAX_NEW, (t.aiPlan && t.aiPlan.newPerDay) || MAX_NEW));
+  const seen = new Set();
+  const pool = [];
+  for (const d of course.slice(0, idx + 1)) for (const id of (d.items || [])) {
+    if (seen.has(id)) continue; seen.add(id);
+    const s = t.items[id];
+    if (!s || !s.introduced) pool.push(id);
+  }
+  return pool.slice(0, cap);
+}
+
+// Długość misji w minutach (plan AI: 8–14), po niej misja skraca się do finału.
+export function lessonMinutes(profile) {
+  const m = profile.teacher && profile.teacher.aiPlan && profile.teacher.aiPlan.minutes;
+  return [8, 10, 12, 14].includes(m) ? m : 12;
 }
 
 // Po ukończeniu Misji dnia. Zwraca id części do przyznania (co PART_EVERY misji) albo null.
@@ -175,8 +196,8 @@ export function finishToday(profile, plan, { stars = 2, minutes = 0, now = Date.
 
 /* ---------- zmęczenie w sesji ---------- */
 // answers: [{ ok, ms }] z bieżącej misji; true = skracamy misję do łatwego finału
-export function tired(answers, elapsedMs) {
-  if (elapsedMs > 12 * 60e3) return true;
+export function tired(answers, elapsedMs, limitMin = 12) {
+  if (elapsedMs > limitMin * 60e3) return true;
   const last = answers.slice(-3);
   return last.length === 3 && last.every(a => !a.ok && a.ms < 1500);
 }

@@ -1,0 +1,18 @@
+# Dla wrangler (opcjonalnie). Instrukcja bez wiersza poleceń: server/README.md.
+# Sekrety ustawia się poleceniem, nigdy w tym pliku:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+#   npx wrangler secret put GAME_TOKEN
+name = "aegis-teacher"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+[vars]
+MODEL = "claude-opus-5-5"
+BUDGET_USD = "250"
+DAILY_USD = "2"
+CHAT_PER_DAY = "60"
+ALLOWED_ORIGIN = "https://dzpspzoo.github.io"
+
+[[kv_namespaces]]
+binding = "RG_KV"
+id = "WSTAW_ID_PRZESTRZENI_KV"

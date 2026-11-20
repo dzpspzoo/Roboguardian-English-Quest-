@@ -2,7 +2,8 @@
 // przypomnienie → zadanie AEGIS-a → pokaz → para dźwięków → powiedz → scenka → napisz → koniec (żart robi farewell)
 // Interfejs jak misja: mountLesson(root, ctx, plan) -> sprzątanie; na końcu ctx.done({...}).
 import { ITEMS, CONTRASTS, COURSE, PART_ORDER } from './curriculum.js';
-import { teacherState, itemState, introduce, review, finishToday, tired } from './schedule.js';
+import { teacherState, itemState, introduce, review, finishToday, tired as tiredBase, lessonMinutes } from './schedule.js';
+import { aiReady, aiChat, logTalk } from './ai.js';
 import { makeVoice, pause } from './voice.js';
 
 class Stop extends Error {}
@@ -38,6 +39,8 @@ export function mountLesson(root, ctx, plan) {
   const plTip = text => (plMode === 'after-wrong' ? voice.pl(text) : Promise.resolve());
   const aegisBoth = async (en) => { await voice.aegis(en); };
   const t0 = Date.now();
+  const limitMin = lessonMinutes(profile);
+  const tired = (a, ms) => tiredBase(a, ms, limitMin);
   const answers = [];
   let alive = true;
   const good = new Set(), hard = new Set();
@@ -57,7 +60,7 @@ export function mountLesson(root, ctx, plan) {
     top.replaceChildren(h('div', { class: 'tch-steps', role: 'list', 'aria-label': 'Kroki misji' },
       STEPS.map(([id, label], i) => h('span', { role: 'listitem', class: `tch-step${i < idx ? ' done' : ''}${i === idx ? ' now' : ''}`, title: label }, i < idx ? '✓' : String(i + 1)))),
       h('span', { class: 'tch-steplabel' }, STEPS[idx][1]),
-      h('span', { class: 'tch-day' }, `Misja dnia ${plan.number}`));
+      h('span', { class: 'tch-day' }, `Mission ${plan.number}`));
   }
   function screen(...kids) { body.replaceChildren(h('div', { class: 'tch-card' }, ...kids)); }
   function waitClick(btn) { return new Promise(res => btn.addEventListener('click', () => { sfx('click'); res(); }, { once: true })); }
@@ -269,6 +272,74 @@ export function mountLesson(root, ctx, plan) {
     }
   }
 
+  /* ---------- 6b. rozmowa z AEGIS-em (AI) ---------- */
+  // Tylko gdy rodzic skonfigurował serwer AI. Dziecko odpowiada: kafelkiem z podpowiedzią, pisząc albo głosem
+  // (rozpoznawanie mowy przeglądarki, gdy rodzic je włączył). Błąd sieci = krok się po prostu kończy.
+  function recognizer() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR || teacherState(profile).aiMic !== 'on') return null;
+    return () => new Promise(res => {
+      try {
+        const r = new SR(); r.lang = 'en-US'; r.interimResults = false; r.maxAlternatives = 1;
+        let got = '';
+        r.onresult = e => { got = (e.results[0] && e.results[0][0] && e.results[0][0].transcript) || ''; };
+        r.onerror = () => res(''); r.onend = () => res(got);
+        r.start(); setTimeout(() => { try { r.stop(); } catch (e) {} }, 6000);
+      } catch (e) { res(''); }
+    });
+  }
+  // maxTurns = liczba wypowiedzi AEGIS-a razem z pożegnaniem (dziecko odpowiada maxTurns - 1 razy).
+  async function stepTalk(topic, maxTurns) {
+    if (!aiReady(profile)) return;
+    header('scene');
+    const history = [];
+    const listen = recognizer();
+    screen(h('p', { class: 'muted' }, 'AEGIS się zastanawia…'));
+    let res = await aiChat(profile, { topic, history, child: '', turn: 1, maxTurns }); check();
+    if (!res || res.error || !res.reply) return;
+    for (let turn = 1; turn <= maxTurns + 1; turn++) {
+      history.push({ who: 'aegis', text: res.reply });
+      const said = voice.aegis(res.reply);
+      const input = h('input', { type: 'text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', 'aria-label': 'Napisz odpowiedź po angielsku', placeholder: 'Napisz po angielsku…' });
+      let pick = null;
+      const answer = new Promise(r => { pick = r; });
+      const send = h('button', { class: 'btn primary' }, 'Wyślij ✔');
+      send.onclick = () => input.value.trim() && pick({ text: input.value.trim(), mode: 'write' });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter' && input.value.trim()) pick({ text: input.value.trim(), mode: 'write' }); });
+      const tiles = (res.suggestions || []).map(sug => h('button', { class: 'tch-opt', onclick: async () => { sfx('click'); await voice.play(sug); pick({ text: sug, mode: 'choose' }); } }, h('span', { class: 'tch-en' }, sug)));
+      const mic = listen ? h('button', { class: 'btn', onclick: async () => {
+        mic.disabled = true; mic.textContent = '🎙️ Słucham…';
+        const heard = await listen(); mic.disabled = false; mic.textContent = '🎙️ Powiedz';
+        if (heard) pick({ text: heard, mode: 'say' });
+      } }, '🎙️ Powiedz') : null;
+      screen(aegisRow(res.reply, res.reply_pl),
+        h('p', { class: 'tch-en' }, res.reply),
+        res.end ? null : h('p', { class: 'muted' }, 'Odpowiedz AEGIS-owi: kliknij, powiedz albo napisz.'),
+        res.end ? null : h('div', { class: `tch-opts n${tiles.length}` }, tiles),
+        res.end ? null : h('div', { class: 'row' }, mic, input, send));
+      if (res.end || turn > maxTurns) { await said; check(); await pause(1200); break; }
+      const started = Date.now();
+      const a = await answer; check();
+      await said;
+      history.push({ who: 'child', text: a.text });
+      screen(h('p', { class: 'tch-en big' }, a.text), h('p', { class: 'muted' }, 'AEGIS się zastanawia…'));
+      res = await aiChat(profile, { topic, history, child: a.text, turn: turn + 1, maxTurns }); check();
+      if (!res || res.error || !res.reply) break;
+      rec({ item: 'ai-talk', skill: 'dialog', mode: a.mode, ok: !!res.understood, ms: Date.now() - started, opts: a.mode === 'choose' ? 3 : 0, hint: false, chosen: a.text.slice(0, 60) });
+      if (res.understood) good.add(a.text.slice(0, 40));
+      if (res.better && a.mode !== 'choose') {
+        // poprawna wersja zdania: pokaz i posłuchaj (bez słowa „źle”)
+        const b = nextBtn();
+        screen(h('p', { class: 'muted' }, res.understood ? 'AEGIS zrozumiał! Tak mówi się najlepiej:' : 'Spróbujmy tak:'),
+          h('p', { class: 'tch-en big' }, res.better), b);
+        if (!res.understood && res.hint_pl) await plTip(res.hint_pl); check();
+        await voice.play(res.better); check();
+        await waitClick(b); check();
+      } else if (!res.understood && res.hint_pl) { await plTip(res.hint_pl); check(); }
+    }
+    logTalk(profile, { day: plan.number, turns: history });
+  }
+
   /* ---------- 7. napisz zdanie ---------- */
   const norm = s => String(s).toLowerCase().replace(/[’`´]/g, "'").replace(/[.!?,]/g, '').replace(/\s+/g, ' ').trim();
   function diff(target, typed) {
@@ -324,11 +395,13 @@ export function mountLesson(root, ctx, plan) {
         if (!tired(answers, Date.now() - t0)) await stepSounds(d.contrast);
         if (!tired(answers, Date.now() - t0)) await stepSpeak(plan.newIds);
         await stepScene(d.scene);
+        if (!tired(answers, Date.now() - t0)) await stepTalk(d.goal && d.goal.en, 3);
         await stepWrite(d.write);
       } else if (plan.type === 'talk') {
         await stepGoal(d.goal);
         await stepRecall(plan.reviewIds.slice(0, 3));
         await stepScene(d.scene);
+        await stepTalk(d.goal && d.goal.en, 5);
         if (!tired(answers, Date.now() - t0)) await stepSpeak(shuffle(learned()).slice(0, 2));
         await stepWrite(d.write);
       } else {
@@ -336,7 +409,10 @@ export function mountLesson(root, ctx, plan) {
         await stepGoal(goal);
         await stepRecall(plan.reviewIds);
         const contrasts = [...new Set(pastDays.map(x => x.contrast).filter(Boolean))];
-        if (contrasts.length && !tired(answers, Date.now() - t0)) await stepSounds(pickOne(contrasts));
+        // plan AI: najpierw dźwięki, które według analizy sprawiają najwięcej kłopotu
+        const focus = ((teacherState(profile).aiPlan || {}).focus || []).filter(k => CONTRASTS[k]);
+        const pickSound = focus.length ? pickOne(focus) : contrasts.length ? pickOne(contrasts) : null;
+        if (pickSound && !tired(answers, Date.now() - t0)) await stepSounds(pickSound);
         const writes = pastDays.map(x => x.write).filter(Boolean);
         await stepWrite(writes.length ? pickOne(writes) : null);
       }

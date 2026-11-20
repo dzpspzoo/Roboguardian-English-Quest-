@@ -1,5 +1,5 @@
 // Tryb offline: pliki gry zapisywane przy pierwszym użyciu. Kod (html/js/css/json) najpierw z sieci, reszta z pamięci.
-const CACHE = 'rg-v35';
+const CACHE = 'rg-v36';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil((async () => {
   for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
@@ -8,7 +8,7 @@ self.addEventListener('activate', e => e.waitUntil((async () => {
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
-  if (req.headers.has('range') || /\.(mp4|webm|zip)$/.test(new URL(req.url).pathname)) return; // wideo: przeglądarka sama (zapytania Range)
+  if (req.headers.has('range') || /\.(mp4|webm|zip|onnx)$/.test(new URL(req.url).pathname)) return; // wideo: przeglądarka sama (zapytania Range)
   const code = /\.(html|js|css|json|webmanifest)$|\/$/.test(new URL(req.url).pathname);
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);

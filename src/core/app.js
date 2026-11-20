@@ -2,6 +2,7 @@
 import * as store from './store.js';
 import { say, slug } from './say.js';
 import { PARTS, partName } from './parts.js';
+import RGSpeech from './speech.js';
 
 const app = document.getElementById('app');
 const VERSION = '0.2.0';
@@ -213,6 +214,7 @@ async function hangarScreen() {
   if (seq !== navSeq) return; // gracz zdążył przejść na inny ekran
   const specials = metas.filter(m => m.special); metas.splice(0, metas.length, ...metas.filter(m => !m.special));
   migratePartOrder(p);
+  if (p.settings?.mic !== false) RGSpeech.preload();
   const got = new Set(p.progress.parts.map(normPart));
   const fresh = lastNewPart; lastNewPart = null;
   const el = show(h(`

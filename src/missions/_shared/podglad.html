@@ -48,7 +48,7 @@ for (const M of MISSIONS) {
   b.onclick = () => start(M.nr);
   list.append(b);
 }
-for (const id of ['sp-quiz', 'sp-dictation', 'sp-review']) {
+for (const id of ['sp-quiz', 'sp-dictation', 'sp-review', 'sp-maze']) {
   const mod = await import(`../${id}/mission.js`);
   const b = document.createElement('button'); b.className = 'm';
   b.innerHTML = `<b>${mod.meta.icon} ${mod.meta.title}</b><span>${mod.meta.desc}</span>`;

@@ -117,3 +117,52 @@
 .ch1-brief-reward{align-self:start;background:rgba(255,154,60,.1);border:1px solid var(--c-orange);border-radius:14px;padding:10px 14px;font-size:clamp(16px,2vw,19px)}
 .ch1-brief-reward p{margin:6px 0}
 @media (max-width:700px){.ch1-brief-cols{grid-template-columns:1fr}}
+/* zła odpowiedź: dobra świeci na zielono, zła przygaszona (bez drugiej próby) */
+.ch1-opt:disabled{opacity:.55;cursor:default}
+.ch1-opt.ok,.ch1-opt.reveal{opacity:1}
+.ch1-opt.bad{opacity:.6}
+.ch1-opt.reveal{border-color:var(--c-ok)!important;box-shadow:0 0 26px rgba(75,227,138,.7);animation:ch1pulse 1s ease-in-out 3}
+.ch1-card.ok{border-color:var(--c-ok);box-shadow:0 0 22px rgba(75,227,138,.5)}
+.ch1-mic.rec{background:var(--c-bad)!important;animation:ch1pulse .9s infinite}
+.ch1-en-big{font-size:clamp(26px,4.4vw,42px);font-weight:800}
+.ch1-input{font:inherit;font-size:22px;padding:10px 16px;border-radius:14px;border:2px solid var(--c-line);background:rgba(10,18,40,.9);color:var(--c-txt);min-width:min(320px,70vw)}
+.ch1-input:focus{outline:none;border-color:var(--c-cyan)}
+/* nowy zwrot: słowo po słowie */
+.ch1-gloss{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;background:var(--c-panel);border:1px solid var(--c-line);border-radius:18px;padding:16px 20px}
+.ch1-gl{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 10px;border-radius:12px;transition:background .2s}
+.ch1-gl b{font-size:clamp(24px,4vw,38px)}
+.ch1-gl small{color:var(--c-orange);font-size:16px}
+.ch1-gl.lit{background:rgba(56,225,255,.2)}
+/* memory */
+.ch1-mem{display:grid;grid-template-columns:repeat(var(--cols,4),minmax(100px,160px));gap:12px;justify-content:center}
+.ch1-mem-card{height:110px;background:linear-gradient(180deg,#2a3f78,#16244a)!important;border:2px solid #4b66ad!important;position:relative;font-size:20px}
+.ch1-mem-face{display:none}
+.ch1-mem-back{font-size:34px;opacity:.7}
+.ch1-mem-card.up .ch1-mem-face{display:flex;justify-content:center}
+.ch1-mem-card.up .ch1-mem-back{display:none}
+.ch1-mem-card.up{background:linear-gradient(180deg,#1e5a8a,#123a5c)!important;border-color:var(--c-cyan)!important}
+.ch1-mem-card.done{border-color:var(--c-ok)!important;box-shadow:0 0 14px rgba(75,227,138,.5)}
+.ch1-mem-en{font-size:28px;font-weight:800}
+@media (max-width:640px){.ch1-mem,.ch1-mem.wide{grid-template-columns:repeat(3,1fr)}}
+/* skrzynie */
+.ch1-part{font-size:64px;animation:ch1in .3s}
+.ch1-crate{display:flex;flex-direction:column;align-items:center;gap:4px}
+.ch1-crate-ico{font-size:40px}
+.ch1-crate small{color:var(--c-muted);font-size:15px}
+/* spadające części: ciemniejsze tło pod canvas dla kontrastu */
+.ch1-cv{background:rgba(7,11,24,.55);border-radius:16px}
+/* misja specjalna: lot przez labirynt */
+.mz-wrap{width:min(1100px,98%);flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:0}
+.mz-prompt{font-size:clamp(24px,4vw,40px);background:var(--c-panel);border:1px solid var(--c-line);border-radius:16px;padding:6px 22px;display:flex;align-items:center;gap:12px}
+.mz-ico{font-size:1.2em;margin-right:8px}
+.mz-cv{width:100%;flex:1;min-height:260px;max-height:62vh;background:linear-gradient(180deg,rgba(7,11,24,.7),rgba(20,30,60,.65));border:1px solid var(--c-line);border-radius:18px;touch-action:none}
+.mz-tip{min-height:0}
+.mz-zoo{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;font-size:44px}
+.mz-zoo.small{font-size:30px;min-height:36px}
+.mz-new{animation:ch1pop .5s}
+/* polski tylko po błędzie: elementy .ch1-plh widać, gdy scena ma klasę pl-on */
+.ch1-stage:not(.pl-on) .ch1-plh{display:none!important}
+.ch1-label-pl{display:block;font-size:.8em;color:var(--c-orange);margin-top:2px}
+.ch1-sub-en{font-weight:600}
+.ch1-sub-pl2{font-size:.8em;color:var(--c-orange);margin-top:4px}
+.ch1-opt .ch1-wv .ch1-ico{font-size:56px}

@@ -16,7 +16,7 @@ export function available(profile) {
 }
 
 export function mount(root, ctx) {
-  const S = createShell(root, ctx, { id: meta.id, title: meta.title });
+  const S = createShell(root, ctx, { id: meta.id, title: meta.titleEn || meta.title });
   (async () => {
     try {
       const units = practisedUnits(ctx.profile);
@@ -32,12 +32,12 @@ export function mount(root, ctx) {
       const st = wordStats(ctx.profile);
       const rows = units.map(u => { const seen = u.words.filter(w => st[w.en]?.seen); const good = seen.filter(w => (st[w.en].box || 0) >= 3); return { u, seen: seen.length, good: good.length, pct: Math.round(good.length / u.words.length * 100) }; });
       S.progress(0, 'Raport');
-      S.clear(S.h('div', { class: 'ch1-label' }, 'Raport systemów AEGIS-7'),
+      S.clear(S.h('div', { class: 'ch1-label' }, 'AEGIS-7 systems report'),
         S.h('div', { class: 'sp-report' }, rows.map(r => S.h('div', { class: 'sp-rrow' }, S.h('span', {}, r.u.title), S.h('span', { class: 'sp-rbar' }, S.h('span', { style: `width:${r.pct}%` })), S.h('span', { class: 'ch1-pl' }, `${r.good}/${r.u.words.length} opanowane`)))),
-        S.h('div', { class: 'ch1-label' }, 'Najtrudniejsze słowa:'), S.h('div', { class: 'sp-hardlist' }, hard.map(w => S.h('span', { class: 'tag' }, w.en))));
+        S.h('div', { class: 'ch1-label' }, 'Hardest words:'), S.h('div', { class: 'sp-hardlist' }, hard.map(w => S.h('span', { class: 'tag' }, w.en))));
       await S.aegis(LINES.reviewIntro);
-      const next = S.h('button', { class: 'ch1-next' }, 'Naprawiamy ›'); S.stage.append(next); await S.clickOf([next]);
-      const tr = await practice(S, 'review', hard, { minutes: ctx.profile?.settings?.reviewMinutes || 8, startStage: 1, label: 'Naprawa pamięci' });
+      const next = S.h('button', { class: 'ch1-next' }, 'Repair ›'); S.stage.append(next); await S.clickOf([next]);
+      const tr = await practice(S, 'review', hard, { minutes: ctx.profile?.settings?.reviewMinutes || 8, startStage: 1, label: 'Memory repair' });
       const okWords = hard.filter(w => !tr.hard.includes(w.en));
       await S.aegis(LINES.reviewDone);
       ctx.done?.({ stars: starsFor(okWords.length, hard.length), partEarned: false, parts: [], summary: {

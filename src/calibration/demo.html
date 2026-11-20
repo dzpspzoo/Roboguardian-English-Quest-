@@ -25,7 +25,7 @@
     profile: { id: 'demo', name: 'Demo', settings: { tablet: false } },
     audioBase: '../../',
     // ?cichy=1: bez dźwięku (do szybkiego sprawdzenia przez rodzica lub test automatyczny)
-    sayFn: new URLSearchParams(location.search).has('cichy') ? () => new Promise(r => setTimeout(r, 60)) : undefined,
+    sayFn: new URLSearchParams(location.search).has('cichy') ? (t, o = {}) => { (window.__said = window.__said || []).push([o.lang || 'en', t]); return new Promise(r => setTimeout(r, 60)); } : undefined,
     record: ev => { events.push(ev); console.log('record', ev); },
     onExit: () => location.reload(),
     onComplete: result => {

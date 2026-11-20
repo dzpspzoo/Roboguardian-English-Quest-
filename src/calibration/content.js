@@ -217,11 +217,10 @@ export function allPhrases() {
   return [...out];
 }
 
-// Polskie polecenia czytane polskim lektorem (assets/audio/words/pl/).
+// Polskie podpowiedzi głosowe (po 2 błędach z rzędu) to polecenia części testu (assets/audio/words/pl/).
 export function allPolishPhrases() {
   const out = new Set();
   const add = l => l && l.pl && out.add(l.pl);
-  Object.values(lines).forEach(v => (Array.isArray(v) ? v.forEach(add) : add(v)));
   sections.forEach(s => { add(s.intro); add(s.introSameDiff); });
   return [...out];
 }

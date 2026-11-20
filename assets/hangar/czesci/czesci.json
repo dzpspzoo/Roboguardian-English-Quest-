@@ -1,0 +1,88 @@
+{
+ "_opis": "Pozycje części na tle hangaru w % szerokości/wysokości tła (x,y = środek części, w = szerokość części). rot = sugerowany obrót w stopniach. anim = klip naukowców po misji. rama = gdzie gra kładzie obraz robota stan_XX (środek x,y i wysokość h w % tła).",
+ "rama": {
+  "x": 50.0,
+  "y": 33.5,
+  "h": 58.0
+ },
+ "01_tulow": {
+  "x": 20,
+  "y": 76,
+  "w": 15,
+  "rot": -8,
+  "anim": "silnik"
+ },
+ "02_glowa": {
+  "x": 7,
+  "y": 64,
+  "w": 9,
+  "rot": 12,
+  "anim": "dokrecanie"
+ },
+ "03_miednica": {
+  "x": 37,
+  "y": 88,
+  "w": 12,
+  "rot": 5,
+  "anim": "spawanie"
+ },
+ "04_udo_L": {
+  "x": 80,
+  "y": 66,
+  "w": 8,
+  "rot": 60,
+  "anim": "montaz"
+ },
+ "05_udo_P": {
+  "x": 90,
+  "y": 77,
+  "w": 8,
+  "rot": -60,
+  "anim": "montaz"
+ },
+ "06_golen_L": {
+  "x": 66,
+  "y": 85,
+  "w": 9,
+  "rot": 75,
+  "anim": "dokrecanie"
+ },
+ "07_golen_P": {
+  "x": 93,
+  "y": 91,
+  "w": 9,
+  "rot": -80,
+  "anim": "dokrecanie"
+ },
+ "08_ramie_L": {
+  "x": 9,
+  "y": 88,
+  "w": 11,
+  "rot": 20,
+  "anim": "montaz"
+ },
+ "09_przedramie_L": {
+  "x": 25,
+  "y": 94,
+  "w": 8,
+  "rot": -70,
+  "anim": "spawanie"
+ },
+ "10_ramie_P": {
+  "x": 77,
+  "y": 95,
+  "w": 11,
+  "rot": -20,
+  "anim": "montaz"
+ },
+ "11_przedramie_P": {
+  "x": 53,
+  "y": 93,
+  "w": 8,
+  "rot": 70,
+  "anim": "dokrecanie"
+ },
+ "ch1-m8": {
+  "anim": "paliwo"
+ }
+}

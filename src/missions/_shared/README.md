@@ -1,11 +1,11 @@
 # Misje rozdziału 1: Odbudowa AEGIS-7
 
-8 misji po ok. 5–8 minut. Każda naprawia część robota (części figurki AEGIS-7 v2 z wątku modeli 3D) i ćwiczy jeden trudny dla Polaka dźwięk.
+8 misji po ok. 10 minut. Kolejność części jak chce rodzic: najpierw głowa, potem tułów z rdzeniem, potem kończyny. Każda naprawia część robota (części figurki AEGIS-7 v2 z wątku modeli 3D) i ćwiczy jeden trudny dla Polaka dźwięk.
 
 | Nr | Misja | Dźwięk / umiejętność | Nagroda (część) |
 |---|---|---|---|
-| 1 | Serce robota | /æ/ jak w cat (cat/cut, pan/pen, man/men) | 01_tulow |
-| 2 | Oczy i uszy | /ɪ/ jak w ship (ship/sheep, sit/seat) | 02_glowa |
+| 1 | Oczy i uszy | /ɪ/ jak w ship (ship/sheep, sit/seat) | 02_glowa |
+| 2 | Serce robota | /æ/ jak w cat (cat/cut, pan/pen, man/men) | 01_tulow |
 | 3 | Biodra i równowaga | a, e czy i? (pan/pen/pin, bag/big) | 03_miednica |
 | 4 | Mocne uda | końcówka t czy d (at/add, sat/sad) | 04_udo_L, 05_udo_P |
 | 5 | Pierwsze kroki | pierwszy dźwięk (pit/sit, pin/tin, Sam/am) | 06_golen_L, 07_golen_P |
@@ -17,12 +17,27 @@ Dźwięki wybrane z błędów Michała w wersji 1.6: myli am/Sam i pit/sit, pisz
 
 ## Mini-gry
 
-`listen` osłuchanie (obrazek + polskie znaczenie, wolno i normalnie, bez oceny) ·
+`listen` osłuchanie (obrazek, słowo i polskie znaczenie, wolno i normalnie) ·
 `ear` rozróżnianie par · `letter` brakująca litera · `catch` łapanie części chwytakiem (strzałki, dotyk, mysz) ·
 `build` składanie słowa z liter (też z klawiatury) · `read` czytanie bez dźwięku · `phrase` zdanie → polskie znaczenie (poziom 3: układanie zdania) ·
-`command` polecenia (misja 7) · `talk` odpowiedź na pytanie AEGIS-7 (misja 8) · `echo` „powiedz to robotowi”: nagranie i odsłuch, bez oceny, zapis tylko w IndexedDB `rg-recordings`.
+`command` polecenia (misja 7, też ruchowe: Jump!, Turn around.) · `talk` odpowiedź na pytanie AEGIS-7 (misja 8) ·
+`memory` pary słowo ↔ obrazek · `sort` skrzynie według dźwięku (`M.sort.groups/labels`) ·
+`translate` „Powiedz po polsku”: słowo słychać albo widać, dziecko mówi lub wpisuje polskie znaczenie (przyjmuje `WORDS[w].pl` i `alt`, literówka o 1 znak) ·
+`teach` „Nowy zwrot”: zdanie słowo po słowie z tłumaczeniem (`M.teach[].gloss`) i wskazówką (`note`), dziecko je mówi, potem wybiera je po polsku → angielsku ·
+`say` (dawniej `echo`) „Powiedz to robotowi”: gra słucha i ocenia, do 3 prób („Usłyszałem: pan (patelnia). Powiedz: pen”).
 
-Bez kar i bez limitu czasu. Po 1. błędzie: „Hmm, not this one. Listen again.”, wolne nagranie i polska wskazówka (np. „sit, nie syt”). Po 2. błędzie dobra odpowiedź świeci. Źle rozwiązany element wraca raz na końcu tej samej mini-gry.
+Ocena mowy wyłącznie lokalnie: `window.RGSpeech` z wątku gry (`available`, `langs`, `ready()`, `hear(lang, {expect, maxMs}) → {alts}|{err}`).
+Głos dziecka nie wychodzi z urządzenia; bez `RGSpeech` (lub dla języka, którego nie zna) zostaje nagraj i odsłuchaj, a „Powiedz po polsku” ma wpisywanie.
+
+Bez kar i bez limitu czasu. Zła odpowiedź kończy próbę: dobra odpowiedź świeci na zielono, gra odtwarza obie wersje i tłumaczy po polsku różnicę,
+słowo wraca raz na końcu tej samej mini-gry. Między minigrami AEGIS-7 mówi losowe, zabawne kwestie (pule w `AEGIS_LINES`, bez powtórek).
+Kwestie bez nagrania pokazują tylko napis (bez syntezatora). Brakujące nagrania: `node tools/frazy_ch1.mjs` → `tools/frazy-brakujace-ch1.txt`.
+
+## Język: angielski, polski dopiero po błędzie
+
+Polecenia, przyciski, odprawa i dymek AEGIS-7 są po angielsku. Polskie tłumaczenia (`.ch1-plh`: etykiety, znaczenia słów, wskazówki)
+pojawiają się dopiero po złej odpowiedzi (klasa `pl-on` na `.ch1-stage`, zdejmowana przy następnym zadaniu). Nie ma przełącznika „po polsku od początku”.
+Treść zadań tłumaczeniowych (zwroty, „Powiedz po polsku”) z natury zawiera polski.
 
 ## Poziomy trudności
 
@@ -59,6 +74,7 @@ Kolejność i dobór słów: `RGAssistant.pickItems(profile, pool, n, missionId)
 |---|---|---|
 | `sp-quiz` | Przygotuj się do kartkówki | wybór działu albo własne słówka (`jacket = kurtka`, jedno w linii) → film `quiz` → ok. 10 min treningu (posłuchaj → słyszę → czytam / polski→angielski → układam → piszę) → sprawdzian: polskie słowo, wpisz po angielsku, jedna próba, maks. 10 słów |
 | `sp-dictation` | Dyktando | wybór działu, własnych albo najtrudniejszych słów → 10 słów: robot mówi, dziecko wpisuje; złe litery na czerwono, „_” = brak litery, przekreślona = zbędna; po 2. błędzie wzór do przepisania |
+| `sp-maze` | Lot przez labirynt | gra 2D: AEGIS-7 leci tunelem, dziecko zmienia tor (↑ ↓, dotyk) i wlatuje w bramkę z angielskim słowem do polskiego słowa albo usłyszanego; dobra bramka ratuje zwierzaka, zła: odbicie, dobra świeci, słowo wraca; eksport `flyGame(S, words, opts)` |
 | `sp-review` | Podsumowanie działów | dostępne po 3 przećwiczonych działach (`available(profile)`), film `review` → raport z działów → powtórka 10 najtrudniejszych słów |
 
 - Działy: `special-data.js` (Unit 2: ubrania, pogoda, miesiące, przedmioty, this/that, my/your…, oraz dźwięki z misji 1–5). Własne słówka rodzica: `localStorage['rg.special.custom']`.

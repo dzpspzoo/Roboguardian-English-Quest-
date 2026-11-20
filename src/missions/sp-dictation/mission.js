@@ -9,7 +9,7 @@ export const meta = {
 };
 
 export function mount(root, ctx) {
-  const S = createShell(root, ctx, { id: meta.id, title: meta.title });
+  const S = createShell(root, ctx, { id: meta.id, title: meta.titleEn || meta.title });
   (async () => {
     try {
       S.progress(0, 'Wybór działu');
@@ -25,9 +25,9 @@ export function mount(root, ctx) {
       S.progress(1, `Dyktando: ${ok} z ${words.length}`);
       const line = ok === words.length ? LINES.great : LINES.testGood;
       S.clear(S.h('div', { class: 'sp-score' }, `${ok} / ${words.length}`), S.h('div', { class: 'ch1-label' }, 'dobrze za pierwszym razem'),
-        wrong.length ? S.h('div', { class: 'ch1-tip on' }, 'Do powtórki: ', S.h('b', {}, wrong.join(', '))) : null);
+        wrong.length ? S.h('div', { class: 'ch1-tip on' }, 'Practise again: ', S.h('b', {}, wrong.join(', '))) : null);
       await S.aegis(line);
-      const next = S.h('button', { class: 'ch1-next' }, 'Dalej ›'); S.stage.append(next); await S.clickOf([next]);
+      const next = S.h('button', { class: 'ch1-next' }, 'Next ›'); S.stage.append(next); await S.clickOf([next]);
       ctx.done?.({ stars: starsFor(ok, words.length), partEarned: false, parts: [], summary: {
         missionId: meta.id, unit: sel.unitId, unitTitle: sel.title, good: words.map(w => w.en).filter(x => !wrong.includes(x)), hard: wrong,
         cheer: line, en: line.en, pl: `${line.pl} Wynik: ${ok} z ${words.length}.`,

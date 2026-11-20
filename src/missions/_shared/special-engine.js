@@ -59,7 +59,7 @@ export function createShell(root, ctx, { id, title }) {
 
   root.innerHTML = '';
   const bar = h('div', { class: 'ch1-bar-fill' }), barTxt = h('div', { class: 'ch1-bar-txt' });
-  const bHear = h('button', { class: 'ch1-snd', title: 'Posłuchaj' }, '🔊'), bSlow = h('button', { class: 'ch1-snd', title: 'Wolniej' }, '🐢');
+  const bHear = h('button', { class: 'ch1-snd', title: 'Listen' }, '🔊'), bSlow = h('button', { class: 'ch1-snd', title: 'Slow' }, '🐢');
   const bExit = ctx.exit ? h('button', { class: 'ch1-snd', title: 'Wyjdź', onclick: () => ctx.exit() }, '✕') : null;
   const stage = h('div', { class: 'ch1-stage' });
   const subPl = h('div', { class: 'ch1-sub-pl' });
@@ -78,7 +78,7 @@ export function createShell(root, ctx, { id, title }) {
   async function word(text, slow = false) { check(); stopAudio(); if (ctx.say) await ctx.say(text, { slow }); check(); }
   let lineNo = 0;
   async function aegis(line) {
-    check(); stopAudio(); subPl.textContent = line.pl; bubble.classList.add('on'); const my = ++lineNo;
+    check(); stopAudio(); subPl.replaceChildren(h('div', { class: 'ch1-sub-en' }, line.en), stage.classList.contains('pl-on') ? h('div', { class: 'ch1-sub-pl2' }, line.pl) : ''); bubble.classList.add('on'); const my = ++lineNo;
     if (ctx.aegisSay) await ctx.aegisSay(line.en);
     else await new Promise(res => { const a = new Audio(`${ctx.base || ''}assets/audio/aegis/${slug(line.en)}.wav`); curAudio = a; a.onended = res; a.onpause = res; a.onerror = () => Promise.resolve(ctx.say?.(line.en)).then(res, res); a.play().catch(a.onerror); });
     check();
@@ -91,7 +91,7 @@ export function createShell(root, ctx, { id, title }) {
       o.frequency.setValueAtTime(f[0], ac.currentTime); o.frequency.linearRampToValueAtTime(f[1], ac.currentTime + .15); g.gain.setValueAtTime(.12, ac.currentTime); g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + .25); o.connect(g).connect(ac.destination); o.start(); o.stop(ac.currentTime + .26); } catch (e) {}
   }
   function progress(frac, label) { const p = Math.round(Math.max(0, Math.min(1, frac)) * 100); bar.style.width = p + '%'; barTxt.textContent = label ?? `${p}%`; }
-  function clear(...kids) { stage.innerHTML = ''; setReplay(null); if (kids.length) stage.append(h('div', { class: 'ch1-q' }, ...kids)); }
+  function clear(...kids) { stage.innerHTML = ''; stage.classList.remove('pl-on'); setReplay(null); if (kids.length) stage.append(h('div', { class: 'ch1-q' }, ...kids)); }
   // Czeka na kliknięcie jednego z przycisków; przerywa się po wyjściu z misji.
   function clickOf(btns) {
     return new Promise((res, rej) => {
@@ -173,57 +173,56 @@ export async function chooseWords(S, { allowHardest = false, intro = 'Wybierz dz
 
 // ---------- mini-gry na słowach { en, pl, icon } ----------
 const wv = (S, w, { en = false, pl = true, big = false } = {}) => S.h('span', { class: 'ch1-wv' + (big ? ' big' : '') },
-  w.icon ? S.h('span', { class: 'ch1-ico' }, w.icon) : null, en ? S.h('span', { class: 'ch1-en' }, w.en) : null, pl && w.pl ? S.h('span', { class: 'ch1-pl' }, w.pl) : null);
+  w.icon ? S.h('span', { class: 'ch1-ico' }, w.icon) : null, en ? S.h('span', { class: 'ch1-en' }, w.en) : null, pl && w.pl ? S.h('span', { class: 'ch1-pl' + (w.icon ? ' ch1-plh' : '') }, w.pl) : null);
 
 export async function listenCard(S, w) {
-  S.clear(S.h('div', { class: 'ch1-label' }, 'Nowe słowo: posłuchaj'), S.h('div', { class: 'ch1-card' }, wv(S, w, { en: true, big: true })));
+  S.clear(S.h('div', { class: 'ch1-label' }, 'New word: listen'), S.h('div', { class: 'ch1-card' }, wv(S, w, { en: true, big: true })));
   S.setReplay(slow => S.word(w.en, slow));
   await S.word(w.en, true); await S.wait(300); await S.word(w.en, false);
-  const next = S.h('button', { class: 'ch1-next' }, 'Dalej ›'); S.stage.append(next);
+  const next = S.h('button', { class: 'ch1-next' }, 'Next ›'); S.stage.append(next);
   await S.clickOf([next]);
 }
 
-// Wybór z jedną poprawką: po 1. błędzie wskazówka, po 2. podświetlenie. Zwraca true, gdy dobrze za 1. razem.
-async function choose(S, unit, { item, skill, mode, label, prompt = [], options, correct, play, tip, layout = '' }) {
+// Wybór bez drugiej próby: zła odpowiedź pokazuje dobrą (zielona), gra obie, polska wskazówka, potem Next.
+// Polski (etykieta, znaczenia) widać dopiero po błędzie. Zwraca true, gdy dobrze.
+async function choose(S, unit, { item, skill, mode, label, labelPl, prompt = [], options, correct, play, tip, layout = '' }) {
   const { h } = S;
-  S.clear(h('div', { class: 'ch1-label' }, label), ...prompt);
+  S.clear(h('div', { class: 'ch1-label' }, label, labelPl ? h('span', { class: 'ch1-plh ch1-label-pl' }, labelPl) : null), ...prompt);
   const box = h('div', { class: 'ch1-opts ' + layout });
   const btns = options.map(o => { const b = h('button', { class: 'ch1-opt' }, o.el); b.dataset.k = o.key; box.append(b); return b; });
   const tipEl = h('div', { class: 'ch1-tip' });
   S.stage.append(box, tipEl);
   if (play) { S.setReplay(slow => play(slow)); await play(S.slowFirst); }
-  const t0 = performance.now(); let tries = 0, first = null, ms = 0;
-  for (;;) {
-    const b = await S.clickOf(btns.filter(x => !x.disabled)); tries++;
-    const ok = b.dataset.k === correct;
-    if (tries === 1) { first = ok ? null : b.dataset.k; ms = Math.round(performance.now() - t0); }
-    if (ok) {
-      b.classList.add('ok'); btns.forEach(x => x.disabled = true); S.sfx('correct');
-      S.rec(unit, { item, skill, mode, ok: tries === 1, ms, opts: btns.length, hint: tries > 1, chosen: first, attempts: tries });
-      await S.wait(500); return tries === 1;
-    }
-    S.sfx('wrong'); b.classList.add('bad'); b.disabled = true;
-    if (tries === 1) { if (tip) { tipEl.textContent = tip; tipEl.classList.add('on'); } await S.aegis(play ? LINES.again : LINES.lookAgain); }
-    else btns.forEach(x => { if (x.dataset.k === correct) x.classList.add('glow'); });
-    if (play) await play(true);
-  }
+  const t0 = performance.now();
+  const b = await S.clickOf(btns);
+  const ok = b.dataset.k === correct;
+  btns.forEach(x => x.disabled = true);
+  S.rec(unit, { item, skill, mode, ok, ms: Math.round(performance.now() - t0), opts: btns.length, hint: false, chosen: ok ? null : b.dataset.k, attempts: 1 });
+  if (ok) { b.classList.add('ok'); S.sfx('correct'); await S.wait(500); return true; }
+  S.sfx('wrong'); b.classList.add('bad'); S.stage.classList.add('pl-on');
+  btns.forEach(x => { if (x.dataset.k === correct) x.classList.add('reveal'); });
+  if (tip) { tipEl.textContent = tip; tipEl.classList.add('on'); }
+  await S.aegis(LINES.lookAgain);
+  if (play) { await play(true); await S.wait(250); await S.word(b.dataset.k, true).catch(() => {}); }
+  const next = h('button', { class: 'ch1-next' }, 'Next ›'); S.stage.append(h('div', { class: 'ch1-row' }, next)); await S.clickOf([next]);
+  return false;
 }
 const others = (w, pool, n) => shuffle(pool.filter(x => norm(x.en) !== norm(w.en) && (!x.pl || x.pl !== w.pl))).slice(0, n);
 const nOpts = S => Math.min(4, S.lvl + 1);
 
 export function earGame(S, unit, w, pool) { // słyszysz → znaczenie
   const opts = shuffle([w, ...others(w, pool.filter(x => x.pl), nOpts(S) - 1)]);
-  return choose(S, unit, { item: w.en, skill: 'listening', mode: 'listen', label: 'Co słyszysz?', layout: opts.length === 2 ? 'two' : '',
-    options: opts.map(x => ({ key: x.en, el: wv(S, x) })), correct: w.en, play: slow => S.word(w.en, slow), tip: `To słowo znaczy: ${w.pl || w.en}.` });
+  return choose(S, unit, { item: w.en, skill: 'listening', mode: 'listen', label: 'What do you hear?', labelPl: 'Co słyszysz?', layout: opts.length === 2 ? 'two' : '',
+    options: opts.map(x => ({ key: x.en, el: x.icon ? wv(S, x) : S.h('span', { class: 'ch1-en sp-word' }, x.en) })), correct: w.en, play: slow => S.word(w.en, slow), tip: `Słychać było ${w.en} = ${w.pl || w.en}.` });
 }
 export function readGame(S, unit, w, pool) { // napis → znaczenie
   const opts = shuffle([w, ...others(w, pool.filter(x => x.pl), nOpts(S) - 1)]);
-  return choose(S, unit, { item: w.en, skill: 'reading', mode: 'read', label: 'Przeczytaj i wybierz, co to znaczy', prompt: [S.h('div', { class: 'ch1-read' }, w.en)],
+  return choose(S, unit, { item: w.en, skill: 'reading', mode: 'read', label: 'Read. What does it mean?', labelPl: 'Przeczytaj i wybierz, co to znaczy', prompt: [S.h('div', { class: 'ch1-read' }, w.en)],
     options: opts.map(x => ({ key: x.en, el: wv(S, x) })), correct: w.en, tip: `${w.en} = ${w.pl}` }).then(async ok => { await S.word(w.en).catch(() => {}); return ok; });
 }
 export function plGame(S, unit, w, pool) { // polskie → angielskie
   const opts = shuffle([w, ...others(w, pool, nOpts(S) - 1)]);
-  return choose(S, unit, { item: w.en, skill: 'vocab', mode: 'choose', label: 'Jak to jest po angielsku?', prompt: [wv(S, w, { big: true })], layout: 'letters',
+  return choose(S, unit, { item: w.en, skill: 'vocab', mode: 'choose', label: 'How do you say it in English?', labelPl: 'Jak to jest po angielsku?', prompt: [S.h('span', { class: 'ch1-wv big' }, w.icon ? S.h('span', { class: 'ch1-ico' }, w.icon) : null, S.h('span', { class: 'ch1-pl' }, w.pl || ''))], layout: 'letters',
     options: opts.map(x => ({ key: x.en, el: S.h('span', { class: 'ch1-en sp-word' }, x.en) })), correct: w.en, tip: 'Posłuchaj, jak brzmi dobre słowo.',
     play: null }).then(async ok => { await S.word(w.en).catch(() => {}); return ok; });
 }
@@ -231,7 +230,7 @@ export function plGame(S, unit, w, pool) { // polskie → angielskie
 // Składanie słowa z liter (znaki inne niż litery są już wpisane).
 export async function buildGame(S, unit, w) {
   const { h } = S;
-  S.clear(h('div', { class: 'ch1-label' }, 'Ułóż słowo z liter'), wv(S, w));
+  S.clear(h('div', { class: 'ch1-label' }, 'Build the word'), wv(S, w));
   const chars = [...w.en];
   const slotsEl = h('div', { class: 'ch1-slots' }), tilesEl = h('div', { class: 'ch1-tiles' }), tipEl = h('div', { class: 'ch1-tip' });
   S.stage.append(slotsEl, tilesEl, tipEl);
@@ -292,9 +291,9 @@ function polishTip(typed, target) {
 export async function typeGame(S, unit, w, { mode = 'dict', test = false, label } = {}) {
   const { h } = S;
   const prompt = mode === 'dict' ? [S.h('div', { class: 'ch1-hint' }, S.lvl === 1 && w.pl ? `(${w.pl})` : '')] : [wv(S, w, { big: true })];
-  S.clear(h('div', { class: 'ch1-label' }, label || (mode === 'dict' ? 'Napisz słowo, które słyszysz' : 'Napisz po angielsku')), ...prompt);
+  S.clear(h('div', { class: 'ch1-label' }, label || (mode === 'dict' ? 'Write the word you hear' : 'Write it in English')), ...prompt);
   const input = h('input', { class: 'sp-input', type: 'text', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', 'aria-label': 'Wpisz słowo' });
-  const ok = h('button', { class: 'ch1-next' }, 'Sprawdź ✓');
+  const ok = h('button', { class: 'ch1-next' }, 'Check ✓');
   const res = h('div', { class: 'sp-res' }), tipEl = h('div', { class: 'ch1-tip' });
   S.stage.append(h('div', { class: 'ch1-row' }, input, ok), res, tipEl);
   const play = slow => S.word(w.en, slow);
@@ -322,17 +321,17 @@ export async function typeGame(S, unit, w, { mode = 'dict', test = false, label 
     if (test) {
       S.rec(unit, { item: w.en, skill: 'spelling', mode: 'type', ok: false, ms, opts: 0, hint: false, chosen: first, attempts: 1, test });
       res.append(h('div', { class: 'sp-correct' }, 'Poprawnie: ', h('b', {}, w.en), w.pl ? ` (${w.pl})` : ''));
-      input.disabled = true; ok.textContent = 'Dalej ›'; ok.onclick = null;
+      input.disabled = true; ok.textContent = 'Next ›'; ok.onclick = null;
       S.word(w.en).catch(() => {});
       await S.clickOf([ok]); return false;
     }
     if (tries === 1) {
-      tipEl.textContent = polishTip(typed, w.en) || 'Czerwone litery są złe, „_” to brakująca litera. Popraw i sprawdź jeszcze raz.'; tipEl.classList.add('on');
+      S.stage.classList.add('pl-on'); tipEl.textContent = polishTip(typed, w.en) || 'Czerwone litery są złe, „_” to brakująca litera. Popraw i sprawdź jeszcze raz.'; tipEl.classList.add('on');
       await S.aegis(LINES.dictFix); await play(true);
     } else if (!copy) {
       copy = true;
       S.rec(unit, { item: w.en, skill: 'spelling', mode: 'type', ok: false, ms, opts: 0, hint: true, chosen: first, attempts: tries, test });
-      res.append(h('div', { class: 'sp-correct' }, 'Tak to się pisze: ', h('b', {}, w.en)));
+      res.append(h('div', { class: 'sp-correct' }, 'This is how you write it: ', h('b', {}, w.en)));
       await S.aegis(LINES.dictCopy); await play(true);
     }
     input.select();

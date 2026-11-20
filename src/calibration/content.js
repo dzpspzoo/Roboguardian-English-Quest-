@@ -38,11 +38,11 @@ const wordPools = {
   ],
   B: [
     ["jacket", "🧥"], ["dress", "👗"], ["trousers", "👖"], ["socks", "🧦"], ["rainy", "🌧️"],
-    ["snowy", "❄️"], ["windy", "🌬️"], ["cloudy", "☁️"], ["clock", "🕒"]
+    ["snowy", "❄️"], ["rabbit", "🐰"], ["cloudy", "☁️"], ["clock", "🕒"]
   ],
   C: [
-    ["rocket", "🚀"], ["umbrella", "☂️"], ["bridge", "🌉"], ["ladder", "🪜"], ["key", "🔑"],
-    ["scissors", "✂️"], ["island", "🏝️"], ["castle", "🏰"], ["volcano", "🌋"]
+    ["rocket", "🚀"], ["umbrella", "☂️"], ["penguin", "🐧"], ["giraffe", "🦒"], ["key", "🔑"],
+    ["octopus", "🐙"], ["island", "🏝️"], ["castle", "🏰"], ["volcano", "🌋"]
   ]
 };
 
@@ -214,5 +214,14 @@ export function allPhrases() {
   Object.values(listeningLevels).forEach(l => l.forEach(it => out.add(it.say)));
   Object.values(spellingLevels).forEach(l => l.forEach(it => out.add(it.word)));
   speakingItems.forEach(it => out.add(it.word));
+  return [...out];
+}
+
+// Polskie polecenia czytane polskim lektorem (assets/audio/words/pl/).
+export function allPolishPhrases() {
+  const out = new Set();
+  const add = l => l && l.pl && out.add(l.pl);
+  Object.values(lines).forEach(v => (Array.isArray(v) ? v.forEach(add) : add(v)));
+  sections.forEach(s => { add(s.intro); add(s.introSameDiff); });
   return [...out];
 }

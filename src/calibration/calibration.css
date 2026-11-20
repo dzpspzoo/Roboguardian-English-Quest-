@@ -100,3 +100,14 @@
 
 @media (max-height: 640px) { .rgc-opt { width: 120px; height: 120px; } .rgc-emoji { font-size: 60px; } }
 @media (prefers-reduced-motion: reduce) { .rgc * { animation: none !important; transition: none !important; } }
+
+/* pytania dla rodzica: trudności i zainteresowania */
+.rgc-form { max-height: calc(100vh - 160px); overflow: auto; }
+.rgc-form fieldset { border: 1px solid var(--c-line); border-radius: 12px; padding: 8px 14px 12px; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.rgc-form legend { color: var(--c-dim); padding: 0 6px; font-size: 16px; }
+.rgc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rgc-chip { position: relative; }
+.rgc-chip input { position: absolute; opacity: 0; }
+.rgc-chip span { display: inline-block; padding: 8px 12px; border-radius: 999px; border: 1px solid var(--c-line); font-size: 16px; cursor: pointer; }
+.rgc-chip input:checked + span { border-color: var(--c-accent); background: rgba(56,211,255,.18); }
+.rgc-chip input:focus-visible + span { outline: 2px solid var(--c-accent); }

@@ -1,7 +1,7 @@
 # Test startowy (kalibracja)
 
 Około 10 minut, jedna przerwa. Fabularnie AEGIS-7 „skanuje komunikator” gracza, żeby wiedzieć, jak mu pomagać.
-Lektor mówi po angielsku, na ekranie są polskie napisy. Test nie pokazuje „dobrze/źle”, nie ma limitu czasu,
+Lektor mówi polecenie po angielsku, a potem to samo czyta polski lektor (dziecko może słabo czytać także po polsku); na ekranie jest też polski napis w dymku AEGIS-7. Test nie pokazuje „dobrze/źle”, nie ma limitu czasu,
 a przy każdym pytaniu są przyciski 🔊 „Jeszcze raz” i 🐢 „Wolniej”.
 
 Podgląd poza grą: `python -m http.server` w katalogu repo, potem
@@ -11,7 +11,7 @@ Podgląd poza grą: `python -m http.server` w katalogu repo, potem
 
 | Część | Co sprawdza | Jak | Pytań |
 |---|---|---|---|
-| 0. Start | wiek, lata nauki, tablet, dźwięk, mikrofon | pytania dla rodzica, „Słyszysz mnie?”, „Powiedz: Hello!” | — |
+| 0. Start | wiek, lata nauki, tablet, znane trudności (czytanie po polsku, słyszenie, ADHD, logopeda, dysleksja), zainteresowania, dźwięk, mikrofon | pytania dla rodzica, „Słyszysz mnie?”, „Powiedz: Hello!” | — |
 | 1. Słowa | rozumienie słów ze słuchu | słowo → 1 z 3 obrazków, poziomy A/B/C | 3–9 |
 | 2. Podobne dźwięki | rozróżnianie par (ship/sheep, pan/pen, cart/card, pear/bear, three/tree, wet/vet, heart/art) | najpierw oba słowa przy obrazkach, potem jedno z nich; albo „takie same czy różne” | 15 |
 | 3. Dźwięk i litera | czy zapisuje „po polsku” | słowo → 1 z 3 zapisów (sit / syt / set) | do 10 |
@@ -46,8 +46,11 @@ Najważniejsze pola wyniku (pełny przykład: `tests/scoring.test.mjs`):
 - `errors`: liczba błędów według typu (`polish_phonetic`, `voicing_t_d`, `vowel_ae_e`, `th`, `w_v`, …).
 - `attention`: średni czas odpowiedzi, trend, odtworzenia, użycie wolnego tempa, `fatigueFlag`.
 - `profile`: `overall` (`preA1`, `A1-`, `A1`, `A1+`, `A2`), mocne i słabe strony, słabe dźwięki.
+- `context.parent` (co zgłosił rodzic) i `context.interests` (np. `animals`, `lego`).
+- `profile.flags.{hearing,soundLetter,slowReading,fatigue,speech,dyslexiaRisk}`: `{ measured, parent }`, osobno pomiar testu i zgłoszenie rodzica.
+- `attention.readingAvgRtMs`: tempo czytania bez dźwięku.
 - `plan`: 3 pierwsze dźwięki do nauki, długość misji (5 lub 7 min), wsparcia (wolny głos, polskie podpowiedzi,
-  kafelki zamiast pisania, tryb mówienia). To wstępna propozycja; asystent AI może ją zmienić.
+  kafelki zamiast pisania, tryb mówienia, `plAudio` czyli polecenia polskim lektorem, `bigText`, `shortSteps`) i `interests`. To wstępna propozycja; asystent AI może ją zmienić.
 
 ## Nagrania
 

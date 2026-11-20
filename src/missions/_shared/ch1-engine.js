@@ -618,8 +618,13 @@ export function runMission(root, ctx, M) {
     const S = speech();
     if (!S || S.available === false || ctx.profile?.settings?.mic === false) return false;
     if (S.langs && !S.langs.includes(lang)) return false;
-    try { return S.ready ? !!(await Promise.race([S.ready(), new Promise(r => setTimeout(() => r(false), 15000))])) : true; } catch (e) { return false; }
+    if (!S.ready) return true;
+    // Model ładuje się raz: pierwszy raz czekamy do 15 s, potem tylko chwilę (bez wielokrotnego czekania przy każdym słowie).
+    srReady = srReady || Promise.resolve().then(() => S.ready()).then(v => !!v, () => false);
+    const limit = srWaited ? 300 : 15000; srWaited = true;
+    return await Promise.race([srReady, new Promise(r => setTimeout(() => r(false), limit))]);
   }
+  let srReady = null, srWaited = false;
   // Dziecko mówi target po angielsku. Do 3 prób; po złej gra mówi, co usłyszała, i daje wskazówkę. Zwraca ok za 1. razem albo null (brak oceny).
   async function speakCheck({ target, game, item, view, tip }) {
     if (!(await speechReady('en'))) return recordOnly(target, view);

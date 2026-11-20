@@ -10,6 +10,7 @@ const VERSION = '0.2.0';
 const NOOP_AUDIO = { init() {}, music() {}, sfx() {}, setVolume() {}, mute() {}, stop() {} };
 let RGAudio = NOOP_AUDIO;
 let renderParentPanel = null;
+let Teacher = null; // Nauczyciel AEGIS-7 (src/teacher/): Misja dnia, blokada po misji, żart i pożegnanie
 async function optionalImport(path) { try { return await import(path); } catch (e) { return null; } }
 const ready = (async () => {
   const a = await optionalImport('../audio/audio.js');
@@ -18,6 +19,7 @@ const ready = (async () => {
   if (s && (s.RGAssistant || s.default) && !window.RGAssistant) window.RGAssistant = s.RGAssistant || s.default;
   const pm = await optionalImport('../assistant/panel.js');
   if (pm && pm.renderParentPanel) renderParentPanel = pm.renderParentPanel;
+  Teacher = await optionalImport('../teacher/teacher.js');
 })();
 const sfx = id => { try { RGAudio.sfx(id); } catch (e) {} };
 const music = id => { try { RGAudio.music(id); } catch (e) {} };
@@ -223,6 +225,7 @@ async function hangarScreen() {
       <button class="iconbtn" data-a="settings" aria-label="Ustawienia">⚙</button>
     </div>
     <div class="wrap">
+      <div data-today></div>
       <div class="hangar">
         <div class="panel robot-box">
           <div style="position:relative">
@@ -260,7 +263,13 @@ async function hangarScreen() {
   on(el, '[data-a=home]', titleScreen);
   on(el, '[data-a=settings]', settingsScreen);
   on(el, '[data-a=story]', cinemaScreen);
-  on(el, '[data-m]', (e, b) => missionScreen(metas.find(m => m.id === b.dataset.m) || specials.find(m => m.id === b.dataset.m)));
+  if (Teacher) { try { Teacher.renderTodayCard(el.querySelector('[data-today]'), p, { start: missionScreen, locked: teacherLock }); } catch (e) { console.warn('Nauczyciel', e); } }
+  on(el, '[data-m]', (e, b) => {
+    const m = metas.find(x => x.id === b.dataset.m) || specials.find(x => x.id === b.dataset.m);
+    // blokada po misji (12 h lub do rana) dotyczy misji rozdziału; misje specjalne zostają otwarte
+    if (m && !m.special && Teacher) { try { if (!Teacher.gate(store.getProfile()).open) return teacherLock(); } catch (e) {} }
+    missionScreen(m);
+  });
 }
 
 const SPECIAL = [{ id: 'paliwo', title: 'Paliwo do silników', en: 'Rocket fuel', desc: 'Unit 2: ubrania, pogoda, miesiące, godziny, this/that, his/her', href: 'missions/paliwo/index.html', icon: '⛽' }];
@@ -275,6 +284,13 @@ function specialScreen() {
     <div class="wrap"><p class="muted">Dodatkowe misje pod materiał ze szkoły, np. przed kartkówką.</p><div class="cards">${specialCards()}</div></div>
   </section>`));
   on(el, '[data-a=back]', titleScreen);
+}
+
+/* ---------- blokada po misji (Nauczyciel) ---------- */
+function teacherLock() {
+  const root = show(h(`<section class="screen"></section>`));
+  try { Teacher.lockScreen(root, { profile: store.getProfile(), aegisSay, save: store.saveProfile, onUnlock: hangarScreen, onBack: hangarScreen }); }
+  catch (e) { console.warn('Nauczyciel', e); hangarScreen(); }
 }
 
 /* ---------- misja ---------- */
@@ -355,7 +371,8 @@ function rewardScreen(m, res) {
   </section>`));
   setTimeout(() => aegisSay(cheer[0]), 600);
   // nagroda do druku 3D: kolejna z listy R1…R16 po każdej ukończonej misji (stary format: klucz = id misji)
-  if (!m.special) druk3d().then(all => {
+  // Misja dnia (Nauczyciel) daje nagrodę co kilka dni: wtedy res.rewardEarned === false oznacza „jeszcze nie dziś”
+  if (!m.special && res.rewardEarned !== false) druk3d().then(all => {
     if (!all) return;
     const keys = Object.keys(all).filter(k => /^R\d+$/.test(k) && all[k] && all[k].ready !== false && all[k].zip).sort((a, b) => +a.slice(1) - +b.slice(1));
     let key = m.id;
@@ -372,12 +389,20 @@ function rewardScreen(m, res) {
   const done1 = Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length;
   const seen = (p.progress.films || {});
   const film = sm && sm.final ? 'finale' : done1 >= 6 && !seen.midway ? 'midway' : done1 >= 3 && !seen.meanwhile ? 'meanwhile' : null;
-  on(el, '[data-a=next]', () => {
+  const afterReward = () => {
     if (!film) return hangarScreen();
     playStoryFile(`src/story/${film}.json`, hangarScreen).then(ok => {
       if (!ok) return hangarScreen();
       const q = store.getProfile(); q.progress.films = q.progress.films || {}; q.progress.films[film] = true; store.saveProfile(q);
     });
+  };
+  on(el, '[data-a=next]', () => {
+    if (!Teacher || m.special) return afterReward();
+    // żart AEGIS-a i „See you tomorrow, Guardian!”, potem filmy jak wcześniej
+    const root = show(h(`<section class="screen"></section>`));
+    const seq = navSeq;
+    try { Teacher.farewell(root, { profile: store.getProfile(), missionId: m.id, aegisSay, save: store.saveProfile, onDone: () => { if (seq === navSeq) afterReward(); } }); }
+    catch (e) { console.warn('Nauczyciel', e); afterReward(); }
   });
 }
 
@@ -441,6 +466,7 @@ function parentScreen() {
           ${[[-1, 'łatwiej'], [0, 'automatycznie (zalecane)'], [1, 'trudniej']].map(([v, t]) => `<option value="${v}" ${((p.settings && p.settings.levelShift) || 0) === v ? 'selected' : ''}>${t}</option>`).join('')}
         </select></label>
       <p>Odpowiedzi w grze: <b>${log.length}</b>${log.length ? `, poprawnych ${Math.round(100 * ok / log.length)}%` : ''}</p>
+      <div data-teacher="${p.id}"></div>
       <div data-print3d="${p.id}"></div>
       <div data-rec="${p.id}"></div>
       ${renderParentPanel ? `<div data-panel="${p.id}"></div>` : report ? `<pre class="report">${esc(typeof report === 'string' ? report : JSON.stringify(report, null, 2))}</pre>` : '<p class="muted">Szczegółowa analiza asystenta AI pojawi się w kolejnej wersji.</p>'}
@@ -468,6 +494,9 @@ function parentScreen() {
     box.innerHTML = got.length ? `<p>Części do druku 3D (zdobyte w misjach):</p><div class="print-list">${got.map(id => printLink(all[id], all[id].name || (id.startsWith('R') ? `Nagroda ${id.slice(1)}` : `Misja ${id.replace('ch1-m', '')}`))).join('')}</div>`
       : '<p class="muted">Po każdej misji rozdziału 1 pojawi się tu plik części robota do druku 3D.</p>';
   }));
+  if (Teacher) el.querySelectorAll('[data-teacher]').forEach(box => {
+    const p = ps.find(x => x.id === box.dataset.teacher); if (p) { try { Teacher.renderParentControls(box, p, store.saveProfile); } catch (e) { console.warn('Nauczyciel', e); } }
+  });
   import('./recordings.js').then(m => el.querySelectorAll('[data-rec]').forEach(box => {
     const p = ps.find(x => x.id === box.dataset.rec); if (p) m.renderRecordings(box, p, store.saveProfile);
   })).catch(() => {});

@@ -1,0 +1,100 @@
+en|Hello!
+en|Hi!
+en|Goodbye!
+en|What's your name?
+en|My name is AEGIS.
+en|I'm a Guardian.
+en|Yes.
+en|No.
+en|Thank you!
+en|one
+en|two
+en|three
+en|four
+en|five
+en|six
+en|seven
+en|eight
+en|nine
+en|ten
+en|How old are you?
+en|I'm ten.
+en|a cat
+en|a bag
+en|It's a cat.
+en|Please.
+en|Sorry!
+en|Help!
+en|It's big.
+en|It's small.
+en|Is it big?
+en|thank
+en|think
+en|tree
+en|free
+en|pen
+en|pan
+en|cat
+en|cut
+en|cap
+en|cup
+en|big
+en|bag
+en|I am waking up. Say hello to me!
+en|Hello, Guardian!
+en|Hello, AEGIS!
+en|Hi! I am happy.
+en|I need to sleep now. Goodbye!
+en|My memory is empty. Tell me who you are!
+en|Hello! My name is AEGIS.
+en|A Guardian! Great!
+en|Answer my questions. Yes or no?
+en|Are you a Guardian?
+en|Are you a robot?
+en|Here is a battery for you.
+en|My counter is broken. Help me count!
+en|How many eyes do I have? 👁️👁️
+en|How many lights? 💡💡💡
+en|And now? 🔋
+en|More numbers! Count the bolts.
+en|Count the bolts: 🔩🔩🔩🔩
+en|And now: 🔩🔩🔩🔩🔩🔩
+en|Hands up! How many fingers? 🖐️
+en|Let us check my memory. What do you remember?
+en|Talk to me, Guardian!
+en|Hi! What is your name?
+en|Six.
+en|Are you happy today?
+en|Three.
+en|Count with me: one, two...
+en|How many arms do I have? 🦾🦾
+en|Here is a star for you! ⭐
+en|Count to nine with me!
+en|Count the stars: ⭐⭐⭐⭐⭐⭐⭐
+en|And the moons: 🌙🌙🌙🌙🌙🌙🌙🌙
+en|One, two... nine! How many?
+en|How old are you? Tell me!
+en|I am one week old. How old are you?
+en|Ten! Count my fingers: 🖐️🖐️
+en|Ask me!
+en|I am one week old!
+en|What is it? Help me see things.
+en|What is it? 🐱
+en|And this? 👜
+en|Is it a bag? 🐱
+en|No. It's a cat.
+en|Be polite, Guardian. And call me if you need help!
+en|Do you want a battery?
+en|Yes, please.
+en|Oh no! You are on my foot!
+en|The monster is here! What do you say?
+en|Big or small? Look around the hangar.
+en|Look at the elephant! 🐘
+en|Look at the mouse! 🐭
+en|Ask me about the cat!
+en|No. It's small.
+en|Big test for my memory! What do you remember?
+en|Let us talk, Guardian. You know a lot now!
+en|Hello! What is your name?
+en|Do you want a star?
+en|See you tomorrow, Guardian!

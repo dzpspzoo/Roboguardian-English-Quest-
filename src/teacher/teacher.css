@@ -1,0 +1,73 @@
+/* Nauczyciel AEGIS-7. Kolory tylko przez zmienne --rg-* (assets/gfx/theme.css). */
+.tch { position: absolute; inset: 0; display: flex; flex-direction: column; overflow: auto; }
+.tch-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; }
+.tch-bar > div { flex: 1; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.tch-steps { display: flex; gap: 6px; }
+.tch-step { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 15px;
+  border: 2px solid var(--rg-line); background: var(--rg-panel); color: var(--rg-muted); }
+.tch-step.done { background: var(--rg-teal-dark, #14998f); color: #fff; border-color: transparent; }
+.tch-step.now { border-color: var(--rg-accent); color: var(--rg-text); box-shadow: 0 0 0 3px rgba(240,138,36,.3); }
+.tch-steplabel { font-family: var(--rg-font-title); font-size: 20px; }
+.tch-day { margin-left: auto; color: var(--rg-muted); }
+.tch-body { flex: 1; display: flex; align-items: center; justify-content: center; padding: 8px 16px 32px; }
+.tch-card { width: min(900px, 100%); background: var(--rg-panel); border: 1px solid var(--rg-line); border-radius: var(--rg-radius); padding: 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; animation: fade .3s ease; }
+.tch-q { display: flex; align-items: center; gap: 10px; justify-content: center; }
+.tch-ico { font-size: 40px; line-height: 1; }
+.tch-ico.big { font-size: 84px; }
+.tch-en { font-size: 26px; font-weight: 700; }
+.tch-en.big { font-size: clamp(32px, 5vw, 52px); letter-spacing: .02em; }
+.tch-pl, .tch-optpl { color: var(--rg-muted); font-size: 20px; }
+.tch-optpl { font-size: 17px; }
+.tch-show { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.tch-opts { display: grid; gap: 14px; width: 100%; grid-template-columns: repeat(2, 1fr); }
+.tch-opts.n3 { grid-template-columns: repeat(3, 1fr); }
+.tch-opts.n1 { grid-template-columns: 1fr; }
+@media (max-width: 640px) { .tch-opts, .tch-opts.n3 { grid-template-columns: 1fr; } }
+.tch-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; }
+.tch-opt { min-height: 120px; padding: 14px; border-radius: 16px; border: 3px solid var(--rg-line); background: var(--rg-panel-solid); color: var(--rg-text);
+  font: inherit; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: transform .12s, border-color .12s; }
+.tch-opt:hover, .tch-opt:focus-visible { border-color: var(--rg-accent-2); transform: translateY(-2px); outline: none; }
+.tch-opt.ok { border-color: var(--rg-good); background: rgba(95,224,138,.18); }
+.tch-opt.no { border-color: var(--rg-bad); opacity: .55; animation: tch-shake .35s; }
+.tch-opt.hint { border-color: var(--rg-good); box-shadow: 0 0 0 4px rgba(95,224,138,.35); animation: tch-pulse 1s infinite; }
+.tch-opt[disabled] { cursor: default; }
+.tch-tip { background: rgba(240,138,36,.14); border-left: 4px solid var(--rg-accent); padding: 10px 14px; border-radius: 10px; text-align: left; font-size: 18px; max-width: 720px; }
+.tch-tip[hidden] { display: none; }
+.tch-aegisrow { display: flex; align-items: center; gap: 16px; text-align: left; }
+.tch-aegis { height: 140px; filter: drop-shadow(0 0 18px rgba(57,224,208,.35)); }
+.tch-aegis.big { height: min(40vh, 320px); }
+.tch-bubble { background: var(--rg-panel-solid); border: 2px solid var(--rg-line); border-radius: 18px; padding: 14px 18px; display: flex; gap: 12px; align-items: center; }
+.tch-bubble .tch-pl { color: var(--rg-text); font-size: 22px; }
+.tch-diff { font-size: 34px; font-weight: 700; letter-spacing: .06em; }
+.tch-diff .ok { color: var(--rg-good); }
+.tch-diff .no { color: var(--rg-accent); text-decoration: underline; }
+.tch-card input[type=text] { text-align: center; font-size: 30px; }
+/* karta w hangarze */
+.tch-today { display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; border-color: var(--rg-accent); }
+.tch-today.locked { border-color: var(--rg-line); }
+.tch-today-main { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 260px; }
+.tch-energy { display: inline-flex; align-items: center; gap: 6px; }
+.tch-energy i { width: 22px; height: 12px; border-radius: 4px; border: 2px solid var(--rg-teal, #3fe0d0); }
+.tch-energy i.on { background: var(--rg-teal, #3fe0d0); box-shadow: 0 0 10px var(--rg-teal, #3fe0d0); }
+.tch-energy small { color: var(--rg-muted); margin-left: 4px; }
+.tch-bye .tch-joke { font-size: 26px; max-width: 760px; }
+.tch-seeyou h2 { font-size: clamp(30px, 4.5vw, 48px); color: var(--rg-accent); animation: tch-pop .5s ease; }
+.tch-seeyou[hidden], .tch-bye [hidden] { display: none; }
+.tch-parent { display: flex; flex-direction: column; gap: 8px; border-top: 1px solid var(--rg-line); padding-top: 10px; margin-top: 6px; }
+/* animacje AEGIS-a na koniec misji */
+.anim-dance { animation: tch-dance 1s ease-in-out infinite; }
+.anim-jump { animation: tch-jump .9s ease-in-out 3; }
+.anim-spin { animation: tch-spin 1.6s ease-in-out 2; }
+.anim-shake { animation: tch-shake .5s ease-in-out 4; }
+.anim-wobble { animation: tch-wobble 1.4s ease-in-out infinite; }
+.anim-sleep { animation: tch-sleep 3.5s ease-in-out infinite; filter: grayscale(.4) brightness(.8); }
+@keyframes tch-dance { 25% { transform: rotate(-8deg) translateY(-6px); } 75% { transform: rotate(8deg) translateY(-6px); } }
+@keyframes tch-jump { 40% { transform: translateY(-60px) scale(1.03, .97); } 60% { transform: translateY(-60px); } 80% { transform: translateY(0) scale(1.06, .92); } }
+@keyframes tch-spin { 50% { transform: rotateY(180deg); } 100% { transform: rotateY(360deg); } }
+@keyframes tch-shake { 20%, 60% { transform: translateX(-10px); } 40%, 80% { transform: translateX(10px); } }
+@keyframes tch-wobble { 25% { transform: skewX(-6deg); } 75% { transform: skewX(6deg); } }
+@keyframes tch-sleep { 50% { transform: translateY(8px) rotate(-3deg); } }
+@keyframes tch-pulse { 50% { box-shadow: 0 0 0 10px rgba(95,224,138,.1); } }
+@keyframes tch-pop { from { transform: scale(.6); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .tch [class*="anim-"], .tch-bye [class*="anim-"], .anim-sleep { animation: none; } }

@@ -371,7 +371,8 @@ function rewardScreen(m, res) {
   </section>`));
   setTimeout(() => aegisSay(cheer[0]), 600);
   // nagroda do druku 3D: kolejna z listy R1…R16 po każdej ukończonej misji (stary format: klucz = id misji)
-  if (!m.special) druk3d().then(all => {
+  // Misja dnia (Nauczyciel) daje nagrodę co kilka dni: wtedy res.rewardEarned === false oznacza „jeszcze nie dziś”
+  if (!m.special && res.rewardEarned !== false) druk3d().then(all => {
     if (!all) return;
     const keys = Object.keys(all).filter(k => /^R\d+$/.test(k)).sort((a, b) => +a.slice(1) - +b.slice(1));
     let key = m.id;

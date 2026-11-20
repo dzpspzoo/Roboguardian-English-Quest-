@@ -54,6 +54,7 @@ order=list(parts.keys())
 acc=np.zeros_like(robot)
 for k,name in enumerate(order,1):
     acc=acc|parts[name]; save(base,acc,'stan_%02d'%k)
+save(base,parts['02_glowa'],'stan_01_glowa')
 # stan_00: hologram outline
 edge=robot&~ndi.binary_erosion(robot,iterations=4)
 holo=np.zeros_like(base); holo[...]=[60,230,220]

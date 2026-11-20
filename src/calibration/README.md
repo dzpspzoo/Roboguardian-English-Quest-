@@ -1,7 +1,7 @@
 # Test startowy (kalibracja)
 
 Około 10 minut, jedna przerwa. Fabularnie AEGIS-7 „skanuje komunikator” gracza, żeby wiedzieć, jak mu pomagać.
-Lektor mówi polecenie po angielsku, a potem to samo czyta polski lektor (dziecko może słabo czytać także po polsku); na ekranie jest też polski napis w dymku AEGIS-7. Test nie pokazuje „dobrze/źle”, nie ma limitu czasu,
+AEGIS-7 mówi tylko po angielsku, a polski jest napisem w dymku (dziecko ćwiczy czytanie). Polski lektor włącza się dopiero jako podpowiedź, gdy dziecko pomyli się 2 razy z rzędu albo nie odpowiada przez 12 s (liczba w `attention.plHelpCount`). Test nie pokazuje „dobrze/źle”, nie ma limitu czasu,
 a przy każdym pytaniu są przyciski 🔊 „Jeszcze raz” i 🐢 „Wolniej”.
 
 Podgląd poza grą: `python -m http.server` w katalogu repo, potem
@@ -50,7 +50,7 @@ Najważniejsze pola wyniku (pełny przykład: `tests/scoring.test.mjs`):
 - `profile.flags.{hearing,soundLetter,slowReading,fatigue,speech,dyslexiaRisk}`: `{ measured, parent }`, osobno pomiar testu i zgłoszenie rodzica.
 - `attention.readingAvgRtMs`: tempo czytania bez dźwięku.
 - `plan`: 3 pierwsze dźwięki do nauki, długość misji (5 lub 7 min), wsparcia (wolny głos, polskie podpowiedzi,
-  kafelki zamiast pisania, tryb mówienia, `plAudio` czyli polecenia polskim lektorem, `bigText`, `shortSteps`) i `interests`. To wstępna propozycja; asystent AI może ją zmienić.
+  kafelki zamiast pisania, tryb mówienia, `plVoiceHelp: 'onFail'` czyli polski lektor tylko jako podpowiedź po porażce, `bigText`, `shortSteps`) i `interests`. To wstępna propozycja; asystent AI może ją zmienić.
 
 ## Nagrania
 

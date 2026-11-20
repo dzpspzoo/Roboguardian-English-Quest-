@@ -72,7 +72,8 @@ t('informacje od rodzica zmieniają wsparcie', () => {
   assert.equal(r.attention.readingAvgRtMs, 9000);
   assert.equal(r.profile.flags.slowReading.measured, true);
   assert.equal(r.profile.flags.fatigue.parent, true);
-  assert.equal(r.plan.supports.plAudio, true);
+  assert.equal(r.plan.supports.plVoiceHelp, 'onFail');
+  assert.equal(r.plan.supports.bigText, true);
   assert.equal(r.plan.missionMinutes, 5);
   assert.deepEqual(r.plan.interests, ['animals', 'lego']);
 });

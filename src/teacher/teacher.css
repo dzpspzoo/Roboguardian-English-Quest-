@@ -71,3 +71,8 @@
 @keyframes tch-pulse { 50% { box-shadow: 0 0 0 10px rgba(95,224,138,.1); } }
 @keyframes tch-pop { from { transform: scale(.6); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .tch [class*="anim-"], .tch-bye [class*="anim-"], .anim-sleep { animation: none; } }
+.tch-ai { margin: 10px 0; padding: 10px 12px; border-radius: 12px; background: rgba(255,255,255,.05); }
+.tch-ai summary { cursor: pointer; }
+.tch-ai input[type=url], .tch-ai input[type=password] { max-width: 100%; }
+.tch-aiplan { border-left: 4px solid var(--rg-accent, #3fd0ff); padding-left: 10px; }
+.tch-body .row input[type=text] { font: inherit; font-size: 20px; padding: 8px 12px; border-radius: 10px; min-width: 0; flex: 1 1 200px; }

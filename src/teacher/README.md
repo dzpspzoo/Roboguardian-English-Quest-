@@ -11,6 +11,7 @@ AEGIS-a i „See you tomorrow, Guardian!”. Plan i badania: dokument projektu �
 | `curriculum.js` | treść: zwroty, pary dźwięków, rozdział 1 (14 dni: 10 dni nauki, 2 powtórki, 2 dni rozmowy), zarys rozdziałów 2–6 |
 | `lesson.js` | lekcja w 8 krokach: przypomnienie, zadanie AEGIS-a, pokaz (kilka głosów), para dźwięków, powiedz i nagraj, scenka, napisz, koniec |
 | `voice.js` | głosy: biblioteka słówek gry, nagrania `assets/audio/teacher/v1..v3/`, a bez nagrań syntezator z różnymi głosami; polski lektor |
+| `ai.js` | AEGIS AI przez serwer `server/worker.js`: rozmowa w Misji dnia, analiza testu startowego → `profile.teacher.aiPlan` (nowe zwroty dziennie, długość misji, dźwięki), podgląd rozmów. Adres serwera i hasło gry w `localStorage` `rg.teacher.ai`; klucz API tylko na serwerze. Instrukcja: `server/README.md` |
 | `jokes.js` | 20 żartów startowych; gra najpierw czyta `src/story/jokes.json` z wątku historii |
 | `tests/` | `node --test src/teacher/tests/*.mjs` |
 
@@ -21,11 +22,12 @@ AEGIS-a i „See you tomorrow, Guardian!”. Plan i badania: dokument projektu �
 - Po 2 błędach podświetlenie dobrej odpowiedzi; bez kar i presji czasu. 3 szybkie błędy albo 12 min = misja skraca się do scenki i pisania.
 - Po przerwie > 3 dni najpierw powtórka bez nowego materiału.
 - Całe prowadzenie po angielsku (AEGIS), polskie napisy do czytania. Polski lektor tylko jako podpowiedź po błędzie; dziecko nie ma przycisku, żeby go włączyć (rodzic może go wyłączyć w panelu).
+- Plan od AI (gdy jest): dawka nowych zwrotów 1–3 (zaległe przechodzą na kolejne dni), długość misji 8–14 min, dźwięki w powtórkach.
 - Nagroda: część AEGIS-a co 5 Misji dnia (`PART_EVERY`), w kolejności `PART_ORDER` (od głowy).
 
 ## Stan w profilu
 
-Tylko `profile.teacher`: `{ day, items: { id: { box, stage, due, introduced, ok, wrong } }, lastDoneAt, maxSeen, unlockedAfter, unlocks[], rhythm, pinHash, plVoice, energy, history[], jokesSeen[] }`.
+Tylko `profile.teacher`: `{ day, items: { id: { box, stage, due, introduced, ok, wrong } }, lastDoneAt, maxSeen, unlockedAfter, unlocks[], rhythm, pinHash, plVoice, energy, history[], jokesSeen[], ai, aiMic, aiPlan, aiTried, aiLog[] }`.
 Blokada liczy się też od `profile.progress.missions[id].last` (misje rozdziału zapisane przez rdzeń); misje `sp-*` jej nie dotyczą.
 
 ## Nagrania

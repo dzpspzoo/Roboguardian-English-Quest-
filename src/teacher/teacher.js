@@ -6,10 +6,11 @@
 //   farewell(root, { profile, missionId, aegisSay, save, onDone })  -> żart + „See you tomorrow, Guardian!”
 //   renderParentControls(box, profile, save)      -> PIN, rytm, odblokowanie, postęp kursu
 // Stan dziecka tylko w profile.teacher.
-import { COURSE, CHAPTERS, OUTLINE, ITEMS } from './curriculum.js';
+import { COURSE, CHAPTERS, OUTLINE, ITEMS, CONTRASTS } from './curriculum.js';
 import { PART_EVERY, teacherState, planToday, gate, opensAt, parentUnlock, markDone, fmtLeft, setPin, checkPin, lastDone } from './schedule.js';
 import { mountLesson } from './lesson.js';
 import { JOKES, pickJoke } from './jokes.js';
+import { aiConfig, setAiConfig, aiConfigured, aiStatus, aiAnalyze, autoAnalyze, aiErrorPl } from './ai.js';
 
 export { gate } from './schedule.js';
 
@@ -28,12 +29,20 @@ function when(t) {
   return `${day} o ${hm(t)}`;
 }
 const TYPE_PL = { learn: 'nowe zwroty', review: 'powtórka', talk: 'dzień rozmowy' };
+const TYPE_EN = { learn: 'new words', review: 'memory check', talk: 'talk day' };
+// Karta w hangarze widzi dziecko: po angielsku, polski tylko jako mały napis do czytania.
+function whenEn(t) {
+  const d = new Date(t), now = new Date();
+  const tomorrow = new Date(now); tomorrow.setDate(now.getDate() + 1);
+  const day = d.toDateString() === now.toDateString() ? 'today' : d.toDateString() === tomorrow.toDateString() ? 'tomorrow' : d.toLocaleDateString('en-GB', { weekday: 'long' });
+  return `${day} at ${hm(t)}`;
+}
 
 export function todayMission(profile) {
   const plan = planToday(profile, COURSE);
   const meta = {
     id: `teacher-d${plan.number}${plan.type === 'review' && plan.comeback ? 'r' : ''}`,
-    title: `Misja dnia ${plan.number}`, titleEn: plan.day.goal ? plan.day.goal.en : 'Mission of the day',
+    title: `Mission ${plan.number}`, titleEn: plan.day.goal ? plan.day.goal.en : 'Mission of the day',
     chapter: 1, minutes: 14, teacher: true,
   };
   return { ...meta, plan, mod: { meta, mount: (root, ctx) => mountLesson(root, ctx, plan) } };
@@ -46,21 +55,23 @@ export function renderTodayCard(box, profile, { start, locked } = {}) {
   const t = teacherState(profile);
   const d = plan.day;
   const energy = (t.energy || 0) % PART_EVERY;
-  const head = `<span class="tag">Rozdział 1: ${esc(d.chapterTitle)} · dzień ${d.dayInChapter} z ${d.daysInChapter}</span>`;
-  const energyBar = `<span class="tch-energy" title="Co ${PART_EVERY} misji AEGIS dostaje nową część">${Array.from({ length: PART_EVERY }, (_, i) => i).map(i => `<i class="${i < energy ? 'on' : ''}"></i>`).join('')}<small>do następnej części</small></span>`;
+  const head = `<span class="tag">Chapter 1: ${esc(d.chapterTitle)} · day ${d.dayInChapter} of ${d.daysInChapter}</span>`;
+  const energyBar = `<span class="tch-energy" title="Co ${PART_EVERY} misji AEGIS dostaje nową część">${Array.from({ length: PART_EVERY }, (_, i) => i).map(i => `<i class="${i < energy ? 'on' : ''}"></i>`).join('')}<small>next robot part</small></span>`;
   if (g.open) {
     box.innerHTML = `<div class="panel tch-today">
-      <div class="tch-today-main">${head}<h2>Misja dnia ${plan.number}</h2>
-      <p>${esc(d.goal ? d.goal.pl : 'Nauka z AEGIS-em')}</p>
-      <p class="muted">ok. 14 min · ${TYPE_PL[plan.type] || ''}${plan.comeback ? ' po przerwie' : ''}${plan.finished ? ' (kurs rozdziału 1 ukończony)' : ''}</p>${energyBar}</div>
-      <button class="btn primary big" data-tch-start>▶ Zaczynamy</button></div>`;
+      <div class="tch-today-main">${head}<h2>Mission ${plan.number}</h2>
+      <p class="tch-en">${esc(d.goal ? d.goal.en : 'Learn with AEGIS!')}</p>
+      ${d.goal ? `<p class="tch-pl">${esc(d.goal.pl)}</p>` : ''}
+      <p class="muted">about 14 min · ${TYPE_EN[plan.type] || ''}${plan.comeback ? ' · welcome back' : ''}${plan.finished ? ' · chapter 1 done' : ''}</p>${energyBar}</div>
+      <button class="btn primary big" data-tch-start>▶ Start</button></div>`;
     box.querySelector('[data-tch-start]').onclick = () => start && start(todayMission(profile));
   } else {
     box.innerHTML = `<div class="panel tch-today locked">
-      <div class="tch-today-main">${head}<h2>AEGIS się ładuje 🔋</h2>
-      <p>Następna misja: <b>${esc(when(g.opensAt))}</b> (za ${esc(fmtLeft(g.msLeft))}).</p>
-      <p class="muted">Widzimy się jutro, Strażniku! Mózg uczy się także we śnie.</p>${energyBar}</div>
-      <button class="btn" data-tch-lock>🔒 Rodzic: otwórz wcześniej</button></div>`;
+      <div class="tch-today-main">${head}<h2>AEGIS is charging 🔋</h2>
+      <p class="tch-en">Next mission: <b>${esc(whenEn(g.opensAt))}</b> (in ${esc(fmtLeft(g.msLeft))}).</p>
+      <p class="tch-en">See you tomorrow, Guardian!</p>
+      <p class="tch-pl">Widzimy się jutro, Strażniku!</p>${energyBar}</div>
+      <button class="btn" data-tch-lock>🔒 Parent</button></div>`;
     box.querySelector('[data-tch-lock]').onclick = () => locked && locked();
   }
 }
@@ -115,6 +126,7 @@ export async function farewell(root, { profile, missionId, aegisSay, save, onDon
   const t = teacherState(profile);
   const special = /^sp-/.test(missionId || '');
   if (!special && !String(missionId || '').startsWith('teacher-')) markDone(profile, { mission: missionId });
+  autoAnalyze(profile, save).catch(() => {}); // po teście startowym: plan od AI w tle (bez czekania)
   const { jokes, bye } = await loadJokes();
   const j = pickJoke(jokes, t.jokesSeen || []);
   t.jokesSeen = [...(t.jokesSeen || []), j.id].slice(-Math.max(5, jokes.length - 5));
@@ -182,6 +194,7 @@ export function renderParentControls(box, profile, save) {
       <button class="btn small" data-pinsave>Zapisz PIN</button>
       ${t.pinHash ? '<button class="btn small" data-pindel>Usuń PIN</button>' : ''}
     </div>
+    ${aiSection(profile)}
     <p class="muted">Dalsze rozdziały: ${OUTLINE.map(o => `${esc(o.title)} (tyg. ${esc(o.weeks)})`).join(', ')}.</p>
     <p class="muted">Dziś: ${esc(TYPE_PL[plan.type] || '')}, misja dnia ${plan.number}.</p>
   </div>`;
@@ -195,4 +208,60 @@ export function renderParentControls(box, profile, save) {
     setPin(profile, v); save && save(profile); re();
   };
   const del = box.querySelector('[data-pindel]'); if (del) del.onclick = () => { setPin(profile, null); save && save(profile); re(); };
+  bindAi(box, profile, save, re);
+}
+
+/* ---------- AEGIS AI w panelu rodzica ---------- */
+const sel = 'font:inherit;font-size:18px;padding:6px 10px;border-radius:10px';
+function aiSection(profile) {
+  const t = teacherState(profile);
+  const c = aiConfig();
+  const p = t.aiPlan;
+  const log = (t.aiLog || []).slice(-5).reverse();
+  return `<details class="tch-ai" ${aiConfigured() ? '' : 'open'}>
+    <summary><b>AEGIS AI: rozmowa i plan nauki</b> ${aiConfigured() ? (t.ai === 'off' ? '(wyłączone)' : '(włączone)') : '(nieskonfigurowane)'}</summary>
+    <p class="muted">Adres serwera i hasło gry z instrukcji <code>server/README.md</code>. Klucz API zostaje na serwerze, tu go nie wpisuj.</p>
+    <div class="row">
+      <label class="row">Adres serwera: <input type="url" data-aiurl value="${esc(c.url || '')}" placeholder="https://aegis-teacher.….workers.dev" style="width:320px;${sel}"></label>
+      <label class="row">Hasło gry: <input type="password" data-aitoken value="${esc(c.token || '')}" autocomplete="off" style="width:180px;${sel}"></label>
+      <button class="btn small" data-aisave>Zapisz i sprawdź</button>
+    </div>
+    <p data-aistatus class="muted"></p>
+    ${aiConfigured() ? `<div class="row">
+      <label class="row">Rozmowa z AI w Misji dnia:
+        <select data-aion style="${sel}"><option value="on" ${t.ai !== 'off' ? 'selected' : ''}>włączona</option><option value="off" ${t.ai === 'off' ? 'selected' : ''}>wyłączona</option></select></label>
+      <label class="row">Odpowiedź głosem (mikrofon):
+        <select data-aimic style="${sel}"><option value="off" ${t.aiMic !== 'on' ? 'selected' : ''}>wyłączona</option><option value="on" ${t.aiMic === 'on' ? 'selected' : ''}>włączona</option></select></label>
+    </div>
+    <p class="muted">Mikrofon używa rozpoznawania mowy przeglądarki (w Chrome nagranie przetwarza Google). Bez mikrofonu dziecko klika podpowiedź albo pisze.</p>
+    <div class="row"><button class="btn small" data-aianalyze>${p ? 'Przeanalizuj ponownie' : 'Przeanalizuj test startowy i postępy'}</button>
+      ${profile.calibration ? '' : '<span class="muted">Najpierw test startowy (bez niego AI oceni tylko misje).</span>'}</div>
+    <p data-aimsg class="muted"></p>
+    ${p ? `<div class="tch-aiplan"><p><b>Plan od AI</b> (${esc(new Date(p.at).toLocaleString('pl-PL'))}): ${esc(p.notes || '')}</p>
+      <p class="muted">Nowe zwroty dziennie: <b>${p.newPerDay}</b> · długość misji: <b>${esc(String(p.minutes || 12))} min</b> · ćwiczone dźwięki: <b>${esc((p.focus || []).map(k => CONTRASTS[k] ? `${CONTRASTS[k].a.en}/${CONTRASTS[k].b.en}` : k).join(', ') || 'jak w kursie')}</b>${p.slowVoice ? ' · AI radzi włączyć wolny głos w ustawieniach' : ''}</p>
+      ${(p.tips || []).length ? `<ul>${p.tips.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}</div>` : ''}
+    ${log.length ? `<details><summary>Ostatnie rozmowy z AEGIS-em (${log.length})</summary>${log.map(l => `<p class="muted">${esc(new Date(l.at).toLocaleString('pl-PL'))}, misja ${esc(String(l.day))}</p><ul>${(l.turns || []).map(x => `<li>${x.who === 'child' ? '<b>Dziecko:</b>' : 'AEGIS:'} ${esc(x.text)}</li>`).join('')}</ul>`).join('')}</details>` : ''}` : ''}
+  </details>`;
+}
+function bindAi(box, profile, save, re) {
+  const t = teacherState(profile);
+  const st = box.querySelector('[data-aistatus]');
+  const showStatus = () => aiStatus().then(r => {
+    if (!st.isConnected) return;
+    st.textContent = r.error ? `⚠️ ${aiErrorPl(r.error)}` : `✅ Połączono. Wydano ${r.spentUsd.toFixed(2)} z ${r.budgetUsd} USD (dziś ${r.todayUsd.toFixed(2)} z ${r.dailyUsd} USD).`;
+  });
+  if (aiConfigured()) showStatus();
+  box.querySelector('[data-aisave]').onclick = () => {
+    setAiConfig({ url: box.querySelector('[data-aiurl]').value, token: box.querySelector('[data-aitoken]').value });
+    re();
+  };
+  const on = box.querySelector('[data-aion]'); if (on) on.onchange = e => { t.ai = e.target.value; save && save(profile); re(); };
+  const mic = box.querySelector('[data-aimic]'); if (mic) mic.onchange = e => { t.aiMic = e.target.value; save && save(profile); };
+  const an = box.querySelector('[data-aianalyze]');
+  if (an) an.onclick = async () => {
+    an.disabled = true; const msg = box.querySelector('[data-aimsg]'); msg.textContent = 'AI analizuje (do minuty)…';
+    const r = await aiAnalyze(profile);
+    if (r.error) { an.disabled = false; msg.textContent = `⚠️ ${aiErrorPl(r.error)}`; return; }
+    save && save(profile); re();
+  };
 }

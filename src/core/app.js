@@ -370,7 +370,19 @@ function rewardScreen(m, res) {
     </div>
   </section>`));
   setTimeout(() => aegisSay(cheer[0]), 600);
-  fillPrintBox(el.querySelector('[data-print]'), m.id);
+  // nagroda do druku 3D: kolejna z listy R1…R16 po każdej ukończonej misji (stary format: klucz = id misji)
+  if (!m.special) druk3d().then(all => {
+    if (!all) return;
+    const keys = Object.keys(all).filter(k => /^R\d+$/.test(k)).sort((a, b) => +a.slice(1) - +b.slice(1));
+    let key = m.id;
+    if (keys.length) {
+      const q = store.getProfile(); q.progress.prints = q.progress.prints || [];
+      key = keys.find(k => !q.progress.prints.includes(k));
+      if (!key) return;
+      q.progress.prints.push(key); store.saveProfile(q);
+    }
+    fillPrintBox(el.querySelector('[data-print]'), key);
+  });
   on(el, '[data-a=again]', () => aegisSay(cheer[0]));
   // Filmy fabularne po misjach (raz): „Tymczasem…” po 3. misji rozdziału 1, „W połowie drogi” po 6., finał po ostatniej.
   const done1 = Object.keys(p.progress.missions).filter(k => k.startsWith('ch1-')).length;
@@ -476,8 +488,9 @@ function parentScreen() {
   el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
   druk3d().then(all => el.querySelectorAll('[data-print3d]').forEach(box => {
     const p = ps.find(x => x.id === box.dataset.print3d); if (!p || !all) return;
-    const got = Object.keys(all).filter(id => p.progress.missions[id]);
-    box.innerHTML = got.length ? `<p>Części do druku 3D (zdobyte w misjach):</p><div class="print-list">${got.map((id, i) => printLink(all[id], `Misja ${id.replace('ch1-m', '')}`)).join('')}</div>`
+    const rk = (p.progress.prints || []).filter(k => all[k]);
+    const got = rk.length ? rk : Object.keys(all).filter(id => p.progress.missions[id]);
+    box.innerHTML = got.length ? `<p>Części do druku 3D (zdobyte w misjach):</p><div class="print-list">${got.map(id => printLink(all[id], all[id].name || (id.startsWith('R') ? `Nagroda ${id.slice(1)}` : `Misja ${id.replace('ch1-m', '')}`))).join('')}</div>`
       : '<p class="muted">Po każdej misji rozdziału 1 pojawi się tu plik części robota do druku 3D.</p>';
   }));
   if (Teacher) el.querySelectorAll('[data-teacher]').forEach(box => {

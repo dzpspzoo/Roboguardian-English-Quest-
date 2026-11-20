@@ -10,6 +10,18 @@ import { Mic, saveClip, sleep } from './recorder.js';
 export { describeForParent };
 
 const LEVEL_NUM = { A: 1, B: 2, C: 3 };
+// Informacje od rodzica, które test łączy z własnym pomiarem (wynik: context.parent, profile.flags).
+const PARENT_FLAGS = [
+  ['readingPl', 'Wolno czyta po polsku, sylabizuje'],
+  ['hearing', 'Myli lub słabo słyszy niektóre dźwięki'],
+  ['adhd', 'ADHD lub szybko się męczy i zniechęca'],
+  ['speechHistory', 'Afazja lub terapia logopedyczna (teraz lub dawniej)'],
+  ['dyslexia', 'Dysleksja lub ryzyko dysleksji']
+];
+const INTERESTS = [
+  ['animals', '🦁 Zwierzęta'], ['lego', '🧱 LEGO, budowanie'], ['robots', '🤖 Roboty'], ['space', '🚀 Kosmos'],
+  ['dinosaurs', '🦖 Dinozaury'], ['sport', '⚽ Sport'], ['games', '🎮 Gry'], ['music', '🎵 Muzyka'], ['drawing', '🎨 Rysowanie'], ['cars', '🚗 Auta, maszyny']
+];
 class Aborted extends Error {}
 
 function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -42,7 +54,7 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
   const items = [];
   const context = {
     age: null, schoolYears: null, hasTablet: !!(profile.settings && profile.settings.tablet),
-    micOk: false, audioOk: null,
+    micOk: false, audioOk: null, parent: null, interests: [],
     device: { touch: 'ontouchstart' in window || navigator.maxTouchPoints > 0, w: window.innerWidth, h: window.innerHeight }
   };
   const startedAt = new Date().toISOString();
@@ -80,7 +92,13 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
     wrap.classList.remove('rgc-talking');
     check();
   }
-  async function line(l, opts) { sub.textContent = l.pl; await speak(l.en, opts); }
+  // Polecenia: najpierw angielski głos, potem ten sam tekst polskim lektorem
+  // (dziecko może słabo czytać także po polsku, więc napis nie wystarcza).
+  async function line(l, opts = {}) {
+    sub.textContent = l.pl;
+    await speak(l.en, opts);
+    if (l.pl && opts.pl !== false) { await sleep(250); await speak(l.pl, { lang: 'pl' }); }
+  }
 
   // postęp: każda część ma równy udział
   const parts = content.sections.filter(s => s.key !== 'break').map(s => s.key);
@@ -243,13 +261,22 @@ export function startCalibration({ root, profile = {}, audioBase = '', record = 
          Dziecko powinno mieć słuchawki lub głośniki. Prosimy nie podpowiadać.</p>
       <label>Wiek dziecka <select name="age"><option value="">—</option>${[6,7,8,9,10,11,12,13,14].map(a => `<option>${a}</option>`).join('')}</select></label>
       <label>Ile lat uczy się angielskiego w szkole <select name="years"><option value="">—</option>${[0,1,2,3,4,5,6,7].map(a => `<option>${a}</option>`).join('')}</select></label>
-      <label class="rgc-check"><input type="checkbox" name="tablet" ${context.hasTablet ? 'checked' : ''}> Mamy tablet graficzny lub ekran dotykowy</label>`;
+      <label class="rgc-check"><input type="checkbox" name="tablet" ${context.hasTablet ? 'checked' : ''}> Mamy tablet graficzny lub ekran dotykowy</label>
+      <fieldset><legend>Co już wiadomo o trudnościach? (zaznacz, co pasuje)</legend>
+        ${PARENT_FLAGS.map(([k, t]) => `<label class="rgc-check"><input type="checkbox" name="f_${k}"> ${t}</label>`).join('')}
+      </fieldset>
+      <fieldset><legend>Co dziecko lubi? Gra użyje tego w misjach</legend>
+        <div class="rgc-chips">${INTERESTS.map(([k, t]) => `<label class="rgc-chip"><input type="checkbox" name="i_${k}"><span>${t}</span></label>`).join('')}</div>
+      </fieldset>`;
     stage.appendChild(f);
     await waitButton('Zaczynamy ▶');
     check();
     const age = f.querySelector('[name=age]').value, years = f.querySelector('[name=years]').value;
     context.age = age ? +age : null; context.schoolYears = years ? +years : null;
     context.hasTablet = f.querySelector('[name=tablet]').checked;
+    context.parent = {};
+    PARENT_FLAGS.forEach(([k]) => { context.parent[k] = f.querySelector(`[name=f_${k}]`).checked; });
+    context.interests = INTERESTS.map(([k]) => k).filter(k => f.querySelector(`[name=i_${k}]`).checked);
 
     aegisScreen();
     await line(content.lines.intro);

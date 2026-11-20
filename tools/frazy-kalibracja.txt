@@ -33,15 +33,15 @@ en|trousers
 en|socks
 en|rainy
 en|snowy
-en|windy
+en|rabbit
 en|cloudy
 en|clock
 en|rocket
 en|umbrella
-en|bridge
-en|ladder
+en|penguin
+en|giraffe
 en|key
-en|scissors
+en|octopus
 en|island
 en|castle
 en|volcano
@@ -90,3 +90,23 @@ en|Anna likes music. She plays the guitar. What does Anna play?
 en|Tom's birthday is in winter. He wants a new bike. What does Tom want?
 en|hello
 en|thank you
+pl|Cześć, Strażniku! Jestem AEGIS-7. Moje systemy są uszkodzone. Przeskanujmy Twój komunikator, żebym mógł Cię rozumieć.
+pl|Słyszysz mnie, Strażniku?
+pl|Teraz powiedz: Hello!
+pl|Słyszę Cię!
+pl|Nic nie szkodzi. Porozmawiamy później.
+pl|Mam!
+pl|Dane zapisane.
+pl|Następny sygnał.
+pl|Dobrze. Lecimy dalej!
+pl|Moja bateria się kończy. Zróbmy krótką przerwę. Wstań i przeciągnij się!
+pl|Bateria naładowana. Działamy dalej!
+pl|Skan zakończony! Dziękuję, Strażniku. Teraz wiem, jak Ci pomóc.
+pl|Posłuchaj i dotknij obrazka.
+pl|Słuchaj uważnie. Usłyszysz dwa słowa. Potem dotknij tego, które powiem.
+pl|Czy te dwa słowa są takie same, czy różne?
+pl|Posłuchaj i wybierz, jak to się pisze.
+pl|Przeczytaj i dotknij obrazka. Tu nic nie usłyszysz.
+pl|Posłuchaj wiadomości i wybierz obrazek.
+pl|Posłuchaj i ułóż słowo z liter.
+pl|Teraz mów do mnie. Powtórz za mną.

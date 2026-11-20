@@ -157,6 +157,10 @@ export function buildResult({ profileId, startedAt, finishedAt, context = {}, it
     fatigueFlag
   };
 
+  // Tempo czytania (część 4, bez dźwięku).
+  const readRts = (bySection.reading || []).map(i => i.rtMs).filter(x => typeof x === 'number');
+  attention.readingAvgRtMs = readRts.length ? Math.round(mean(readRts)) : null;
+
   // Profil: mocne i słabe strony.
   const skillOf = { words: 'listening_vocab', contrasts: 'discrimination', phonics: 'sound_letter', reading: 'reading', listening: 'listening_comprehension', spelling: 'spelling' };
   const strengths = [], weaknesses = [];
@@ -173,14 +177,32 @@ export function buildResult({ profileId, startedAt, finishedAt, context = {}, it
   for (const c of CONTRAST_PRIORITY) { if (startSounds.length >= 3) break; if (!startSounds.includes(c)) startSounds.push(c); }
 
   const overall = overallLevel(sections);
+
+  // Flagi trudności: co zmierzył test (measured) i co zaznaczył rodzic (parent). null = brak danych.
+  const parent = context.parent || {};
+  const pf = k => (k in parent ? !!parent[k] : null);
+  const sc = k => (sections[k] && sections[k].n ? sections[k].score : null);
+  const flags = {
+    hearing: { measured: sc('contrasts') === null ? null : sc('contrasts') < 0.75, parent: pf('hearing') },
+    soundLetter: { measured: sc('phonics') === null ? null : (sc('phonics') < 0.6 || (errorCounts.polish_phonetic || 0) >= 2), parent: null },
+    slowReading: { measured: sc('reading') === null ? null : (attention.readingAvgRtMs > 6000 || !sections.reading.level), parent: pf('readingPl') },
+    fatigue: { measured: rts.length >= 9 ? fatigueFlag : null, parent: pf('adhd') },
+    speech: { measured: sections.speaking && sections.speaking.n ? sections.speaking.respondedRate < 0.6 : null, parent: pf('speechHistory') },
+    dyslexiaRisk: { measured: null, parent: pf('dyslexia') }
+  };
+  const on = f => f.measured === true || f.parent === true;
   const spellingOk = sections.spelling && sections.spelling.score >= 0.8;
   const plan = {
     startSounds,
-    missionMinutes: fatigueFlag ? 5 : 7,
+    missionMinutes: on(flags.fatigue) ? 5 : 7,
+    interests: context.interests || [],
     supports: {
       slowAudioDefault: attention.slowUsageRate > 0.3 || !sections.words || !sections.words.level || overall === 'preA1',
       pictures: true,
       plHint: overall === 'preA1' || overall === 'A1-',
+      plAudio: on(flags.slowReading) || on(flags.dyslexiaRisk), // polecenia czytane polskim lektorem, nie tylko napis
+      bigText: on(flags.slowReading) || on(flags.dyslexiaRisk),
+      shortSteps: on(flags.fatigue),
       letterTiles: !spellingOk,
       speakingMode: context.micOk ? 'practice' : 'off'
     },
@@ -198,7 +220,7 @@ export function buildResult({ profileId, startedAt, finishedAt, context = {}, it
     contrasts,
     errors: errorCounts,
     attention,
-    profile: { overall, strengths, weaknesses, weakContrasts },
+    profile: { overall, strengths, weaknesses, weakContrasts, flags },
     plan
   };
 }
@@ -223,6 +245,10 @@ export function describeForParent(r) {
   lines.push('Pierwsze dźwięki do nauki: ' + r.plan.startSounds.map(c => CONTRAST_PL[c]).join('; ') + '.');
   if (r.attention.fatigueFlag) lines.push('Pod koniec widać zmęczenie, więc misje będą krótsze (5 minut).');
   if (r.attention.slowUsageRate > 0.3) lines.push('Często używał wolnego tempa, więc gra domyślnie mówi wolniej.');
+  const f = (r.profile && r.profile.flags) || {};
+  if (f.hearing && f.hearing.measured) lines.push('Test potwierdza kłopot z rozróżnianiem podobnych angielskich dźwięków. Gra zacznie od ćwiczeń ucha.');
+  if (f.slowReading && f.slowReading.measured) lines.push('Czytanie idzie wolno, więc polecenia będą czytane na głos (po angielsku i po polsku).');
+  if (r.plan.interests && r.plan.interests.length) lines.push('Zainteresowania do wykorzystania w misjach: ' + r.plan.interests.join(', ') + '.');
   if (!r.context.micOk) lines.push('Mikrofon nie działał albo nie dostał zgody, więc mówienie pominięto.');
   return lines.join('\n');
 }

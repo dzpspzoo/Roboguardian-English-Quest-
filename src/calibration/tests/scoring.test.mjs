@@ -50,6 +50,9 @@ t('wynik dla słabego ucha i polskiej fonetyki', () => {
   assert.equal(r.plan.supports.speakingMode, 'practice');
   assert.equal(r.errors.polish_phonetic, 2);
   assert.ok(['preA1', 'A1-'].includes(r.profile.overall));
+  assert.equal(r.profile.flags.hearing.measured, true);
+  assert.equal(r.profile.flags.soundLetter.measured, true);
+  assert.equal(r.profile.flags.slowReading.parent, null);
   const txt = describeForParent(r);
   assert.match(txt, /ship i sheep/);
 });
@@ -60,6 +63,18 @@ t('zmęczenie wykryte, gdy odpowiedzi mocno zwalniają', () => {
   assert.equal(r.attention.fatigueFlag, true);
   assert.equal(r.plan.missionMinutes, 5);
   assert.ok(r.attention.rtTrend > 0);
+});
+
+t('informacje od rodzica zmieniają wsparcie', () => {
+  const items = [...['A', 'A', 'A'].map(L => mk('reading', true, { level: L, rtMs: 9000 }))];
+  const r = buildResult({ startedAt: '2026-11-17T10:00:00Z', finishedAt: '2026-11-17T10:05:00Z', items, sectionModes: { reading: 'levels' },
+    context: { parent: { readingPl: true, adhd: true, hearing: false }, interests: ['animals', 'lego'] } });
+  assert.equal(r.attention.readingAvgRtMs, 9000);
+  assert.equal(r.profile.flags.slowReading.measured, true);
+  assert.equal(r.profile.flags.fatigue.parent, true);
+  assert.equal(r.plan.supports.plAudio, true);
+  assert.equal(r.plan.missionMinutes, 5);
+  assert.deepEqual(r.plan.interests, ['animals', 'lego']);
 });
 
 t('poziom ogólny', () => {

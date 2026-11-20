@@ -214,7 +214,7 @@ async function hangarScreen() {
   if (seq !== navSeq) return; // gracz zdążył przejść na inny ekran
   const specials = metas.filter(m => m.special); metas.splice(0, metas.length, ...metas.filter(m => !m.special));
   migratePartOrder(p);
-  if (p.settings?.mic !== false) RGSpeech.preload();
+  try { if (p.settings?.mic !== false) RGSpeech.preload(); } catch (e) {}
   const got = new Set(p.progress.parts.map(normPart));
   const fresh = lastNewPart; lastNewPart = null;
   const el = show(h(`

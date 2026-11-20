@@ -89,7 +89,10 @@ const RGSpeech = {
     } catch (e) { return { err: 'asr' }; }
   },
   // wczytanie modelu w tle, żeby pierwsze ćwiczenie z mową nie czekało
-  preload() { if (can && !loading) (window.requestIdleCallback || setTimeout)(() => load(), 1500); },
+  preload() {
+    if (!can || loading) return;
+    if (window.requestIdleCallback) window.requestIdleCallback(() => load(), { timeout: 5000 }); else setTimeout(() => load(), 1500);
+  },
 };
 
 if (typeof window !== 'undefined' && !window.RGSpeech) window.RGSpeech = RGSpeech;

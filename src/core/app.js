@@ -343,11 +343,11 @@ function rewardScreen(m, res) {
   <section class="screen">
     <div class="bg" style="background-image:url(assets/img/hangar.webp)"></div>
     <div class="wrap center">
-      <h2>Misja ukończona!</h2>
+      <h2 lang="en">Mission complete!</h2>
       <div class="stars" style="color:var(--rg-accent)">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
-      ${newParts.map(n => `<p class="tag" style="font-size:20px">Nowa część: ${esc(partName(n))}</p>`).join('')}
+      ${newParts.map(n => `<p class="tag" style="font-size:20px">New part: ${esc(partName(n))}</p>`).join('')}
       <img class="title-robot" src="assets/img/aegis.webp" alt="AEGIS-7">
-      <p class="subtitle">${esc(cheer[1])}</p>
+      <p class="subtitle" lang="en">${esc(cheer[0])}</p>
       ${summaryHtml ? `<div class="panel" style="max-width:700px">${summaryHtml}</div>` : ''}
       <div data-print></div>
       <div class="row" style="justify-content:center"><button class="btn" data-a="again">🔊</button><button class="btn primary big" data-a="next" autofocus>Do hangaru ▶</button></div>
@@ -357,7 +357,7 @@ function rewardScreen(m, res) {
   // nagroda do druku 3D: kolejna z listy R1…R16 po każdej ukończonej misji (stary format: klucz = id misji)
   if (!m.special) druk3d().then(all => {
     if (!all) return;
-    const keys = Object.keys(all).filter(k => /^R\d+$/.test(k)).sort((a, b) => +a.slice(1) - +b.slice(1));
+    const keys = Object.keys(all).filter(k => /^R\d+$/.test(k) && all[k] && all[k].ready !== false && all[k].zip).sort((a, b) => +a.slice(1) - +b.slice(1));
     let key = m.id;
     if (keys.length) {
       const q = store.getProfile(); q.progress.prints = q.progress.prints || [];
@@ -463,7 +463,7 @@ function parentScreen() {
   el.querySelectorAll('[data-panel]').forEach(box => { try { renderParentPanel(box, ps.find(p => p.id === box.dataset.panel)); } catch (e) { console.warn(e); } });
   druk3d().then(all => el.querySelectorAll('[data-print3d]').forEach(box => {
     const p = ps.find(x => x.id === box.dataset.print3d); if (!p || !all) return;
-    const rk = (p.progress.prints || []).filter(k => all[k]);
+    const rk = (p.progress.prints || []).filter(k => all[k] && all[k].zip);
     const got = rk.length ? rk : Object.keys(all).filter(id => p.progress.missions[id]);
     box.innerHTML = got.length ? `<p>Części do druku 3D (zdobyte w misjach):</p><div class="print-list">${got.map(id => printLink(all[id], all[id].name || (id.startsWith('R') ? `Nagroda ${id.slice(1)}` : `Misja ${id.replace('ch1-m', '')}`))).join('')}</div>`
       : '<p class="muted">Po każdej misji rozdziału 1 pojawi się tu plik części robota do druku 3D.</p>';

@@ -66,7 +66,6 @@ export function playStory(rootEl, data, opts = {}) {
     <div class="rgs-bar">
       <button data-a="repeat" title="Powtórz zdanie (R)">⟲ Powtórz</button>
       <button data-a="slow" aria-pressed="${slow}" title="Wolniej">🐢 Wolniej</button>
-      <button data-a="en" aria-pressed="${showEn}" title="Pokaż też angielski tekst">EN</button>
       <button data-a="next" class="main" title="Dalej (spacja)">Dalej ▶</button>
       <button data-a="skip" title="Pomiń historię (Esc)">Pomiń ⏭</button>
     </div>`;
@@ -143,7 +142,9 @@ export function playStory(rootEl, data, opts = {}) {
     subEl.classList.remove('on', 'aegis');
     const NAMES = { aegis: 'AEGIS-7', leo: 'Leo', mia: 'Mia', mom: 'Mama', dad: 'Tata', soldier: 'Żołnierz', worker: 'Robotnik' };
     const who = NAMES[line.speaker] ? `<span class="rgs-who">${NAMES[line.speaker]}</span>` : '';
-    subEl.innerHTML = who + esc(line.pl) + (showEn ? `<span class="rgs-en" lang="en">${esc(line.en)}</span>` : '');
+    // zasada gry: napisy po angielsku; polski dopiero jako podpowiedź po 2 powtórzeniach tego samego zdania
+    const hint = repKey === `${si}:${li}` && repCount >= 2;
+    subEl.innerHTML = who + `<span lang="en">${esc(line.en)}</span>` + (hint && line.pl ? `<span class="rgs-en" lang="pl">${esc(line.pl)}</span>` : '');
     if (line.speaker === 'aegis') subEl.classList.add('aegis');
     requestAnimationFrame(() => subEl.classList.add('on'));
   }
@@ -194,7 +195,12 @@ export function playStory(rootEl, data, opts = {}) {
     else finish(false);
   }
 
-  function repeat() { if (!finished && li >= 0) { audio.pause(); playLine(); } }
+  let repKey = '', repCount = 0;
+  function repeat() {
+    if (finished || li < 0) return;
+    const k = `${si}:${li}`; repCount = repKey === k ? repCount + 1 : 1; repKey = k;
+    audio.pause(); playLine();
+  }
 
   function askToStart() {
     if (el.querySelector('.rgs-start')) return;
@@ -258,7 +264,6 @@ function playFilm(rootEl, data, opts = {}) {
     <div class="rgs-bar">
       <button data-a="repeat" title="Powtórz zdanie (R)">⟲ Powtórz</button>
       <button data-a="slow" aria-pressed="${slow}" title="Wolniej">🐢 Wolniej</button>
-      <button data-a="en" aria-pressed="${showEn}" title="Pokaż też angielski tekst">EN</button>
       <button data-a="pause" class="main" title="Pauza (spacja)">⏸ Pauza</button>
       <button data-a="skip" title="Pomiń film (Esc)">Pomiń ⏭</button>
     </div>`;
@@ -273,7 +278,8 @@ function playFilm(rootEl, data, opts = {}) {
     subEl.classList.remove('on', 'aegis');
     if (i < 0) return;
     const l = subs[i], name = NAMES2[l.speaker];
-    subEl.innerHTML = (name ? `<span class="rgs-who">${esc(name)}</span>` : '') + esc(l.pl || '') + (showEn && l.en ? `<span class="rgs-en" lang="en">${esc(l.en)}</span>` : '');
+    const hint = repIdx === i && repCount >= 2;
+    subEl.innerHTML = (name ? `<span class="rgs-who">${esc(name)}</span>` : '') + `<span lang="en">${esc(l.en || '')}</span>` + (hint && l.pl ? `<span class="rgs-en" lang="pl">${esc(l.pl)}</span>` : '');
     if (l.speaker === 'aegis') subEl.classList.add('aegis');
     requestAnimationFrame(() => subEl.classList.add('on'));
   }
@@ -293,9 +299,11 @@ function playFilm(rootEl, data, opts = {}) {
     ov.querySelector('button').onclick = () => { ov.remove(); start(); };
     el.appendChild(ov);
   }
+  let repIdx = -1, repCount = 0;
   function repeat() {
-    const t = vid.currentTime; let back = 0;
-    for (const l of subs) if (l.t0 <= t - 0.3) back = l.t0;
+    const t = vid.currentTime; let back = 0, bi = -1;
+    subs.forEach((l, k) => { if (l.t0 <= t - 0.3) { back = l.t0; bi = k; } });
+    repCount = repIdx === bi ? repCount + 1 : 1; repIdx = bi;
     vid.currentTime = Math.max(0, back - 0.15); cur = -2; if (vid.paused) start();
   }
   function finish(skipped) {

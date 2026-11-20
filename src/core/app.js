@@ -75,7 +75,7 @@ function titleScreen() {
           <button class="btn" data-a="parent">👨‍👩‍👦 Panel rodzica</button>
         </div>
       </div>
-      <p class="footer">Wersja ${VERSION} · darmowa gra · wyniki zostają tylko w tej przeglądarce</p>
+      <p class="footer">Wersja ${VERSION} · darmowa gra · wyniki zostają tylko w tej przeglądarce · <a href="assets/audio/words/CREDITS.md" target="_blank" rel="noopener" style="color:inherit">nagrania wymowy: Wikimedia Commons</a></p>
     </div>
   </section>`));
   on(el, '[data-a]', (e, b) => {

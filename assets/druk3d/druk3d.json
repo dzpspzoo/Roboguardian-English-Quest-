@@ -1,86 +1,130 @@
 {
- "ch1-m1": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m1.zip",
-  "parts": [
-   "01_tulow"
-  ],
-  "png": [
-   "assets/druk3d/01_tulow.png"
-  ],
-  "size_mb": 3.5
+ "R1": {
+  "name": "Głowa",
+  "part": "01_glowa",
+  "zip": "assets/druk3d/AEGIS-7_R1_glowa.zip",
+  "png": "assets/druk3d/01_glowa.png",
+  "size_mb": 1.5,
+  "ready": true
  },
- "ch1-m2": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m2.zip",
-  "parts": [
-   "02_glowa"
-  ],
-  "png": [
-   "assets/druk3d/02_glowa.png"
-  ],
-  "size_mb": 1.5
+ "R2": {
+  "name": "Tułów",
+  "part": "02_tulow",
+  "zip": "assets/druk3d/AEGIS-7_R2_tulow.zip",
+  "png": "assets/druk3d/02_tulow.png",
+  "size_mb": 3.3,
+  "ready": true
  },
- "ch1-m3": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m3.zip",
-  "parts": [
-   "03_miednica"
-  ],
-  "png": [
-   "assets/druk3d/03_miednica.png"
-  ],
-  "size_mb": 0.8
+ "R3": {
+  "name": "Rdzeń energii",
+  "part": "03_rdzen",
+  "zip": "assets/druk3d/AEGIS-7_R3_rdzen.zip",
+  "png": "assets/druk3d/03_rdzen.png",
+  "size_mb": 0.5,
+  "ready": true
  },
- "ch1-m4": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m4.zip",
-  "parts": [
-   "04_udo_L",
-   "05_udo_P"
-  ],
-  "png": [
-   "assets/druk3d/04_udo_L.png",
-   "assets/druk3d/05_udo_P.png"
-  ],
-  "size_mb": 2.0
+ "R4": {
+  "name": "Miednica",
+  "part": "04_miednica",
+  "zip": "assets/druk3d/AEGIS-7_R4_miednica.zip",
+  "png": "assets/druk3d/04_miednica.png",
+  "size_mb": 0.8,
+  "ready": true
  },
- "ch1-m5": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m5.zip",
-  "parts": [
-   "06_golen_L",
-   "07_golen_P"
-  ],
-  "png": [
-   "assets/druk3d/06_golen_L.png",
-   "assets/druk3d/07_golen_P.png"
-  ],
-  "size_mb": 5.4
+ "R5": {
+  "name": "Lewe udo",
+  "part": "05_udo_L",
+  "zip": "assets/druk3d/AEGIS-7_R5_udo_L.zip",
+  "png": "assets/druk3d/05_udo_L.png",
+  "size_mb": 1.0,
+  "ready": true
  },
- "ch1-m6": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m6.zip",
-  "parts": [
-   "08_ramie_L",
-   "09_przedramie_L"
-  ],
-  "png": [
-   "assets/druk3d/08_ramie_L.png",
-   "assets/druk3d/09_przedramie_L.png"
-  ],
-  "size_mb": 3.0
+ "R6": {
+  "name": "Prawe udo",
+  "part": "06_udo_P",
+  "zip": "assets/druk3d/AEGIS-7_R6_udo_P.zip",
+  "png": "assets/druk3d/06_udo_P.png",
+  "size_mb": 1.0,
+  "ready": true
  },
- "ch1-m7": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m7.zip",
-  "parts": [
-   "10_ramie_P",
-   "11_przedramie_P"
-  ],
-  "png": [
-   "assets/druk3d/10_ramie_P.png",
-   "assets/druk3d/11_przedramie_P.png"
-  ],
-  "size_mb": 3.1
+ "R7": {
+  "name": "Lewa goleń ze stopą",
+  "part": "07_golen_L",
+  "zip": "assets/druk3d/AEGIS-7_R7_golen_L.zip",
+  "png": "assets/druk3d/07_golen_L.png",
+  "size_mb": 2.7,
+  "ready": true
  },
- "ch1-m8": {
-  "zip": "assets/druk3d/AEGIS-7_ch1-m8.zip",
-  "parts": [],
-  "png": [],
-  "size_mb": 2.5
+ "R8": {
+  "name": "Prawa goleń ze stopą",
+  "part": "08_golen_P",
+  "zip": "assets/druk3d/AEGIS-7_R8_golen_P.zip",
+  "png": "assets/druk3d/08_golen_P.png",
+  "size_mb": 2.7,
+  "ready": true
+ },
+ "R9": {
+  "name": "Lewe ramię",
+  "part": "09_ramie_L",
+  "zip": "assets/druk3d/AEGIS-7_R9_ramie_L.zip",
+  "png": "assets/druk3d/09_ramie_L.png",
+  "size_mb": 1.2,
+  "ready": true
+ },
+ "R10": {
+  "name": "Lewe przedramię z dłonią",
+  "part": "10_przedramie_L",
+  "zip": "assets/druk3d/AEGIS-7_R10_przedramie_L.zip",
+  "png": "assets/druk3d/10_przedramie_L.png",
+  "size_mb": 1.8,
+  "ready": true
+ },
+ "R11": {
+  "name": "Prawe ramię",
+  "part": "11_ramie_P",
+  "zip": "assets/druk3d/AEGIS-7_R11_ramie_P.zip",
+  "png": "assets/druk3d/11_ramie_P.png",
+  "size_mb": 1.2,
+  "ready": true
+ },
+ "R12": {
+  "name": "Prawe przedramię z dłonią",
+  "part": "12_przedramie_P",
+  "zip": "assets/druk3d/AEGIS-7_R12_przedramie_P.zip",
+  "png": "assets/druk3d/12_przedramie_P.png",
+  "size_mb": 1.9,
+  "ready": true
+ },
+ "R13": {
+  "name": "Silnik rakietowy",
+  "part": null,
+  "zip": null,
+  "png": null,
+  "size_mb": 0,
+  "ready": false
+ },
+ "R14": {
+  "name": "Miecz energetyczny",
+  "part": null,
+  "zip": null,
+  "png": null,
+  "size_mb": 0,
+  "ready": false
+ },
+ "R15": {
+  "name": "Tarcza",
+  "part": null,
+  "zip": null,
+  "png": null,
+  "size_mb": 0,
+  "ready": false
+ },
+ "R16": {
+  "name": "Podstawka hangaru",
+  "part": null,
+  "zip": null,
+  "png": null,
+  "size_mb": 0,
+  "ready": false
  }
 }
